@@ -7,49 +7,91 @@
   <style>
     :root { --bg: #0f172a; --card: #1e293b; --border: #334155; --primary: #38bdf8; --text: #f8fafc; }
     * { box-sizing: border-box; }
-    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 20px; max-width: 800px; margin: 0 auto; line-height: 1.5; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 20px; max-width: 800px; margin: 0 auto; line-height: 1.5; }
     .card { background: var(--card); padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; }
+    h2, h3 { color: var(--primary); margin-top: 0; }
     label { display: block; margin-top: 12px; font-weight: 600; font-size: 0.85rem; color: var(--primary); }
-    input, select, textarea { width: 100%; padding: 10px; margin-top: 4px; background: #0f172a; border: 1px solid var(--border); color: #fff; border-radius: 6px; }
-    button { background: #0284c7; color: white; border: none; padding: 10px 18px; font-weight: bold; margin-top: 15px; border-radius: 6px; cursor: pointer; }
-    button:disabled { background: #475569; }
-    .btn-danger { background: #ef4444; }
+    input, select, textarea { width: 100%; padding: 10px; margin-top: 4px; background: #0f172a; border: 1px solid var(--border); color: #fff; border-radius: 6px; box-sizing: border-box; }
+    button { background: #0284c7; color: white; border: none; padding: 12px 20px; font-weight: bold; margin-top: 15px; border-radius: 6px; cursor: pointer; width: 100%; }
+    button:disabled { background: #475569; cursor: not-allowed; }
+    .btn-danger { background: #ef4444; width: auto; margin-top: 0; }
     .hidden { display: none !important; }
     .item-sec { background: #0f172a; padding: 12px; border-radius: 6px; border: 1px solid var(--border); margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
     #log { font-family: monospace; font-size: 0.85rem; background: #000; padding: 12px; border-radius: 6px; max-height: 180px; overflow-y: auto; color: #4ade80; margin-top: 15px; }
   </style>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  <!-- Librerías de Firebase con alta compatibilidad -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
 
+  <!-- Formularios de inicio de sesión -->
+  <div id="secLogin" class="card">
+    <h2>Acceso Administrador</h2>
+    <label>Correo Electrónico</label>
+    <input type="email" id="email" placeholder="tu-email@dominio.com">
+    <label>Contraseña</label>
+    <input type="password" id="pass">
+    <button onclick="login()">Iniciar Sesión</button>
+  </div>
+
+  <!-- Panel de Control Principal -->
+  <div id="secAdmin" class="hidden">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; background:#1e293b; padding:12px; border-radius:6px; border:1px solid #334155;">
+      <small>Sesión: <strong id="userEmail" style="color:var(--primary);"></strong></small>
+      <button onclick="logout()" class="btn-danger" style="padding:6px 12px;">Cerrar Sesión</button>
+    </div>
+
+    <!-- 1. Encabezado del Local -->
+    <div class="card">
+      <h3>1. Datos Generales del Inmueble</h3>
+      <label>Título General</label>
+      <input type="text" id="albTitulo">
+      <label>Subtítulo</label>
+      <input type="text" id="albSubtitulo">
+      <label>Descripción del Local / Proyecto</label>
+      <textarea id="albDesc" rows="3"></textarea>
+      <button onclick="guardarHeader()">Actualizar Datos</button>
+    </div>
+
+    <!-- 2. Carga Masiva -->
+    <div class="card">
+      <h3>2. Carga Masiva de Fotos</h3>
+      <label>Nombre de la Sección (ej: Planta Baja, Fachada, Depósito)</label>
+      <input type="text" id="seccionNombre" value="Planta Baja">
+      <label>Seleccionar fotos locales</label>
+      <input type="file" id="inputFotos" multiple accept="image/*">
+      <button id="btnSubir" onclick="subirFotosMasivas()">Subir e Integrar al Álbum</button>
+      <div id="log" class="hidden"></div>
+    </div>
+
+    <!-- 3. Control de Exposición -->
+    <div class="card">
+      <h3>3. Control de Exposición y Espacios</h3>
+      <p style="font-size:0.85rem; color:#94a3b8; margin-top:0;">Oculta o muestra secciones públicamente según disponibilidad:</p>
+      <div id="listaSecciones"></div>
+    </div>
+  </div>
+
+  <script>
     const firebaseConfig = {
       projectId: "pruebas-db555",
       authDomain: "pruebas-db555.firebaseapp.com"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
     const CLOUD_NAME = "cwbsnx1vv";
     const UPLOAD_PRESET = "ml_default";
     const ALBUM_ID = "general-flores";
 
-    window.login = async () => {
-      const email = document.getElementById('email').value;
-      const pass = document.getElementById('pass').value;
-      try {
-        await signInWithEmailAndPassword(auth, email, pass);
-      } catch (e) {
-        alert("Error de autenticación: " + e.message);
-      }
-    };
+    let currentAlbumData = { titulo: "Paseo Primero de Mayo", subtitulo: "General Flores", descripcion: "", secciones: [] };
 
-    window.logout = () => signOut(auth);
-
-    onAuthStateChanged(auth, (user) => {
+    auth.onAuthStateChanged((user) => {
       if (user) {
         document.getElementById('secLogin').classList.add('hidden');
         document.getElementById('secAdmin').classList.remove('hidden');
@@ -61,18 +103,35 @@
       }
     });
 
-    let currentAlbumData = { titulo: "Paseo Primero de Mayo", subtitulo: "General Flores", descripcion: "", secciones: [] };
+    async function login() {
+      const email = document.getElementById('email').value.trim();
+      const pass = document.getElementById('pass').value;
+      if (!email || !pass) return alert("Ingresa tu email y contraseña.");
+      try {
+        await auth.signInWithEmailAndPassword(email, pass);
+      } catch (e) {
+        alert("Error de autenticación: " + e.message);
+      }
+    }
+
+    function logout() {
+      auth.signOut();
+    }
 
     async function cargarEstadoAlbum() {
-      const docRef = doc(db, "albumes", ALBUM_ID);
-      const snap = await getDoc(docRef);
-      if (snap.exists()) {
-        currentAlbumData = snap.data();
-        document.getElementById('albTitulo').value = currentAlbumData.titulo || '';
-        document.getElementById('albSubtitulo').value = currentAlbumData.subtitulo || '';
-        document.getElementById('albDesc').value = currentAlbumData.descripcion || '';
+      try {
+        const docRef = db.collection("albumes").doc(ALBUM_ID);
+        const docSnap = await docRef.get();
+        if (docSnap.exists) {
+          currentAlbumData = docSnap.data();
+          document.getElementById('albTitulo').value = currentAlbumData.titulo || '';
+          document.getElementById('albSubtitulo').value = currentAlbumData.subtitulo || '';
+          document.getElementById('albDesc').value = currentAlbumData.descripcion || '';
+        }
+        renderSeccionesAdmin();
+      } catch (e) {
+        console.error("Error al cargar álbum:", e);
       }
-      renderSeccionesAdmin();
     }
 
     function renderSeccionesAdmin() {
@@ -87,42 +146,41 @@
             <br><small style="color:#94a3b8;">Estado: ${s.visible !== false ? '🟢 Visible' : '🔴 Oculto'}</small>
           </div>
           <div>
-            <button onclick="toggleVisibilidad(${idx})" style="padding:4px 8px; font-size:0.75rem;">${s.visible !== false ? 'Ocultar' : 'Mostrar'}</button>
-            <button onclick="borrarSeccion(${idx})" class="btn-danger" style="padding:4px 8px; font-size:0.75rem;">Eliminar</button>
+            <button onclick="toggleVisibilidad(${idx})" style="padding:6px 10px; font-size:0.75rem; width:auto; margin:0 4px 0 0;">${s.visible !== false ? 'Ocultar' : 'Mostrar'}</button>
+            <button onclick="borrarSeccion(${idx})" class="btn-danger" style="padding:6px 10px; font-size:0.75rem;">Eliminar</button>
           </div>
         `;
         cont.appendChild(div);
       });
     }
 
-    window.toggleVisibilidad = async (idx) => {
+    async function toggleVisibilidad(idx) {
       currentAlbumData.secciones[idx].visible = !(currentAlbumData.secciones[idx].visible !== false);
       await guardarEnFirestore();
       renderSeccionesAdmin();
-    };
+    }
 
-    window.borrarSeccion = async (idx) => {
+    async function borrarSeccion(idx) {
       if (confirm("¿Deseas eliminar esta sección y sus fotos?")) {
         currentAlbumData.secciones.splice(idx, 1);
         await guardarEnFirestore();
         renderSeccionesAdmin();
       }
-    };
+    }
 
-    window.guardarHeader = async () => {
+    async function guardarHeader() {
       currentAlbumData.titulo = document.getElementById('albTitulo').value;
       currentAlbumData.subtitulo = document.getElementById('albSubtitulo').value;
       currentAlbumData.descripcion = document.getElementById('albDesc').value;
       await guardarEnFirestore();
       alert("Información general actualizada.");
-    };
-
-    async function guardarEnFirestore() {
-      const docRef = doc(db, "albumes", ALBUM_ID);
-      await setDoc(docRef, currentAlbumData);
     }
 
-    window.subirFotosMasivas = async () => {
+    async function guardarEnFirestore() {
+      await db.collection("albumes").doc(ALBUM_ID).set(currentAlbumData, { merge: true });
+    }
+
+    async function subirFotosMasivas() {
       const seccionNombre = document.getElementById('seccionNombre').value.trim();
       const files = document.getElementById('inputFotos').files;
       if (!seccionNombre || files.length === 0) return alert("Ingresa el nombre de la sección y selecciona archivos.");
@@ -152,9 +210,11 @@
               detalle: ""
             });
             logMsg(`✓ Correcto: ${file.name}`);
+          } else {
+            logMsg(`✗ Error al subir ${file.name}`);
           }
         } catch (e) {
-          logMsg(`✗ Error en ${file.name}`);
+          logMsg(`✗ Error de red en ${file.name}`);
         }
       }
 
@@ -164,4 +224,22 @@
       if (secIndex === -1) {
         secciones.push({ nombre: seccionNombre, orden: secciones.length + 1, visible: true, medios: nuevosMedios });
       } else {
-        secciones[secIndex].medios = [...(secciones[secIndex].medios
+        secciones[secIndex].medios = [...(secciones[secIndex].medios || []), ...nuevosMedios];
+      }
+
+      currentAlbumData.secciones = secciones;
+      await guardarEnFirestore();
+      logMsg("¡Éxito! Fotos registradas de forma segura en Firestore.");
+      renderSeccionesAdmin();
+      btn.disabled = false;
+    }
+
+    function logMsg(m) {
+      const l = document.getElementById('log');
+      l.classList.remove('hidden');
+      l.innerHTML += `> ${m}<br>`;
+      l.scrollTop = l.scrollHeight;
+    }
+  </script>
+</body>
+</html>
