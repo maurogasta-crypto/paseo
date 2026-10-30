@@ -253,9 +253,11 @@
         var fd = new FormData();
         fd.append('file', file);
         fd.append('upload_preset', UPLOAD_PRESET);
+        // Enviamos explícitamente el tipo de recurso en el form data
+        fd.append('resource_type', esVideo ? 'video' : 'image');
 
         try {
-          // CORRECCIÓN CRUCIAL: Usar el endpoint específico según el tipo de archivo
+          // Endpoint dinámico
           var endpoint = esVideo ? 'video' : 'image';
           var res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${endpoint}/upload`, { 
             method: 'POST', 
@@ -264,19 +266,18 @@
           
           var data = await res.json();
           
-          // Si Cloudinary devuelve un error, lo mostramos claramente
           if (data.error) {
             logMsg(`<span style="color:#ef4444;">✗ Error de Cloudinary en ${file.name}: ${data.error.message}</span>`);
-            continue; // Saltamos al siguiente archivo
+            continue; 
           }
 
           if (data.secure_url) {
             var urlThumb = data.secure_url;
-            if (data.resource_type === 'video' || esVideo) {
-              // Para videos, Cloudinary genera un thumbnail automático en .jpg
+            if (esVideo) {
+              // Cloudinary genera el thumbnail de video en .jpg
               urlThumb = data.secure_url.replace(/\.[^/.]+$/, ".jpg");
             } else {
-              // Para imágenes, generamos un thumbnail escalado
+              // Imágenes escaladas
               urlThumb = data.secure_url.replace('/upload/', '/upload/w_400,c_scale/');
             }
 
@@ -317,6 +318,7 @@
       logMsg(`¡Éxito! ${nuevosMedios.length} archivo(s) registrados en Firestore.`);
       renderSeccionesAdmin();
       btn.disabled = false;
+      document.getElementById('inputFotos').value = ''; // Limpiar input
     }
 
     function logMsg(m) {
