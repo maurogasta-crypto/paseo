@@ -20,14 +20,14 @@
     #log { font-family: monospace; font-size: 0.85rem; background: #000; padding: 12px; border-radius: 6px; max-height: 180px; overflow-y: auto; color: #4ade80; margin-top: 15px; }
   </style>
 
-  <!-- Librerías de Firebase con alta compatibilidad -->
+  <!-- Librerías de Firebase de carga directa -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
-  <!-- Formularios de inicio de sesión -->
+  <!-- Formulario de inicio de sesión -->
   <div id="secLogin" class="card">
     <h2>Acceso Administrador</h2>
     <label>Correo Electrónico</label>
@@ -76,22 +76,25 @@
   </div>
 
   <script>
-    const firebaseConfig = {
+    var firebaseConfig = {
       projectId: "pruebas-db555",
       authDomain: "pruebas-db555.firebaseapp.com"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
 
-    const CLOUD_NAME = "cwbsnx1vv";
-    const UPLOAD_PRESET = "ml_default";
-    const ALBUM_ID = "general-flores";
+    var auth = firebase.auth();
+    var db = firebase.firestore();
 
-    let currentAlbumData = { titulo: "Paseo Primero de Mayo", subtitulo: "General Flores", descripcion: "", secciones: [] };
+    var CLOUD_NAME = "cwbsnx1vv";
+    var UPLOAD_PRESET = "ml_default";
+    var ALBUM_ID = "general-flores";
 
-    auth.onAuthStateChanged((user) => {
+    var currentAlbumData = { titulo: "Paseo Primero de Mayo", subtitulo: "General Flores", descripcion: "", secciones: [] };
+
+    auth.onAuthStateChanged(function(user) {
       if (user) {
         document.getElementById('secLogin').classList.add('hidden');
         document.getElementById('secAdmin').classList.remove('hidden');
@@ -104,8 +107,8 @@
     });
 
     async function login() {
-      const email = document.getElementById('email').value.trim();
-      const pass = document.getElementById('pass').value;
+      var email = document.getElementById('email').value.trim();
+      var pass = document.getElementById('pass').value;
       if (!email || !pass) return alert("Ingresa tu email y contraseña.");
       try {
         await auth.signInWithEmailAndPassword(email, pass);
@@ -120,8 +123,7 @@
 
     async function cargarEstadoAlbum() {
       try {
-        const docRef = db.collection("albumes").doc(ALBUM_ID);
-        const docSnap = await docRef.get();
+        var docSnap = await db.collection("albumes").doc(ALBUM_ID).get();
         if (docSnap.exists) {
           currentAlbumData = docSnap.data();
           document.getElementById('albTitulo').value = currentAlbumData.titulo || '';
@@ -135,10 +137,10 @@
     }
 
     function renderSeccionesAdmin() {
-      const cont = document.getElementById('listaSecciones');
+      var cont = document.getElementById('listaSecciones');
       cont.innerHTML = '';
-      (currentAlbumData.secciones || []).forEach((s, idx) => {
-        const div = document.createElement('div');
+      (currentAlbumData.secciones || []).forEach(function(s, idx) {
+        var div = document.createElement('div');
         div.className = 'item-sec';
         div.innerHTML = `
           <div>
@@ -181,26 +183,26 @@
     }
 
     async function subirFotosMasivas() {
-      const seccionNombre = document.getElementById('seccionNombre').value.trim();
-      const files = document.getElementById('inputFotos').files;
+      var seccionNombre = document.getElementById('seccionNombre').value.trim();
+      var files = document.getElementById('inputFotos').files;
       if (!seccionNombre || files.length === 0) return alert("Ingresa el nombre de la sección y selecciona archivos.");
 
-      const btn = document.getElementById('btnSubir');
+      var btn = document.getElementById('btnSubir');
       btn.disabled = true;
       logMsg(`Iniciando subida de ${files.length} fotos a Cloudinary...`);
 
-      const nuevosMedios = [];
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+      var nuevosMedios = [];
+      for (var i = 0; i < files.length; i++) {
+        var file = files[i];
         logMsg(`Subiendo (${i + 1}/${files.length}): ${file.name}`);
         
-        const fd = new FormData();
+        var fd = new FormData();
         fd.append('file', file);
         fd.append('upload_preset', UPLOAD_PRESET);
 
         try {
-          const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
-          const data = await res.json();
+          var res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
+          var data = await res.json();
           if (data.secure_url) {
             nuevosMedios.push({
               titulo: file.name.replace(/\.[^/.]+$/, ""),
@@ -218,8 +220,8 @@
         }
       }
 
-      let secciones = currentAlbumData.secciones || [];
-      let secIndex = secciones.findIndex(s => s.nombre.toLowerCase() === seccionNombre.toLowerCase());
+      var secciones = currentAlbumData.secciones || [];
+      var secIndex = secciones.findIndex(function(s) { return s.nombre.toLowerCase() === seccionNombre.toLowerCase(); });
 
       if (secIndex === -1) {
         secciones.push({ nombre: seccionNombre, orden: secciones.length + 1, visible: true, medios: nuevosMedios });
@@ -235,7 +237,7 @@
     }
 
     function logMsg(m) {
-      const l = document.getElementById('log');
+      var l = document.getElementById('log');
       l.classList.remove('hidden');
       l.innerHTML += `> ${m}<br>`;
       l.scrollTop = l.scrollHeight;
