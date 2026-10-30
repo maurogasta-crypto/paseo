@@ -59,9 +59,17 @@
     <!-- 2. Carga Masiva -->
     <div class="card">
       <h3>2. Carga Masiva de Fotos</h3>
-      <label>Nombre de la Sección (ej: Planta Baja, Showroom, Depósito)</label>
-      <input type="text" id="seccionNombre" value="Planta Baja">
-      <label>Seleccionar fotos locales</label>
+      <label>Sección Destino</label>
+      <select id="seccionSelect" onchange="toggleNuevaSeccionInput()">
+        <!-- Se llena dinámicamente con las secciones existentes -->
+      </select>
+
+      <div id="divNuevaSeccion" class="hidden" style="margin-top: 8px;">
+        <label>Nombre de la Nueva Sección</label>
+        <input type="text" id="seccionNuevaInput" placeholder="Ej: Showroom, Depósito, Terraza">
+      </div>
+
+      <label style="margin-top:12px;">Seleccionar fotos locales</label>
       <input type="file" id="inputFotos" multiple accept="image/*">
       <button id="btnSubir" onclick="subirFotosMasivas()">Subir e Integrar al Álbum</button>
       <div id="log" class="hidden"></div>
@@ -155,6 +163,47 @@
         `;
         cont.appendChild(div);
       });
+
+      poblarSelectSecciones();
+    }
+
+    function poblarSelectSecciones() {
+      var sel = document.getElementById('seccionSelect');
+      var valPrevio = sel.value;
+      sel.innerHTML = '';
+
+      var secciones = currentAlbumData.secciones || [];
+      secciones.forEach(function(s) {
+        var opt = document.createElement('option');
+        opt.value = s.nombre;
+        opt.textContent = s.nombre;
+        sel.appendChild(opt);
+      });
+
+      var optNueva = document.createElement('option');
+      optNueva.value = "__NUEVA__";
+      optNueva.textContent = "➕ Crear nueva sección...";
+      sel.appendChild(optNueva);
+
+      if (valPrevio && (secciones.some(s => s.nombre === valPrevio) || valPrevio === "__NUEVA__")) {
+        sel.value = valPrevio;
+      } else if (secciones.length > 0) {
+        sel.value = secciones[0].nombre;
+      } else {
+        sel.value = "__NUEVA__";
+      }
+
+      toggleNuevaSeccionInput();
+    }
+
+    function toggleNuevaSeccionInput() {
+      var sel = document.getElementById('seccionSelect');
+      var divNueva = document.getElementById('divNuevaSeccion');
+      if (sel.value === "__NUEVA__") {
+        divNueva.classList.remove('hidden');
+      } else {
+        divNueva.classList.add('hidden');
+      }
     }
 
     async function toggleVisibilidad(idx) {
@@ -184,9 +233,17 @@
     }
 
     async function subirFotosMasivas() {
-      var seccionNombre = document.getElementById('seccionNombre').value.trim();
+      var selVal = document.getElementById('seccionSelect').value;
+      var seccionNombre = "";
+
+      if (selVal === "__NUEVA__") {
+        seccionNombre = document.getElementById('seccionNuevaInput').value.trim();
+      } else {
+        seccionNombre = selVal;
+      }
+
       var files = document.getElementById('inputFotos').files;
-      if (!seccionNombre || files.length === 0) return alert("Ingresa el nombre de la sección y selecciona archivos.");
+      if (!seccionNombre || files.length === 0) return alert("Selecciona o escribe el nombre de la sección y elige al menos una foto.");
 
       var btn = document.getElementById('btnSubir');
       btn.disabled = true;
@@ -223,7 +280,7 @@
       }
 
       if (nuevosMedios.length === 0) {
-        logMsg('<span style="color:#ef4444;">No se pudo subir ninguna foto a Cloudinary. Verifica la consola o preset.</span>');
+        logMsg('<span style="color:#ef4444;">No se pudo subir ninguna foto a Cloudinary.</span>');
         btn.disabled = false;
         return;
       }
@@ -239,7 +296,7 @@
 
       currentAlbumData.secciones = secciones;
       await guardarEnFirestore();
-      logMsg("¡Éxito! Las fotos procesadas fueron registradas en Firestore.");
+      logMsg("¡Éxito! Las fotos fueron registradas correctamente en Firestore.");
       renderSeccionesAdmin();
       btn.disabled = false;
     }
