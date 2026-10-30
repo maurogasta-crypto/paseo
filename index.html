@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paseo Primero de Mayo - General Flores</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { margin-bottom: 4px; color: #38bdf8; }
+    .subtitulo { color: #94a3b8; font-size: 1.1rem; margin-top: 0; }
+    .descripcion { background: #1e293b; padding: 15px; border-radius: 8px; margin: 20px 0; line-height: 1.5; color: #cbd5e1; }
+    .seccion { margin-top: 30px; border-top: 1px solid #334155; padding-top: 20px; }
+    .seccion h2 { color: #f1f5f9; margin-bottom: 6px; }
+    .seccion-desc { color: #94a3b8; font-size: 0.95rem; margin-top: 0; margin-bottom: 15px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+    .card { background: #1e293b; border-radius: 8px; overflow: hidden; cursor: pointer; transition: transform 0.2s; border: 1px solid #334155; }
+    .card:hover { transform: translateY(-4px); }
+    .card img { width: 100%; height: 150px; object-fit: cover; display: block; }
+    .card-info { padding: 12px; }
+    .card-title { font-weight: 600; font-size: 0.9rem; display: block; color: #f8fafc; }
+    .card-date { font-size: 0.75rem; color: #64748b; margin-top: 6px; display: block; }
+    
+    /* Visor Modal */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); justify-content: center; align-items: center; padding: 20px; z-index: 1000; }
+    .modal.active { display: flex; }
+    .modal-content { background: #1e293b; max-width: 600px; width: 100%; border-radius: 12px; overflow: hidden; border: 1px solid #475569; position: relative; }
+    .modal-content img { width: 100%; max-height: 400px; object-fit: contain; background: #000; display: block; }
+    .modal-body { padding: 20px; }
+    .close-btn { position: absolute; top: 10px; right: 15px; background: rgba(0,0,0,0.5); border: none; color: #fff; font-size: 1.8rem; cursor: pointer; border-radius: 50%; width: 36px; height: 36px; line-height: 32px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="header">Cargando datos del álbum...</div>
+    <div id="secciones"></div>
+  </div>
+
+  <div id="visorModal" class="modal" onclick="cerrarVisor()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="close-btn" onclick="cerrarVisor()">&times;</button>
+      <img id="visorImg" src="" alt="">
+      <div class="modal-body">
+        <h3 id="visorTitulo" style="margin-top:0; color:#f8fafc;"></h3>
+        <p id="visorSeccion" style="color:#38bdf8; font-size:0.85rem; margin: 4px 0;"></p>
+        <p id="visorFecha" style="color:#64748b; font-size:0.8rem; margin: 4px 0;"></p>
+        <p id="visorDetalle" style="color:#cbd5e1; font-size:0.9rem; line-height:1.4; margin-top: 10px;"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const projectId = "pruebas-db555";
+    const albumId = "general-flores";
+
+    function esc(str) { 
+      return str ? String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : ''; 
+    }
+    
+    function fmtFecha(f) { 
+      if(!f) return ''; 
+      const d = new Date(f); 
+      return isNaN(d) ? esc(f) : d.toLocaleDateString('es-UY', {year:'numeric', month:'short', day:'numeric'}); 
+    }
+
+    async function cargarDatos() {
+      try {
+        const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/albumes/${albumId}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("No se encontró el documento.");
+        
+        const doc = await res.json();
+        const data = parseFirestoreFields(doc.fields);
+        
+        renderHeader(data);
+        renderSecciones(data.secciones || []);
+      } catch(e) {
+        document.getElementById('header').innerHTML = `
+          <h2 style="color:#38bdf8; margin-bottom: 8px;">Conexión Lista</h2>
+          <p style="color:#cbd5e1;">Página conectada a Firestore con el proyecto <code>${projectId}</code>.</p>
+          <p style="font-size:0.85rem; color:#94a3b8; background:#1e293b; padding:12px; border-radius:6px; margin-top:15px; border-left: 3px solid #38bdf8;">
+            El sitio ya está publicado en el repositorio nuevo. Cuando ingreses a tu consola de Firestore y crees el documento <strong>${albumId}</strong> dentro de la colección <strong>albumes</strong>, la información, fotos y secciones aparecerán automáticamente.
+          </p>`;
+      }
+    }
+
+    function parseFirestoreFields(fields) {
+      if (!fields) return {};
+      const obj = {};
+      for (let k in fields) {
+        const val = fields[k];
+        if (val.stringValue !== undefined) obj[k] = val.stringValue;
+        else if (val.integerValue !== undefined) obj[k] = Number(val.integerValue);
+        else if (val.arrayValue !== undefined) {
+          obj[k] = (val.arrayValue.values || []).map(v => v.mapValue ? parseFirestoreFields(v.mapValue.fields) : (v.stringValue || ''));
+        } else if (val.mapValue !== undefined) {
+          obj[k] = parseFirestoreFields(val.mapValue.fields);
+        }
+      }
+      return obj;
+    }
+
+    function renderHeader(a) {
+      document.getElementById('header').innerHTML = `
+        <h1>${esc(a.titulo || 'Paseo Primero de Mayo')}</h1>
+        ${a.subtitulo ? `<p class="subtitulo">${esc(a.subtitulo)}</p>` : ''}
+        ${(a.descripcion || a.detalle) ? `<div class="descripcion">${esc(a.descripcion || a.detalle)}</div>` : ''}
+      `;
+    }
+
+    function renderSecciones(secciones) {
+      const cont = document.getElementById('secciones');
+      cont.innerHTML = '';
+      
+      const secOrdenadas = [...secciones].sort((a,b) => (a.orden || 0) - (b.orden || 0));
+      
+      secOrdenadas.forEach(s => {
+        const medios = [...(s.medios || [])].sort((a,b) => new Date(b.creadoEn || b.fecha || 0) - new Date(a.creadoEn || a.fecha || 0));
+        
+        const div = document.createElement('div');
+        div.className = 'seccion';
+        div.innerHTML = `
+          <h2>${esc(s.nombre)}</h2>
+          ${s.descripcion ? `<p class="seccion-desc">${esc(s.descripcion)}</p>` : ''}
+          <div class="grid">
+            ${medios.map(m => `
+              <div class="card" onclick="abrirVisor('${esc(m.titulo)}', '${esc(s.nombre)}', '${esc(m.detalle || m.descripcion)}', '${m.creadoEn || m.fecha || ''}', '${m.url}')">
+                <img src="${m.urlThumbnail || m.url}" alt="${esc(m.titulo)}" loading="lazy">
+                <div class="card-info">
+                  <span class="card-title">${esc(m.titulo)}</span>
+                  ${(m.creadoEn || m.fecha) ? `<span class="card-date">${fmtFecha(m.creadoEn || m.fecha)}</span>` : ''}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        cont.appendChild(div);
+      });
+    }
+
+    function abrirVisor(titulo, seccion, detalle, fecha, url) {
+      document.getElementById('visorImg').src = url;
+      document.getElementById('visorTitulo').textContent = titulo;
+      document.getElementById('visorSeccion').textContent = seccion;
+      document.getElementById('visorFecha').textContent = fmtFecha(fecha);
+      document.getElementById('visorDetalle').textContent = detalle;
+      document.getElementById('visorModal').classList.add('active');
+    }
+
+    function cerrarVisor() {
+      document.getElementById('visorModal').classList.remove('active');
+    }
+
+    cargarDatos();
+  </script>
+</body>
+</html>
