@@ -234,13 +234,7 @@
 
     async function subirFotosMasivas() {
       var selVal = document.getElementById('seccionSelect').value;
-      var seccionNombre = "";
-
-      if (selVal === "__NUEVA__") {
-        seccionNombre = document.getElementById('seccionNuevaInput').value.trim();
-      } else {
-        seccionNombre = selVal;
-      }
+      var seccionNombre = (selVal === "__NUEVA__") ? document.getElementById('seccionNuevaInput').value.trim() : selVal;
 
       var files = document.getElementById('inputFotos').files;
       if (!seccionNombre || files.length === 0) return alert("Selecciona o escribe la sección y elige al menos un archivo.");
@@ -261,6 +255,7 @@
         fd.append('upload_preset', UPLOAD_PRESET);
 
         try {
+          // Usamos el endpoint universal /auto/upload para procesar sin firma fotos y videos
           var res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, { method: 'POST', body: fd });
           var data = await res.json();
           if (data.secure_url) {
