@@ -20,7 +20,7 @@
     #log { font-family: monospace; font-size: 0.85rem; background: #000; padding: 12px; border-radius: 6px; max-height: 180px; overflow-y: auto; color: #4ade80; margin-top: 15px; }
   </style>
 
-  <!-- Librerías de Firebase de carga directa -->
+  <!-- SDKs Compat de Firebase -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -81,12 +81,10 @@
       authDomain: "pruebas-db555.firebaseapp.com"
     };
 
+    // Inicialización segura de Firebase
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
-
-    var auth = firebase.auth();
-    var db = firebase.firestore();
 
     var CLOUD_NAME = "cwbsnx1vv";
     var UPLOAD_PRESET = "ml_default";
@@ -94,7 +92,8 @@
 
     var currentAlbumData = { titulo: "Paseo Primero de Mayo", subtitulo: "General Flores", descripcion: "", secciones: [] };
 
-    auth.onAuthStateChanged(function(user) {
+    // Escucha de estado de autenticación
+    firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
         document.getElementById('secLogin').classList.add('hidden');
         document.getElementById('secAdmin').classList.remove('hidden');
@@ -111,19 +110,19 @@
       var pass = document.getElementById('pass').value;
       if (!email || !pass) return alert("Ingresa tu email y contraseña.");
       try {
-        await auth.signInWithEmailAndPassword(email, pass);
+        await firebase.auth().signInWithEmailAndPassword(email, pass);
       } catch (e) {
         alert("Error de autenticación: " + e.message);
       }
     }
 
     function logout() {
-      auth.signOut();
+      firebase.auth().signOut();
     }
 
     async function cargarEstadoAlbum() {
       try {
-        var docSnap = await db.collection("albumes").doc(ALBUM_ID).get();
+        var docSnap = await firebase.firestore().collection("albumes").doc(ALBUM_ID).get();
         if (docSnap.exists) {
           currentAlbumData = docSnap.data();
           document.getElementById('albTitulo').value = currentAlbumData.titulo || '';
@@ -179,7 +178,7 @@
     }
 
     async function guardarEnFirestore() {
-      await db.collection("albumes").doc(ALBUM_ID).set(currentAlbumData, { merge: true });
+      await firebase.firestore().collection("albumes").doc(ALBUM_ID).set(currentAlbumData, { merge: true });
     }
 
     async function subirFotosMasivas() {
