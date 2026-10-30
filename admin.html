@@ -16,8 +16,17 @@
     button:disabled { background: #475569; cursor: not-allowed; }
     .btn-danger { background: #ef4444; width: auto; margin-top: 0; }
     .hidden { display: none !important; }
-    .item-sec { background: #0f172a; padding: 12px; border-radius: 6px; border: 1px solid var(--border); margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
     #log { font-family: monospace; font-size: 0.85rem; background: #000; padding: 12px; border-radius: 6px; max-height: 200px; overflow-y: auto; color: #4ade80; margin-top: 15px; word-break: break-all; }
+
+    /* Estilos nuevos para las previas y la edición de las secciones */
+    .item-sec { background: #0f172a; padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-top: 15px; }
+    .sec-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .media-admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 15px; background: #1e293b; padding: 15px; border-radius: 8px; border: 1px solid var(--border); }
+    .media-admin-card { background: #0f172a; border: 1px solid var(--border); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .media-admin-card img, .media-admin-card video { width: 100%; height: 120px; object-fit: cover; border-radius: 4px; background: #000; }
+    .media-admin-card input, .media-admin-card textarea { padding: 6px; font-size: 0.8rem; margin: 0; border: 1px solid #334155; }
+    .btn-icon { background: #ef4444; padding: 6px; width: 100%; font-size: 0.8rem; margin-top: auto; }
+    .btn-success { background: #10b981; color: white; padding: 8px 12px; font-weight: bold; border-radius: 6px; cursor: pointer; border: none; font-size: 0.9rem; }
   </style>
 
   <!-- SDKs Compat de Firebase -->
@@ -27,7 +36,6 @@
 </head>
 <body>
 
-  <!-- Formulario de Inicio de Sesión -->
   <div id="secLogin" class="card">
     <h2>Acceso Administrador</h2>
     <label>Correo Electrónico</label>
@@ -37,7 +45,6 @@
     <button onclick="login()">Iniciar Sesión</button>
   </div>
 
-  <!-- Panel Principal -->
   <div id="secAdmin" class="hidden">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; background:#1e293b; padding:12px; border-radius:6px; border:1px solid #334155;">
       <small>Sesión: <strong id="userEmail" style="color:var(--primary);"></strong></small>
@@ -54,7 +61,6 @@
       <label>Descripción del Local / Proyecto</label>
       <textarea id="albDesc" rows="4"></textarea>
       
-      <!-- NUEVO: Input para la portada -->
       <label>Foto de Portada (Fachada Propuesta)</label>
       <input type="file" id="inputPortada" accept="image/*">
       <img id="previewPortada" class="hidden" style="width: 150px; margin-top: 10px; border-radius: 6px; border: 1px solid #334155; display: block; object-fit: cover;" />
@@ -66,16 +72,14 @@
     <div class="card">
       <h3>2. Carga Masiva de Fotos y Videos</h3>
       <label>Sección Destino</label>
-      <select id="seccionSelect" onchange="toggleNuevaSeccionInput()">
-        <!-- Se llena dinámicamente -->
-      </select>
+      <select id="seccionSelect" onchange="toggleNuevaSeccionInput()"></select>
 
       <div id="divNuevaSeccion" class="hidden" style="margin-top: 8px;">
         <label>Nombre de la Nueva Sección</label>
         <input type="text" id="seccionNuevaInput" placeholder="Ej: Showroom, Depósito, Terraza">
       </div>
 
-      <label style="margin-top:12px;">Seleccionar archivos locales (Fotos o Videos)</label>
+      <label style="margin-top:12px;">Seleccionar archivos locales</label>
       <input type="file" id="inputFotos" multiple accept="image/*,video/*">
       <button id="btnSubir" onclick="subirFotosMasivas()">Subir e Integrar al Álbum</button>
       <div id="log" class="hidden"></div>
@@ -83,8 +87,8 @@
 
     <!-- 3. Control de Exposición -->
     <div class="card">
-      <h3>3. Control de Exposición y Espacios</h3>
-      <p style="font-size:0.85rem; color:#94a3b8; margin-top:0;">Oculta o muestra secciones públicamente según disponibilidad:</p>
+      <h3>3. Control de Exposición, Previas y Pies de foto</h3>
+      <p style="font-size:0.85rem; color:#94a3b8; margin-top:0;">Revisa las imágenes subidas, cambia sus textos o elimina las que no necesites:</p>
       <div id="listaSecciones"></div>
     </div>
   </div>
@@ -99,15 +103,18 @@
       appId: "1:1009675675879:web:eea1f465e6d41b460e5a42"
     };
 
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
     var CLOUD_NAME = "cwbnaivv"; 
     var UPLOAD_PRESET = "GeneralFlores";
     var ALBUM_ID = "general-flores";
-
     var currentAlbumData = { titulo: "Paseo Primero de Mayo", subtitulo: "General Flores", descripcion: "", secciones: [] };
+
+    // Función auxiliar para evitar errores de renderizado con comillas
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
 
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
@@ -125,16 +132,11 @@
       var email = document.getElementById('email').value.trim();
       var pass = document.getElementById('pass').value;
       if (!email || !pass) return alert("Ingresa tu email y contraseña.");
-      try {
-        await firebase.auth().signInWithEmailAndPassword(email, pass);
-      } catch (e) {
-        alert("Error de autenticación: " + e.message);
-      }
+      try { await firebase.auth().signInWithEmailAndPassword(email, pass); } 
+      catch (e) { alert("Error de autenticación: " + e.message); }
     }
 
-    function logout() {
-      firebase.auth().signOut();
-    }
+    function logout() { firebase.auth().signOut(); }
 
     async function cargarEstadoAlbum() {
       try {
@@ -145,7 +147,6 @@
           document.getElementById('albSubtitulo').value = currentAlbumData.subtitulo || '';
           document.getElementById('albDesc').value = currentAlbumData.descripcion || '';
 
-          // Mostrar preview de la portada si existe
           if (currentAlbumData.portadaUrl) {
             var preview = document.getElementById('previewPortada');
             preview.src = currentAlbumData.portadaUrl;
@@ -153,124 +154,142 @@
           }
         }
         renderSeccionesAdmin();
-      } catch (e) {
-        console.error("Error al cargar álbum:", e);
-      }
+      } catch (e) { console.error("Error al cargar álbum:", e); }
     }
 
     async function guardarHeaderConPortada() {
       var btn = document.getElementById('btnGuardarHeader');
-      btn.disabled = true;
-      btn.textContent = "Guardando...";
+      btn.disabled = true; btn.textContent = "Guardando...";
 
       var inputPortada = document.getElementById('inputPortada');
-      
-      // Si el usuario seleccionó una nueva foto, la subimos primero a Cloudinary
       if (inputPortada.files.length > 0) {
         var file = inputPortada.files[0];
         var fd = new FormData();
         fd.append('file', file);
         fd.append('upload_preset', UPLOAD_PRESET);
-        
         try {
-          var res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { 
-            method: 'POST', body: fd 
-          });
+          var res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
           var data = await res.json();
-          
-          if (data.secure_url) {
-            // Guardamos la URL en el objeto actual
-            currentAlbumData.portadaUrl = data.secure_url;
-          } else {
-            alert("Error de Cloudinary: " + data.error.message);
-          }
-        } catch (e) {
-          alert("Error subiendo la portada: " + e.message);
-        }
+          if (data.secure_url) currentAlbumData.portadaUrl = data.secure_url;
+          else alert("Error de Cloudinary: " + data.error.message);
+        } catch (e) { alert("Error subiendo la portada: " + e.message); }
       }
 
-      // Actualizamos el resto de los textos
       currentAlbumData.titulo = document.getElementById('albTitulo').value;
       currentAlbumData.subtitulo = document.getElementById('albSubtitulo').value;
       currentAlbumData.descripcion = document.getElementById('albDesc').value;
 
-      // Guardamos todo en Firestore
       await guardarEnFirestore();
-      
       alert("Información general y portada actualizadas.");
-      btn.disabled = false;
-      btn.textContent = "Actualizar Datos y Portada";
+      btn.disabled = false; btn.textContent = "Actualizar Datos y Portada";
       
-      // Actualizar preview visual
       if (currentAlbumData.portadaUrl) {
         var preview = document.getElementById('previewPortada');
         preview.src = currentAlbumData.portadaUrl;
         preview.classList.remove('hidden');
       }
-      
-      // Limpiar el input file
       inputPortada.value = '';
     }
 
     function renderSeccionesAdmin() {
       var cont = document.getElementById('listaSecciones');
       cont.innerHTML = '';
-      (currentAlbumData.secciones || []).forEach(function(s, idx) {
+      (currentAlbumData.secciones || []).forEach(function(s, secIdx) {
         var div = document.createElement('div');
         div.className = 'item-sec';
-        div.innerHTML = `
-          <div>
-            <strong>${s.nombre}</strong> (${(s.medios || []).length} elementos)
-            <br><small style="color:#94a3b8;">Estado: ${s.visible !== false ? '🟢 Visible' : '🔴 Oculto'}</small>
-          </div>
-          <div>
-            <button onclick="toggleVisibilidad(${idx})" style="padding:6px 10px; font-size:0.75rem; width:auto; margin:0 4px 0 0;">${s.visible !== false ? 'Ocultar' : 'Mostrar'}</button>
-            <button onclick="borrarSeccion(${idx})" class="btn-danger" style="padding:6px 10px; font-size:0.75rem;">Eliminar</button>
+
+        // Cabecera de la sección
+        var headerHtml = `
+          <div class="sec-header">
+            <div>
+              <strong style="font-size:1.1rem; color:var(--primary);">${escapeHTML(s.nombre)}</strong> (${(s.medios || []).length} archivos)
+              <br><small style="color:#94a3b8;">Estado: ${s.visible !== false ? '🟢 Visible al público' : '🔴 Oculto al público'}</small>
+            </div>
+            <div>
+              <button onclick="toggleVisibilidad(${secIdx})" style="padding:6px 10px; font-size:0.75rem; width:auto; margin:0 4px 0 0;">${s.visible !== false ? 'Ocultar' : 'Mostrar'}</button>
+              <button onclick="borrarSeccion(${secIdx})" class="btn-danger" style="padding:6px 10px; font-size:0.75rem;">Eliminar Sección</button>
+            </div>
           </div>
         `;
+
+        // Grilla de archivos visuales
+        var mediaHtml = '';
+        if (s.medios && s.medios.length > 0) {
+          mediaHtml += `<div class="media-admin-grid">`;
+          s.medios.forEach(function(m, medIdx) {
+            var visual = m.tipo === 'video' 
+              ? `<video src="${m.urlThumbnail || m.url}" style="height:120px; width:100%; object-fit:cover; border-radius:4px;"></video>` 
+              : `<img src="${m.urlThumbnail || m.url}" loading="lazy"/>`;
+
+            mediaHtml += `
+              <div class="media-admin-card">
+                ${visual}
+                <input type="text" id="titulo_${secIdx}_${medIdx}" value="${escapeHTML(m.titulo)}" placeholder="Título corto">
+                <textarea id="detalle_${secIdx}_${medIdx}" rows="3" placeholder="Pie de foto / descripción...">${escapeHTML(m.detalle)}</textarea>
+                <button class="btn-danger btn-icon" onclick="borrarMedio(${secIdx}, ${medIdx})">🗑️ Eliminar</button>
+              </div>
+            `;
+          });
+          mediaHtml += `</div>
+          <button onclick="guardarTextosSeccion(${secIdx})" class="btn-success" style="margin-top: 15px; width:100%;">💾 Guardar Textos de "${escapeHTML(s.nombre)}"</button>`;
+        } else {
+          mediaHtml += `<p style="color:#94a3b8; font-size:0.85rem; margin-top:10px;">No hay archivos cargados en esta sección.</p>`;
+        }
+
+        div.innerHTML = headerHtml + mediaHtml;
         cont.appendChild(div);
       });
 
       poblarSelectSecciones();
     }
 
+    async function guardarTextosSeccion(secIdx) {
+      var seccion = currentAlbumData.secciones[secIdx];
+      if (!seccion.medios) return;
+      
+      seccion.medios.forEach(function(m, medIdx) {
+        var inputTitulo = document.getElementById(`titulo_${secIdx}_${medIdx}`);
+        var inputDetalle = document.getElementById(`detalle_${secIdx}_${medIdx}`);
+        if (inputTitulo) m.titulo = inputTitulo.value.trim();
+        if (inputDetalle) m.detalle = inputDetalle.value.trim();
+      });
+
+      await guardarEnFirestore();
+      alert(`Textos de la sección "${seccion.nombre}" guardados con éxito.`);
+    }
+
+    async function borrarMedio(secIdx, medIdx) {
+      if(confirm("¿Seguro que deseas eliminar este archivo del catálogo?")) {
+        currentAlbumData.secciones[secIdx].medios.splice(medIdx, 1);
+        await guardarEnFirestore();
+        renderSeccionesAdmin(); // Recargar visual
+      }
+    }
+
     function poblarSelectSecciones() {
       var sel = document.getElementById('seccionSelect');
       var valPrevio = sel.value;
       sel.innerHTML = '';
-
       var secciones = currentAlbumData.secciones || [];
       secciones.forEach(function(s) {
         var opt = document.createElement('option');
-        opt.value = s.nombre;
-        opt.textContent = s.nombre;
+        opt.value = s.nombre; opt.textContent = s.nombre;
         sel.appendChild(opt);
       });
-
       var optNueva = document.createElement('option');
-      optNueva.value = "__NUEVA__";
-      optNueva.textContent = "➕ Crear nueva sección...";
+      optNueva.value = "__NUEVA__"; optNueva.textContent = "➕ Crear nueva sección...";
       sel.appendChild(optNueva);
-
-      if (valPrevio && (secciones.some(s => s.nombre === valPrevio) || valPrevio === "__NUEVA__")) {
-        sel.value = valPrevio;
-      } else if (secciones.length > 0) {
-        sel.value = secciones[0].nombre;
-      } else {
-        sel.value = "__NUEVA__";
-      }
-
+      if (valPrevio && (secciones.some(s => s.nombre === valPrevio) || valPrevio === "__NUEVA__")) sel.value = valPrevio;
+      else if (secciones.length > 0) sel.value = secciones[0].nombre;
+      else sel.value = "__NUEVA__";
       toggleNuevaSeccionInput();
     }
 
     function toggleNuevaSeccionInput() {
       var sel = document.getElementById('seccionSelect');
       var divNueva = document.getElementById('divNuevaSeccion');
-      if (sel.value === "__NUEVA__") {
-        divNueva.classList.remove('hidden');
-      } else {
-        divNueva.classList.add('hidden');
-      }
+      if (sel.value === "__NUEVA__") divNueva.classList.remove('hidden');
+      else divNueva.classList.add('hidden');
     }
 
     async function toggleVisibilidad(idx) {
@@ -280,7 +299,7 @@
     }
 
     async function borrarSeccion(idx) {
-      if (confirm("¿Deseas eliminar esta sección y su contenido?")) {
+      if (confirm("¿Deseas eliminar esta sección COMPLETA con todas sus fotos?")) {
         currentAlbumData.secciones.splice(idx, 1);
         await guardarEnFirestore();
         renderSeccionesAdmin();
@@ -294,47 +313,33 @@
     async function subirFotosMasivas() {
       var selVal = document.getElementById('seccionSelect').value;
       var seccionNombre = (selVal === "__NUEVA__") ? document.getElementById('seccionNuevaInput').value.trim() : selVal;
-
       var files = document.getElementById('inputFotos').files;
+      
       if (!seccionNombre || files.length === 0) return alert("Selecciona o escribe la sección y elige al menos un archivo.");
 
       var btn = document.getElementById('btnSubir');
       btn.disabled = true;
-      logMsg(`Iniciando subida de ${files.length} archivo(s) a Cloudinary...`);
+      logMsg(`Iniciando subida de ${files.length} archivo(s)...`);
 
       var nuevosMedios = [];
       for (var i = 0; i < files.length; i++) {
         var file = files[i];
         var esVideo = file.type.startsWith('video/');
-        
         logMsg(`Subiendo (${i + 1}/${files.length}): ${file.name}...`);
-        
         var fd = new FormData();
-        fd.append('file', file);
-        fd.append('upload_preset', UPLOAD_PRESET);
-
+        fd.append('file', file); fd.append('upload_preset', UPLOAD_PRESET);
         try {
           var endpoint = esVideo ? 'video' : 'image';
-          
-          var res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${endpoint}/upload`, { 
-            method: 'POST', 
-            body: fd 
-          });
-          
+          var res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${endpoint}/upload`, { method: 'POST', body: fd });
           var data = await res.json();
           
           if (data.error) {
-            logMsg(`<span style="color:#ef4444;">✗ Error de Cloudinary en ${file.name}: ${data.error.message}</span>`);
-            continue; 
+            logMsg(`<span style="color:#ef4444;">✗ Error: ${data.error.message}</span>`); continue; 
           }
-
           if (data.secure_url) {
             var urlThumb = data.secure_url;
-            if (esVideo) {
-              urlThumb = data.secure_url.replace(/\.[^/.]+$/, ".jpg");
-            } else {
-              urlThumb = data.secure_url.replace('/upload/', '/upload/w_400,c_scale/');
-            }
+            if (esVideo) urlThumb = data.secure_url.replace(/\.[^/.]+$/, ".jpg");
+            else urlThumb = data.secure_url.replace('/upload/', '/upload/w_400,c_scale/');
 
             nuevosMedios.push({
               titulo: file.name.replace(/\.[^/.]+$/, ""),
@@ -342,21 +347,16 @@
               url: data.secure_url,
               urlThumbnail: urlThumb,
               creadoEn: new Date(file.lastModified).toISOString().split('T')[0],
-              detalle: ""
+              detalle: "" // Campo vacío para el pie de foto
             });
             logMsg(`✓ Éxito: ${file.name}`);
-          } else {
-            logMsg(`<span style="color:#ef4444;">✗ Error desconocido en ${file.name}</span>`);
           }
-        } catch (e) {
-          logMsg(`<span style="color:#ef4444;">✗ Error de red en ${file.name}: ${e.message}</span>`);
-        }
+        } catch (e) { logMsg(`<span style="color:#ef4444;">✗ Error de red en ${file.name}</span>`); }
       }
 
       if (nuevosMedios.length === 0) {
-        logMsg('<span style="color:#ef4444;">No se pudo subir ningún archivo a Cloudinary. Revisa los errores arriba.</span>');
-        btn.disabled = false;
-        return;
+        logMsg('<span style="color:#ef4444;">No se pudo subir ningún archivo.</span>');
+        btn.disabled = false; return;
       }
 
       var secciones = currentAlbumData.secciones || [];
@@ -370,17 +370,14 @@
 
       currentAlbumData.secciones = secciones;
       await guardarEnFirestore();
-      logMsg(`¡Éxito! ${nuevosMedios.length} archivo(s) registrados en Firestore.`);
+      logMsg(`¡Éxito! Archivos registrados en Firestore.`);
       renderSeccionesAdmin();
-      btn.disabled = false;
-      document.getElementById('inputFotos').value = ''; 
+      btn.disabled = false; document.getElementById('inputFotos').value = ''; 
     }
 
     function logMsg(m) {
       var l = document.getElementById('log');
-      l.classList.remove('hidden');
-      l.innerHTML += `> ${m}<br>`;
-      l.scrollTop = l.scrollHeight;
+      l.classList.remove('hidden'); l.innerHTML += `> ${m}<br>`; l.scrollTop = l.scrollHeight;
     }
   </script>
 </body>
