@@ -56,12 +56,12 @@
       <button onclick="guardarHeader()">Actualizar Datos</button>
     </div>
 
-    <!-- 2. Carga Masiva -->
+    <!-- 2. Carga Masiva (Fotos y Videos) -->
     <div class="card">
-      <h3>2. Carga Masiva de Fotos</h3>
+      <h3>2. Carga Masiva de Fotos y Videos</h3>
       <label>Sección Destino</label>
       <select id="seccionSelect" onchange="toggleNuevaSeccionInput()">
-        <!-- Se llena dinámicamente con las secciones existentes -->
+        <!-- Se llena dinámicamente -->
       </select>
 
       <div id="divNuevaSeccion" class="hidden" style="margin-top: 8px;">
@@ -69,8 +69,8 @@
         <input type="text" id="seccionNuevaInput" placeholder="Ej: Showroom, Depósito, Terraza">
       </div>
 
-      <label style="margin-top:12px;">Seleccionar fotos locales</label>
-      <input type="file" id="inputFotos" multiple accept="image/*">
+      <label style="margin-top:12px;">Seleccionar archivos locales (Fotos o Videos)</label>
+      <input type="file" id="inputFotos" multiple accept="image/*,video/*">
       <button id="btnSubir" onclick="subirFotosMasivas()">Subir e Integrar al Álbum</button>
       <div id="log" class="hidden"></div>
     </div>
@@ -153,7 +153,7 @@
         div.className = 'item-sec';
         div.innerHTML = `
           <div>
-            <strong>${s.nombre}</strong> (${(s.medios || []).length} fotos)
+            <strong>${s.nombre}</strong> (${(s.medios || []).length} elementos)
             <br><small style="color:#94a3b8;">Estado: ${s.visible !== false ? '🟢 Visible' : '🔴 Oculto'}</small>
           </div>
           <div>
@@ -213,7 +213,7 @@
     }
 
     async function borrarSeccion(idx) {
-      if (confirm("¿Deseas eliminar esta sección y sus fotos?")) {
+      if (confirm("¿Deseas eliminar esta sección y su contenido?")) {
         currentAlbumData.secciones.splice(idx, 1);
         await guardarEnFirestore();
         renderSeccionesAdmin();
@@ -243,15 +243,18 @@
       }
 
       var files = document.getElementById('inputFotos').files;
-      if (!seccionNombre || files.length === 0) return alert("Selecciona o escribe el nombre de la sección y elige al menos una foto.");
+      if (!seccionNombre || files.length === 0) return alert("Selecciona o escribe la sección y elige al menos un archivo.");
 
       var btn = document.getElementById('btnSubir');
       btn.disabled = true;
-      logMsg(`Iniciando subida de ${files.length} fotos a Cloudinary...`);
+      logMsg(`Iniciando subida de ${files.length} archivo(s) a Cloudinary...`);
 
       var nuevosMedios = [];
       for (var i = 0; i < files.length; i++) {
         var file = files[i];
+        var esVideo = file.type.startsWith('video/');
+        var resourceType = esVideo ? 'video' : 'image';
+        
         logMsg(`Subiendo (${i + 1}/${files.length}): ${file.name}...`);
         
         var fd = new FormData();
@@ -259,13 +262,19 @@
         fd.append('upload_preset', UPLOAD_PRESET);
 
         try {
-          var res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
+          var res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/upload`, { method: 'POST', body: fd });
           var data = await res.json();
           if (data.secure_url) {
+            var urlThumb = data.secure_url;
+            if (!esVideo) {
+              urlThumb = data.secure_url.replace('/upload/', '/upload/w_400,c_scale/');
+            }
+
             nuevosMedios.push({
               titulo: file.name.replace(/\.[^/.]+$/, ""),
+              tipo: resourceType,
               url: data.secure_url,
-              urlThumbnail: data.secure_url.replace('/upload/', '/upload/w_400,c_scale/'),
+              urlThumbnail: urlThumb,
               creadoEn: new Date(file.lastModified).toISOString().split('T')[0],
               detalle: ""
             });
@@ -280,7 +289,7 @@
       }
 
       if (nuevosMedios.length === 0) {
-        logMsg('<span style="color:#ef4444;">No se pudo subir ninguna foto a Cloudinary.</span>');
+        logMsg('<span style="color:#ef4444;">No se pudo subir ningún archivo a Cloudinary.</span>');
         btn.disabled = false;
         return;
       }
@@ -296,7 +305,7 @@
 
       currentAlbumData.secciones = secciones;
       await guardarEnFirestore();
-      logMsg("¡Éxito! Las fotos fueron registradas correctamente en Firestore.");
+      logMsg("¡Éxito! Archivos registrados correctamente en Firestore.");
       renderSeccionesAdmin();
       btn.disabled = false;
     }
