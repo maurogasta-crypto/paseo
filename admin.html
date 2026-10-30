@@ -27,7 +27,7 @@
 </head>
 <body>
 
-  <!-- Formulario de inicio de sesión -->
+  <!-- Formulario de Inicio de Sesión -->
   <div id="secLogin" class="card">
     <h2>Acceso Administrador</h2>
     <label>Correo Electrónico</label>
@@ -37,7 +37,7 @@
     <button onclick="login()">Iniciar Sesión</button>
   </div>
 
-  <!-- Panel de Control Principal -->
+  <!-- Panel Principal -->
   <div id="secAdmin" class="hidden">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; background:#1e293b; padding:12px; border-radius:6px; border:1px solid #334155;">
       <small>Sesión: <strong id="userEmail" style="color:var(--primary);"></strong></small>
@@ -77,11 +77,14 @@
 
   <script>
     var firebaseConfig = {
+      apiKey: "AIzaSyAyrHTkm8k2iv_14eQKKCrFyOrgD9mwgHo",
+      authDomain: "pruebas-db555.firebaseapp.com",
       projectId: "pruebas-db555",
-      authDomain: "pruebas-db555.firebaseapp.com"
+      storageBucket: "pruebas-db555.firebasestorage.app",
+      messagingSenderId: "1009675675879",
+      appId: "1:1009675675879:web:eea1f465e6d41b460e5a42"
     };
 
-    // Inicialización segura de Firebase
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
@@ -92,7 +95,6 @@
 
     var currentAlbumData = { titulo: "Paseo Primero de Mayo", subtitulo: "General Flores", descripcion: "", secciones: [] };
 
-    // Escucha de estado de autenticación
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
         document.getElementById('secLogin').classList.add('hidden');
