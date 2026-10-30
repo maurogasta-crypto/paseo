@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración - Paseo Primero de Mayo</title>
+  <style>
+    :root { --bg: #0f172a; --card: #1e293b; --border: #334155; --primary: #38bdf8; --text: #f8fafc; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 20px; max-width: 800px; margin: 0 auto; line-height: 1.5; }
+    .card { background: var(--card); padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; }
+    label { display: block; margin-top: 12px; font-weight: 600; font-size: 0.85rem; color: var(--primary); }
+    input, select, textarea { width: 100%; padding: 10px; margin-top: 4px; background: #0f172a; border: 1px solid var(--border); color: #fff; border-radius: 6px; }
+    button { background: #0284c7; color: white; border: none; padding: 10px 18px; font-weight: bold; margin-top: 15px; border-radius: 6px; cursor: pointer; }
+    button:disabled { background: #475569; }
+    .btn-danger { background: #ef4444; }
+    .hidden { display: none !important; }
+    .item-sec { background: #0f172a; padding: 12px; border-radius: 6px; border: 1px solid var(--border); margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+    #log { font-family: monospace; font-size: 0.85rem; background: #000; padding: 12px; border-radius: 6px; max-height: 180px; overflow-y: auto; color: #4ade80; margin-top: 15px; }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      projectId: "pruebas-db555",
+      authDomain: "pruebas-db555.firebaseapp.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const CLOUD_NAME = "cwbsnx1vv";
+    const UPLOAD_PRESET = "ml_default";
+    const ALBUM_ID = "general-flores";
+
+    window.login = async () => {
+      const email = document.getElementById('email').value;
+      const pass = document.getElementById('pass').value;
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+      } catch (e) {
+        alert("Error de autenticación: " + e.message);
+      }
+    };
+
+    window.logout = () => signOut(auth);
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById('secLogin').classList.add('hidden');
+        document.getElementById('secAdmin').classList.remove('hidden');
+        document.getElementById('userEmail').textContent = user.email;
+        cargarEstadoAlbum();
+      } else {
+        document.getElementById('secLogin').classList.remove('hidden');
+        document.getElementById('secAdmin').classList.add('hidden');
+      }
+    });
+
+    let currentAlbumData = { titulo: "Paseo Primero de Mayo", subtitulo: "General Flores", descripcion: "", secciones: [] };
+
+    async function cargarEstadoAlbum() {
+      const docRef = doc(db, "albumes", ALBUM_ID);
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        currentAlbumData = snap.data();
+        document.getElementById('albTitulo').value = currentAlbumData.titulo || '';
+        document.getElementById('albSubtitulo').value = currentAlbumData.subtitulo || '';
+        document.getElementById('albDesc').value = currentAlbumData.descripcion || '';
+      }
+      renderSeccionesAdmin();
+    }
+
+    function renderSeccionesAdmin() {
+      const cont = document.getElementById('listaSecciones');
+      cont.innerHTML = '';
+      (currentAlbumData.secciones || []).forEach((s, idx) => {
+        const div = document.createElement('div');
+        div.className = 'item-sec';
+        div.innerHTML = `
+          <div>
+            <strong>${s.nombre}</strong> (${(s.medios || []).length} fotos)
+            <br><small style="color:#94a3b8;">Estado: ${s.visible !== false ? '🟢 Visible' : '🔴 Oculto'}</small>
+          </div>
+          <div>
+            <button onclick="toggleVisibilidad(${idx})" style="padding:4px 8px; font-size:0.75rem;">${s.visible !== false ? 'Ocultar' : 'Mostrar'}</button>
+            <button onclick="borrarSeccion(${idx})" class="btn-danger" style="padding:4px 8px; font-size:0.75rem;">Eliminar</button>
+          </div>
+        `;
+        cont.appendChild(div);
+      });
+    }
+
+    window.toggleVisibilidad = async (idx) => {
+      currentAlbumData.secciones[idx].visible = !(currentAlbumData.secciones[idx].visible !== false);
+      await guardarEnFirestore();
+      renderSeccionesAdmin();
+    };
+
+    window.borrarSeccion = async (idx) => {
+      if (confirm("¿Deseas eliminar esta sección y sus fotos?")) {
+        currentAlbumData.secciones.splice(idx, 1);
+        await guardarEnFirestore();
+        renderSeccionesAdmin();
+      }
+    };
+
+    window.guardarHeader = async () => {
+      currentAlbumData.titulo = document.getElementById('albTitulo').value;
+      currentAlbumData.subtitulo = document.getElementById('albSubtitulo').value;
+      currentAlbumData.descripcion = document.getElementById('albDesc').value;
+      await guardarEnFirestore();
+      alert("Información general actualizada.");
+    };
+
+    async function guardarEnFirestore() {
+      const docRef = doc(db, "albumes", ALBUM_ID);
+      await setDoc(docRef, currentAlbumData);
+    }
+
+    window.subirFotosMasivas = async () => {
+      const seccionNombre = document.getElementById('seccionNombre').value.trim();
+      const files = document.getElementById('inputFotos').files;
+      if (!seccionNombre || files.length === 0) return alert("Ingresa el nombre de la sección y selecciona archivos.");
+
+      const btn = document.getElementById('btnSubir');
+      btn.disabled = true;
+      logMsg(`Iniciando subida de ${files.length} fotos a Cloudinary...`);
+
+      const nuevosMedios = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        logMsg(`Subiendo (${i + 1}/${files.length}): ${file.name}`);
+        
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('upload_preset', UPLOAD_PRESET);
+
+        try {
+          const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
+          const data = await res.json();
+          if (data.secure_url) {
+            nuevosMedios.push({
+              titulo: file.name.replace(/\.[^/.]+$/, ""),
+              url: data.secure_url,
+              urlThumbnail: data.secure_url.replace('/upload/', '/upload/w_400,c_scale/'),
+              creadoEn: new Date(file.lastModified).toISOString().split('T')[0],
+              detalle: ""
+            });
+            logMsg(`✓ Correcto: ${file.name}`);
+          }
+        } catch (e) {
+          logMsg(`✗ Error en ${file.name}`);
+        }
+      }
+
+      let secciones = currentAlbumData.secciones || [];
+      let secIndex = secciones.findIndex(s => s.nombre.toLowerCase() === seccionNombre.toLowerCase());
+
+      if (secIndex === -1) {
+        secciones.push({ nombre: seccionNombre, orden: secciones.length + 1, visible: true, medios: nuevosMedios });
+      } else {
+        secciones[secIndex].medios = [...(secciones[secIndex].medios
