@@ -53,7 +53,13 @@
       <input type="text" id="albSubtitulo">
       <label>Descripción del Local / Proyecto</label>
       <textarea id="albDesc" rows="4"></textarea>
-      <button onclick="guardarHeader()">Actualizar Datos</button>
+      
+      <!-- NUEVO: Input para la portada -->
+      <label>Foto de Portada (Fachada Propuesta)</label>
+      <input type="file" id="inputPortada" accept="image/*">
+      <img id="previewPortada" class="hidden" style="width: 150px; margin-top: 10px; border-radius: 6px; border: 1px solid #334155; display: block; object-fit: cover;" />
+
+      <button id="btnGuardarHeader" onclick="guardarHeaderConPortada()">Actualizar Datos y Portada</button>
     </div>
 
     <!-- 2. Carga Masiva (Fotos y Videos) -->
@@ -97,7 +103,6 @@
       firebase.initializeApp(firebaseConfig);
     }
 
-    // ⚠️ CORRECCIÓN CRÍTICA AQUÍ: El Cloud Name correcto según tu captura
     var CLOUD_NAME = "cwbnaivv"; 
     var UPLOAD_PRESET = "GeneralFlores";
     var ALBUM_ID = "general-flores";
@@ -139,11 +144,72 @@
           document.getElementById('albTitulo').value = currentAlbumData.titulo || '';
           document.getElementById('albSubtitulo').value = currentAlbumData.subtitulo || '';
           document.getElementById('albDesc').value = currentAlbumData.descripcion || '';
+
+          // Mostrar preview de la portada si existe
+          if (currentAlbumData.portadaUrl) {
+            var preview = document.getElementById('previewPortada');
+            preview.src = currentAlbumData.portadaUrl;
+            preview.classList.remove('hidden');
+          }
         }
         renderSeccionesAdmin();
       } catch (e) {
         console.error("Error al cargar álbum:", e);
       }
+    }
+
+    async function guardarHeaderConPortada() {
+      var btn = document.getElementById('btnGuardarHeader');
+      btn.disabled = true;
+      btn.textContent = "Guardando...";
+
+      var inputPortada = document.getElementById('inputPortada');
+      
+      // Si el usuario seleccionó una nueva foto, la subimos primero a Cloudinary
+      if (inputPortada.files.length > 0) {
+        var file = inputPortada.files[0];
+        var fd = new FormData();
+        fd.append('file', file);
+        fd.append('upload_preset', UPLOAD_PRESET);
+        
+        try {
+          var res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { 
+            method: 'POST', body: fd 
+          });
+          var data = await res.json();
+          
+          if (data.secure_url) {
+            // Guardamos la URL en el objeto actual
+            currentAlbumData.portadaUrl = data.secure_url;
+          } else {
+            alert("Error de Cloudinary: " + data.error.message);
+          }
+        } catch (e) {
+          alert("Error subiendo la portada: " + e.message);
+        }
+      }
+
+      // Actualizamos el resto de los textos
+      currentAlbumData.titulo = document.getElementById('albTitulo').value;
+      currentAlbumData.subtitulo = document.getElementById('albSubtitulo').value;
+      currentAlbumData.descripcion = document.getElementById('albDesc').value;
+
+      // Guardamos todo en Firestore
+      await guardarEnFirestore();
+      
+      alert("Información general y portada actualizadas.");
+      btn.disabled = false;
+      btn.textContent = "Actualizar Datos y Portada";
+      
+      // Actualizar preview visual
+      if (currentAlbumData.portadaUrl) {
+        var preview = document.getElementById('previewPortada');
+        preview.src = currentAlbumData.portadaUrl;
+        preview.classList.remove('hidden');
+      }
+      
+      // Limpiar el input file
+      inputPortada.value = '';
     }
 
     function renderSeccionesAdmin() {
@@ -221,14 +287,6 @@
       }
     }
 
-    async function guardarHeader() {
-      currentAlbumData.titulo = document.getElementById('albTitulo').value;
-      currentAlbumData.subtitulo = document.getElementById('albSubtitulo').value;
-      currentAlbumData.descripcion = document.getElementById('albDesc').value;
-      await guardarEnFirestore();
-      alert("Información general actualizada.");
-    }
-
     async function guardarEnFirestore() {
       await firebase.firestore().collection("albumes").doc(ALBUM_ID).set(currentAlbumData, { merge: true });
     }
@@ -256,7 +314,6 @@
         fd.append('upload_preset', UPLOAD_PRESET);
 
         try {
-          // Usamos el endpoint dinámico
           var endpoint = esVideo ? 'video' : 'image';
           
           var res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${endpoint}/upload`, { 
