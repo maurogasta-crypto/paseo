@@ -17,7 +17,7 @@
     .btn-danger { background: #ef4444; width: auto; margin-top: 0; }
     .hidden { display: none !important; }
     .item-sec { background: #0f172a; padding: 12px; border-radius: 6px; border: 1px solid var(--border); margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
-    #log { font-family: monospace; font-size: 0.85rem; background: #000; padding: 12px; border-radius: 6px; max-height: 180px; overflow-y: auto; color: #4ade80; margin-top: 15px; }
+    #log { font-family: monospace; font-size: 0.85rem; background: #000; padding: 12px; border-radius: 6px; max-height: 200px; overflow-y: auto; color: #4ade80; margin-top: 15px; word-break: break-all; }
   </style>
 
   <!-- SDKs Compat de Firebase -->
@@ -52,14 +52,14 @@
       <label>Subtítulo</label>
       <input type="text" id="albSubtitulo">
       <label>Descripción del Local / Proyecto</label>
-      <textarea id="albDesc" rows="3"></textarea>
+      <textarea id="albDesc" rows="4"></textarea>
       <button onclick="guardarHeader()">Actualizar Datos</button>
     </div>
 
     <!-- 2. Carga Masiva -->
     <div class="card">
       <h3>2. Carga Masiva de Fotos</h3>
-      <label>Nombre de la Sección (ej: Planta Baja, Fachada, Depósito)</label>
+      <label>Nombre de la Sección (ej: Planta Baja, Showroom, Depósito)</label>
       <input type="text" id="seccionNombre" value="Planta Baja">
       <label>Seleccionar fotos locales</label>
       <input type="file" id="inputFotos" multiple accept="image/*">
@@ -90,7 +90,7 @@
     }
 
     var CLOUD_NAME = "cwbsnx1vv";
-    var UPLOAD_PRESET = "ml_default";
+    var UPLOAD_PRESET = "GeneralFlores";
     var ALBUM_ID = "general-flores";
 
     var currentAlbumData = { titulo: "Paseo Primero de Mayo", subtitulo: "General Flores", descripcion: "", secciones: [] };
@@ -195,7 +195,7 @@
       var nuevosMedios = [];
       for (var i = 0; i < files.length; i++) {
         var file = files[i];
-        logMsg(`Subiendo (${i + 1}/${files.length}): ${file.name}`);
+        logMsg(`Subiendo (${i + 1}/${files.length}): ${file.name}...`);
         
         var fd = new FormData();
         fd.append('file', file);
@@ -212,13 +212,20 @@
               creadoEn: new Date(file.lastModified).toISOString().split('T')[0],
               detalle: ""
             });
-            logMsg(`✓ Correcto: ${file.name}`);
+            logMsg(`✓ Éxito: ${file.name}`);
           } else {
-            logMsg(`✗ Error al subir ${file.name}`);
+            var errMsg = (data.error && data.error.message) ? data.error.message : "Rechazado por Cloudinary";
+            logMsg(`<span style="color:#ef4444;">✗ Error en ${file.name}: ${errMsg}</span>`);
           }
         } catch (e) {
-          logMsg(`✗ Error de red en ${file.name}`);
+          logMsg(`<span style="color:#ef4444;">✗ Error de red en ${file.name}: ${e.message}</span>`);
         }
+      }
+
+      if (nuevosMedios.length === 0) {
+        logMsg('<span style="color:#ef4444;">No se pudo subir ninguna foto a Cloudinary. Verifica la consola o preset.</span>');
+        btn.disabled = false;
+        return;
       }
 
       var secciones = currentAlbumData.secciones || [];
@@ -232,7 +239,7 @@
 
       currentAlbumData.secciones = secciones;
       await guardarEnFirestore();
-      logMsg("¡Éxito! Fotos registradas de forma segura en Firestore.");
+      logMsg("¡Éxito! Las fotos procesadas fueron registradas en Firestore.");
       renderSeccionesAdmin();
       btn.disabled = false;
     }
