@@ -58,7 +58,7 @@ workflow publica el sitio y no consume secretos.
 | Contraseña de Mauro | Entrar al editor | dato en runtime | Firebase Authentication de `pruebas-db555`. Se cambia con «Olvidé la contraseña» | `admin.html` | — |
 | Usuario del agente de Claude Code | Que un chat lea (y, con las reglas v1, escriba) el álbum | dato en runtime | Firebase Authentication de `pruebas-db555`, con la misma contraseña que en las otras bases; vive en las variables de entorno de Claude Code que carga Mauro. **No tiene ficha**: su acceso sale de `esAgente()` | `datos/herramientas/firestore.mjs`, proyecto `paseo` | entra desde el 2026-10-31 |
 | UID de Mauro y del agente | Lo que comparan `esMauro()` y `esAgente()` | configuración | Marcadores en `firestore.rules`; los valores en `acceso.uids` de `proyectos/paseo` del panel, que arma el texto al copiar | Firestore | — |
-| Reglas de Firestore | Autoridad real de acceso | configuración (plantilla en repo, autoridad en consola) | Consola de Firebase → Pruebas → Firestore → Reglas. **La v1 todavía no está publicada**: el 31-oct la base dejaba listar `albumes` sin sesión | Firestore | 2026-10-31 |
+| Reglas de Firestore | Autoridad real de acceso | configuración (plantilla en repo, autoridad en consola) | Consola de Firebase → Pruebas → Firestore → Reglas. La v1 la publicó Mauro el 31-oct (verificado: el público lee el álbum, listar y escribir sin cuenta dan 403); la **v2** deja listar también al agente, que lo necesita para el respaldo | Firestore | 2026-10-31 |
 
 Lo que NO está acá y no tiene que estar: el `api_secret` de Cloudinary, las
 contraseñas, los UID reales, cualquier `.env` (lo bloquea `.gitignore`).

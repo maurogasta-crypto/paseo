@@ -168,10 +168,10 @@ prueba("elegir son DOS inputs, cámara y archivos", () => {
 });
 
 /* ── Las reglas ── */
-prueba("las reglas: deny por defecto, sin comodín, get sí y list no", () => {
+prueba("las reglas: deny por defecto, sin comodín; get para todos, list sólo para quien escribe", () => {
   const r = leer("firestore.rules");
   assert.doesNotMatch(r, /match \/\{document=\*\*\}/, "un comodín abre lo que no tiene regla");
-  assert.match(r, /match \/albumes\/\{id\} \{[\s\S]*?allow get: if true;[\s\S]*?allow list: if false;/);
+  assert.match(r, /match \/albumes\/\{id\} \{[\s\S]*?allow get: if true;[\s\S]*?allow list: if escribe\(\);/);
   assert.equal((r.match(/if true/g) || []).length, 1, "un solo «if true»: el get del álbum");
   assert.match(r, /match \/_historial\/\{id\} \{[\s\S]*?allow update, delete: if false;/);
 });

@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // firestore.rules — Reglas de la base del paseo (proyecto «Pruebas»,
-// pruebas-db555). Versión v1 (31-oct-2026).
+// pruebas-db555). Versión v2 (31-oct-2026; v1 publicada el mismo día).
 //
 // ESTO ES LA PLANTILLA, NO LO PUBLICADO. La autoridad es lo que está en la
 // consola de Firebase → Firestore → Reglas. Los dos UID van como MARCADORES
@@ -10,7 +10,9 @@
 //
 // Lo que deciden:
 //   · albumes/{id}: cualquiera LEE un documento por su id (la portada no tiene
-//     sesión), nadie LISTA; escriben sólo Mauro y el agente. Hasta v1 la base
+//     sesión); LISTAN sólo Mauro y el agente (v2: con la v1 nadie listaba, y
+//     el respaldo diario y la herramienta del agente listan); escriben sólo
+//     Mauro y el agente. Hasta v1 la base
 //     dejaba escribir a cualquier sesión, y con la apiKey pública cualquiera
 //     puede crearse una cuenta: el álbum lo podía cambiar cualquiera.
 //   · _historial/{id}: la copia de antes de cada cambio grande. Se crea, se
@@ -27,7 +29,7 @@ service cloud.firestore {
 
     match /albumes/{id} {
       allow get: if true;
-      allow list: if false;
+      allow list: if escribe();
       allow create, update: if escribe();
       allow delete: if esMauro();
     }

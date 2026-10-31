@@ -35,7 +35,7 @@ lo que sube el otro.
 | `album.js` | `album-1` | La forma del álbum y todo lo que se calcula de ella. Sin navegador ni Firebase |
 | `nucleo.js` | `nucleo-1` | Lo que comparten las pantallas: errores con causa, el ojo 👁, achicar y subir a Cloudinary |
 | `firebase-init.js` | `init-1` | El único contacto con el SDK de Firebase, cargado diferido |
-| `firestore.rules` | v1 | La plantilla de las reglas (UID como marcadores) |
+| `firestore.rules` | v2 | La plantilla de las reglas (UID como marcadores) |
 | `pruebas.mjs` | — | El banco: `node pruebas.mjs` (24 casos, sin npm ni red) |
 | `.github/workflows/pages.yml` | — | Publica en GitHub Pages en cada push a `main` |
 
@@ -55,7 +55,7 @@ El detalle, con el porqué, está comentado arriba de `album.js`.
 
 ## Reglas
 
-Leer un álbum por su id: cualquiera. Listar: nadie. Escribir: Mauro y el
+Leer un álbum por su id: cualquiera. Listar: Mauro y el agente. Escribir: Mauro y el
 agente. `_historial`: se crea y se lee, nunca se edita ni se borra. Todo lo
 demás, cerrado. Se publican desde el panel (Sitios → paseo), que reemplaza los
 marcadores por los UID de verdad.
