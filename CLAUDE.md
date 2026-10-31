@@ -134,9 +134,14 @@ que suban los sellos, y que esta documentación diga la verdad.
 - **Sellos de versión** en cada archivo con lógica (`album-N`, `nucleo-N`,
   `init-N`, `portada-N`, `admin-N`, `diag-N`): si se cambia el archivo, sube su
   sello. Se ven al pie del editor y en el diagnóstico.
-- **El panel también tiene un álbum de General Flores** (`album.html` y
-  `obra.html` de `datos`, en `datos-830f8`). Son dos lugares para lo mismo, y
-  queda por decidir con Mauro cuál vale (paseo:A2 en el panel).
+- **Éste es el ÚNICO álbum público de General Flores** (31-oct-2026, Mauro:
+  «sí, queda como el único», paseo:A2). El panel tenía otro (`album.html` y
+  `obra.html` de `datos`, en `datos-830f8`): desde `obra-11` la vista del
+  local lleva acá, un enlace viejo `album.html?a=general-flores` redirige, y
+  sus cuatro secciones pasaron como partes de este álbum (sin fotos: no
+  había). El mismo día el álbum de acá pasó al formato nuevo desde el chat,
+  con la copia de antes en la bodega privada (las reglas viejas no dejaban
+  escribir `_historial`).
 
 ## Colaboración Multi-IA
 
