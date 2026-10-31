@@ -1,384 +1,424 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Administración - Paseo Primero de Mayo</title>
-  <style>
-    :root { --bg: #0f172a; --card: #1e293b; --border: #334155; --primary: #38bdf8; --text: #f8fafc; }
-    * { box-sizing: border-box; }
-    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 20px; max-width: 800px; margin: 0 auto; line-height: 1.5; }
-    .card { background: var(--card); padding: 20px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; }
-    h2, h3 { color: var(--primary); margin-top: 0; }
-    label { display: block; margin-top: 12px; font-weight: 600; font-size: 0.85rem; color: var(--primary); }
-    input, select, textarea { width: 100%; padding: 10px; margin-top: 4px; background: #0f172a; border: 1px solid var(--border); color: #fff; border-radius: 6px; box-sizing: border-box; }
-    button { background: #0284c7; color: white; border: none; padding: 12px 20px; font-weight: bold; margin-top: 15px; border-radius: 6px; cursor: pointer; width: 100%; }
-    button:disabled { background: #475569; cursor: not-allowed; }
-    .btn-danger { background: #ef4444; width: auto; margin-top: 0; }
-    .hidden { display: none !important; }
-    #log { font-family: monospace; font-size: 0.85rem; background: #000; padding: 12px; border-radius: 6px; max-height: 200px; overflow-y: auto; color: #4ade80; margin-top: 15px; word-break: break-all; }
-
-    /* Estilos nuevos para las previas y la edición de las secciones */
-    .item-sec { background: #0f172a; padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-top: 15px; }
-    .sec-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-    .media-admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 15px; background: #1e293b; padding: 15px; border-radius: 8px; border: 1px solid var(--border); }
-    .media-admin-card { background: #0f172a; border: 1px solid var(--border); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-    .media-admin-card img, .media-admin-card video { width: 100%; height: 120px; object-fit: cover; border-radius: 4px; background: #000; }
-    .media-admin-card input, .media-admin-card textarea { padding: 6px; font-size: 0.8rem; margin: 0; border: 1px solid #334155; }
-    .btn-icon { background: #ef4444; padding: 6px; width: 100%; font-size: 0.8rem; margin-top: auto; }
-    .btn-success { background: #10b981; color: white; padding: 8px 12px; font-weight: bold; border-radius: 6px; cursor: pointer; border: none; font-size: 0.9rem; }
-  </style>
-
-  <!-- SDKs Compat de Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Administrar · Paseo Primero de Mayo</title>
+<meta name="theme-color" content="#0f172a">
+<!--
+  admin.html — El EDITOR del álbum del local. Sello: admin-1 (31-oct-2026)
+  Mauro, 31-oct: «una herramienta interactiva de carga de fotos y videos para
+  mostrar, exhibir el local de General Flores y sus partes para alquilar».
+  · Cada parte del local (planta baja, primer piso…) es una SECCIÓN con su
+    descripción, superficie y estado (disponible, reservado, alquilado).
+  · Fotos y videos se suben a Cloudinary AL TOCAR «Subir», no al elegirlos:
+    elegir y arrepentirse no deja huérfanos (acá no hay api_secret para
+    borrarlos). Cada uno se anota en la base apenas sube, así que si se corta
+    la red a mitad de una tanda lo que ya subió queda.
+  · Cada cambio escribe SÓLO lo suyo (`medios.<id>`, `secciones.<id>`): dos
+    personas cargando a la vez no se pisan. La pantalla escucha la base en
+    vivo y muestra lo que sube el otro.
+  · «Sacar» saca del álbum; el archivo queda en Cloudinary.
+  · Elegir son DOS botones, cámara y archivos: con uno solo, en iPhone la
+    cámara no aparece o desaparecen los archivos (lección de Casa Verde).
+-->
+<style>
+  :root { --bg:#0f172a; --card:#1e293b; --linea:#334155; --acento:#38bdf8; --texto:#f8fafc; --gris:#94a3b8;
+          --ok:#22c55e; --aviso:#f59e0b; --no:#ef4444; --boton:#0284c7; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--texto); line-height:1.45; }
+  .cont { max-width:900px; margin:0 auto; padding:16px 16px 80px; }
+  h1 { font-size:1.3rem; color:var(--acento); margin:4px 0 12px; }
+  h2 { font-size:1.05rem; color:var(--acento); margin:0 0 10px; }
+  .card { background:var(--card); border:1px solid var(--linea); border-radius:10px; padding:16px; margin-bottom:16px; }
+  label { display:block; margin-top:10px; font-size:.82rem; font-weight:600; color:var(--acento); }
+  input, select, textarea { width:100%; padding:9px 10px; margin-top:4px; background:var(--bg); border:1px solid var(--linea); color:var(--texto); border-radius:6px; font:inherit; }
+  textarea { resize:vertical; }
+  button { font:inherit; cursor:pointer; border-radius:6px; border:1px solid transparent; }
+  .b { background:var(--boton); color:#fff; padding:10px 14px; font-weight:600; }
+  .b:disabled { background:#475569; cursor:not-allowed; }
+  .b2 { background:transparent; color:var(--texto); border-color:var(--linea); padding:6px 10px; font-size:.85rem; }
+  .b2:hover { border-color:var(--acento); }
+  .peligro { color:var(--no); border-color:#7f1d1d; }
+  .fila { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .fila > * { flex:1 1 auto; }
+  .gris { color:var(--gris); font-size:.85rem; }
+  .aviso { background:#422006; border:1px solid var(--aviso); color:#fde68a; padding:12px; border-radius:8px; margin-bottom:16px; }
+  .error { background:#450a0a; border:1px solid var(--no); color:#fecaca; padding:12px; border-radius:8px; margin-bottom:16px; white-space:pre-wrap; }
+  .barra { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+  .parte { border:1px solid var(--linea); border-radius:10px; padding:12px; margin-top:12px; background:var(--bg); }
+  .parte.oculta { opacity:.7; border-style:dashed; }
+  .parte-cab { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .parte-cab strong { flex:1 1 160px; font-size:1.05rem; }
+  .datos-parte { display:grid; grid-template-columns:1fr 120px 150px; gap:8px; }
+  @media (max-width:560px) { .datos-parte { grid-template-columns:1fr 1fr; } .datos-parte .ancho { grid-column:1/-1; } }
+  .medios { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr)); gap:10px; margin-top:12px; }
+  .medio { background:var(--card); border:1px solid var(--linea); border-radius:8px; overflow:hidden; display:flex; flex-direction:column; }
+  .medio.portada { border-color:var(--acento); }
+  .medio .img { position:relative; aspect-ratio:4/3; background:#000; }
+  .medio img { width:100%; height:100%; object-fit:cover; display:block; }
+  .medio .play { position:absolute; inset:0; display:grid; place-items:center; font-size:2rem; text-shadow:0 2px 6px #000; pointer-events:none; }
+  .medio .marca { position:absolute; top:6px; left:6px; background:var(--acento); color:#0f172a; font-size:.7rem; font-weight:700; padding:2px 6px; border-radius:4px; }
+  .medio .cuerpo { padding:8px; display:flex; flex-direction:column; gap:6px; }
+  .medio input, .medio textarea, .medio select { margin:0; padding:6px 8px; font-size:.82rem; }
+  .medio .acc { display:flex; gap:4px; flex-wrap:wrap; }
+  .medio .acc button { flex:1 0 auto; padding:5px 6px; font-size:.8rem; }
+  .elegir { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+  .elegir label { margin:0; text-align:center; padding:12px; border:1px dashed var(--linea); border-radius:8px; cursor:pointer; color:var(--texto); font-weight:600; }
+  .elegir label:hover { border-color:var(--acento); }
+  .elegir input { display:none; }
+  .cola { margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+  .cola .item { display:flex; align-items:center; gap:8px; font-size:.85rem; background:var(--bg); border:1px solid var(--linea); border-radius:6px; padding:6px 8px; }
+  .cola .item .n { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cola progress { width:90px; }
+  .cola .ok { color:var(--ok); } .cola .mal { color:var(--no); }
+  .clave { position:relative; }
+  footer { margin-top:24px; text-align:center; color:var(--gris); font-size:.75rem; }
+  footer a { color:var(--gris); }
+  .oculto { display:none !important; }
+</style>
 </head>
 <body>
+<div class="cont">
+  <h1>Paseo Primero de Mayo · administrar</h1>
+  <div id="error" class="error oculto"></div>
 
-  <div id="secLogin" class="card">
-    <h2>Acceso Administrador</h2>
-    <label>Correo Electrónico</label>
-    <input type="email" id="email" placeholder="tu-email@dominio.com">
-    <label>Contraseña</label>
-    <input type="password" id="pass">
-    <button onclick="login()">Iniciar Sesión</button>
+  <!-- Entrar -->
+  <div id="secEntrar" class="card oculto">
+    <h2>Entrar</h2>
+    <label for="mail">Mail</label>
+    <input type="email" id="mail" autocomplete="username">
+    <label for="clave">Contraseña</label>
+    <input type="password" id="clave" autocomplete="current-password">
+    <div class="fila" style="margin-top:14px"><button class="b" id="bEntrar">Entrar</button>
+      <button class="b2" id="bOlvide" style="flex:0 0 auto">Olvidé la contraseña</button></div>
   </div>
+  <div id="cargando" class="card gris">Cargando…</div>
 
-  <div id="secAdmin" class="hidden">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; background:#1e293b; padding:12px; border-radius:6px; border:1px solid #334155;">
-      <small>Sesión: <strong id="userEmail" style="color:var(--primary);"></strong></small>
-      <button onclick="logout()" class="btn-danger" style="padding:6px 12px;">Cerrar Sesión</button>
+  <!-- El editor -->
+  <div id="secEditor" class="oculto">
+    <div class="barra"><span class="gris">Sesión: <b id="quien"></b></span>
+      <span class="fila" style="flex:0 0 auto"><a class="b2" href="index.html" target="_blank" style="text-decoration:none">👁 Ver como el público</a>
+      <button class="b2" id="bSalir">Salir</button></span></div>
+
+    <div id="vieja" class="aviso oculto">
+      El álbum está guardado en el formato de la primera versión, donde cada cambio reescribía todo y lo que otro subía en el medio se perdía.
+      Hay que pasarlo una vez al formato nuevo: queda una copia del anterior en la base (<code>_historial</code>) y no se pierde ninguna foto.
+      <div style="margin-top:10px"><button class="b" id="bPasar">Pasar al formato nuevo</button></div>
     </div>
 
-    <!-- 1. Encabezado del Local -->
-    <div class="card">
-      <h3>1. Datos Generales del Inmueble</h3>
-      <label>Título General</label>
-      <input type="text" id="albTitulo">
-      <label>Subtítulo</label>
-      <input type="text" id="albSubtitulo">
-      <label>Descripción del Local / Proyecto</label>
-      <textarea id="albDesc" rows="4"></textarea>
-      
-      <label>Foto de Portada (Fachada Propuesta)</label>
-      <input type="file" id="inputPortada" accept="image/*">
-      <img id="previewPortada" class="hidden" style="width: 150px; margin-top: 10px; border-radius: 6px; border: 1px solid #334155; display: block; object-fit: cover;" />
-
-      <button id="btnGuardarHeader" onclick="guardarHeaderConPortada()">Actualizar Datos y Portada</button>
+    <div class="card" id="cardGeneral">
+      <h2>1 · El local</h2>
+      <label for="gTitulo">Título</label><input id="gTitulo" maxlength="200">
+      <label for="gSubtitulo">Subtítulo</label><input id="gSubtitulo" maxlength="200">
+      <label for="gDesc">Descripción</label><textarea id="gDesc" rows="4" maxlength="5000"></textarea>
+      <label for="gContacto">Contacto que se muestra abajo (opcional)</label>
+      <textarea id="gContacto" rows="2" maxlength="500" placeholder="Ej: Consultas por WhatsApp al …"></textarea>
+      <p class="gris" style="margin:6px 0 0">La foto grande de arriba se elige con ★ en cualquier foto de abajo. Si no hay ninguna elegida, va la primera de la primera parte.</p>
+      <div style="margin-top:12px"><button class="b" id="bGeneral">Guardar</button> <span id="okGeneral" class="gris"></span></div>
     </div>
 
-    <!-- 2. Carga Masiva (Fotos y Videos) -->
-    <div class="card">
-      <h3>2. Carga Masiva de Fotos y Videos</h3>
-      <label>Sección Destino</label>
-      <select id="seccionSelect" onchange="toggleNuevaSeccionInput()"></select>
-
-      <div id="divNuevaSeccion" class="hidden" style="margin-top: 8px;">
-        <label>Nombre de la Nueva Sección</label>
-        <input type="text" id="seccionNuevaInput" placeholder="Ej: Showroom, Depósito, Terraza">
+    <div class="card" id="cardSubir">
+      <h2>2 · Subir fotos y videos</h2>
+      <label for="uParte">¿A qué parte?</label>
+      <select id="uParte"></select>
+      <div class="elegir">
+        <label>📷 Sacar con la cámara<input type="file" id="uCamara" accept="image/*,video/*" capture="environment"></label>
+        <label>🖼 Elegir archivos<input type="file" id="uArchivos" accept="image/*,video/*" multiple></label>
       </div>
-
-      <label style="margin-top:12px;">Seleccionar archivos locales</label>
-      <input type="file" id="inputFotos" multiple accept="image/*,video/*">
-      <button id="btnSubir" onclick="subirFotosMasivas()">Subir e Integrar al Álbum</button>
-      <div id="log" class="hidden"></div>
+      <div class="cola" id="cola"></div>
+      <div class="fila" style="margin-top:10px"><button class="b" id="bSubir" disabled>Subir</button>
+        <button class="b2" id="bLimpiar" style="flex:0 0 auto">Vaciar la lista</button></div>
+      <p class="gris" style="margin:8px 0 0">Las fotos se achican a 2000 px antes de subir; los videos van tal cual, hasta 100 MB (el techo del plan gratis de Cloudinary). Se suben recién al tocar «Subir».</p>
     </div>
 
-    <!-- 3. Control de Exposición -->
     <div class="card">
-      <h3>3. Control de Exposición, Previas y Pies de foto</h3>
-      <p style="font-size:0.85rem; color:#94a3b8; margin-top:0;">Revisa las imágenes subidas, cambia sus textos o elimina las que no necesites:</p>
-      <div id="listaSecciones"></div>
+      <h2>3 · Las partes del local</h2>
+      <div class="fila"><input id="nNombre" placeholder="Nombre de una parte nueva: Planta baja · showroom" maxlength="120">
+        <button class="b" id="bNueva" style="flex:0 0 auto">＋ Agregar</button></div>
+      <div id="partes"></div>
     </div>
   </div>
 
-  <script>
-    var firebaseConfig = {
-      apiKey: "AIzaSyAyrHTkm8k2iv_14eQKKCrFyOrgD9mwgHo",
-      authDomain: "pruebas-db555.firebaseapp.com",
-      projectId: "pruebas-db555",
-      storageBucket: "pruebas-db555.firebasestorage.app",
-      messagingSenderId: "1009675675879",
-      appId: "1:1009675675879:web:eea1f465e6d41b460e5a42"
-    };
+  <footer><span id="sello"></span> · <a href="diagnostico.html">diagnóstico</a></footer>
+</div>
 
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+<script type="module">
+import * as A from "./album.js";
+import * as F from "./firebase-init.js";
+import { explicar, esc, subir, SELLOS } from "./nucleo.js";
 
-    var CLOUD_NAME = "cwbnaivv"; 
-    var UPLOAD_PRESET = "GeneralFlores";
-    var ALBUM_ID = "general-flores";
-    var currentAlbumData = { titulo: "Paseo Primero de Mayo", subtitulo: "General Flores", descripcion: "", secciones: [] };
+const VERSION = "admin-1";
+const $ = (id) => document.getElementById(id);
+$("sello").textContent = [VERSION, ...SELLOS(), F.VERSION].join(" · ");
+const mostrar = (id, si) => $(id).classList.toggle("oculto", !si);
+function fallo(e) { $("error").textContent = typeof e === "string" ? e : explicar(e); mostrar("error", true); window.scrollTo(0, 0); }
+function sinFallo() { mostrar("error", false); }
 
-    // Función auxiliar para evitar errores de renderizado con comillas
-    function escapeHTML(str) {
-      if (!str) return '';
-      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-    }
+let ALBUM = null, CRUDO = null, existe = false, usuario = null, desuscribir = null;
+const ref = () => F.doc(F.db, "albumes", A.ALBUM_ID);
+const marca = () => ({ actualizadoEn: new Date().toISOString(), actualizadoPor: (usuario && usuario.email) || "" });
 
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (user) {
-        document.getElementById('secLogin').classList.add('hidden');
-        document.getElementById('secAdmin').classList.remove('hidden');
-        document.getElementById('userEmail').textContent = user.email;
-        cargarEstadoAlbum();
-      } else {
-        document.getElementById('secLogin').classList.remove('hidden');
-        document.getElementById('secAdmin').classList.add('hidden');
+/* Escribe SÓLO los campos que cambian. Si el documento todavía no existe, lo
+   crea con `setDoc` y merge (updateDoc falla sobre un documento inexistente). */
+async function escribir(campos) {
+  sinFallo();
+  try {
+    if (existe) await F.updateDoc(ref(), { ...campos, ...marca() });
+    else {
+      const anidado = {};
+      for (const [k, v] of Object.entries(campos)) {
+        const partes = k.split("."); let o = anidado;
+        partes.slice(0, -1).forEach((p) => { o = o[p] = o[p] || {}; });
+        o[partes.at(-1)] = v;
       }
-    });
-
-    async function login() {
-      var email = document.getElementById('email').value.trim();
-      var pass = document.getElementById('pass').value;
-      if (!email || !pass) return alert("Ingresa tu email y contraseña.");
-      try { await firebase.auth().signInWithEmailAndPassword(email, pass); } 
-      catch (e) { alert("Error de autenticación: " + e.message); }
+      await F.setDoc(ref(), { ...anidado, ...marca() }, { merge: true });
     }
+    return true;
+  } catch (e) { fallo(e); return false; }
+}
 
-    function logout() { firebase.auth().signOut(); }
+/* ── Entrar ── */
+async function arrancar() {
+  try { await F.cargarFirebase(); }
+  catch (e) { mostrar("cargando", false); fallo(e); return; }
+  F.onAuthStateChanged(F.auth, (u) => {
+    /* El editor se muestra recién cuando llega el álbum (en `escuchar`): si
+       aparecía antes, un toque rápido encontraba ALBUM vacío y no hacía nada. */
+    usuario = u; mostrar("cargando", !!u);
+    mostrar("secEntrar", !u); mostrar("secEditor", false);
+    if (desuscribir) { desuscribir(); desuscribir = null; }
+    if (u) { $("quien").textContent = u.email; escuchar(); }
+  });
+}
+$("bEntrar").onclick = async () => {
+  sinFallo();
+  const m = $("mail").value.trim(), c = $("clave").value;
+  if (!m || !c) return fallo("Falta el mail o la contraseña.");
+  $("bEntrar").disabled = true;
+  try { await F.signInWithEmailAndPassword(F.auth, m, c); $("clave").value = ""; }
+  catch (e) { fallo(e); }
+  $("bEntrar").disabled = false;
+};
+$("clave").addEventListener("keydown", (e) => { if (e.key === "Enter") $("bEntrar").click(); });
+$("bOlvide").onclick = async () => {
+  const m = $("mail").value.trim();
+  if (!m) return fallo("Escribí tu mail arriba y tocá de nuevo: te llega un enlace para poner una contraseña nueva.");
+  try { await F.sendPasswordResetEmail(F.auth, m); sinFallo(); alert("Listo: revisá tu correo (y el spam)."); } catch (e) { fallo(e); }
+};
+$("bSalir").onclick = () => F.signOut(F.auth);
 
-    async function cargarEstadoAlbum() {
-      try {
-        var docSnap = await firebase.firestore().collection("albumes").doc(ALBUM_ID).get();
-        if (docSnap.exists) {
-          currentAlbumData = docSnap.data();
-          document.getElementById('albTitulo').value = currentAlbumData.titulo || '';
-          document.getElementById('albSubtitulo').value = currentAlbumData.subtitulo || '';
-          document.getElementById('albDesc').value = currentAlbumData.descripcion || '';
+/* ── En vivo ── */
+function escuchar() {
+  desuscribir = F.onSnapshot(ref(), (d) => {
+    existe = d.exists(); CRUDO = existe ? d.data() : null;
+    ALBUM = A.normalizar(CRUDO);
+    mostrar("cargando", false); mostrar("secEditor", true);
+    pintar();
+  }, (e) => { mostrar("cargando", false); fallo(e); });
+}
 
-          if (currentAlbumData.portadaUrl) {
-            var preview = document.getElementById('previewPortada');
-            preview.src = currentAlbumData.portadaUrl;
-            preview.classList.remove('hidden');
-          }
-        }
-        renderSeccionesAdmin();
-      } catch (e) { console.error("Error al cargar álbum:", e); }
-    }
+let general_tocado = false;
+["gTitulo", "gSubtitulo", "gDesc", "gContacto"].forEach((id) => $(id).addEventListener("input", () => { general_tocado = true; $("okGeneral").textContent = "sin guardar"; }));
 
-    async function guardarHeaderConPortada() {
-      var btn = document.getElementById('btnGuardarHeader');
-      btn.disabled = true; btn.textContent = "Guardando...";
+function pintar() {
+  const vieja = ALBUM.vieja;
+  mostrar("vieja", vieja);
+  ["cardGeneral", "cardSubir"].forEach((id) => $(id).style.opacity = vieja ? .5 : 1);
+  if (!general_tocado) {
+    $("gTitulo").value = ALBUM.titulo || "Paseo Primero de Mayo";
+    $("gSubtitulo").value = ALBUM.subtitulo || "General Flores";
+    $("gDesc").value = ALBUM.descripcion; $("gContacto").value = ALBUM.contacto;
+  }
+  const secs = A.secciones(ALBUM);
+  const elegida = $("uParte").value;
+  $("uParte").innerHTML = secs.length
+    ? secs.map((s) => `<option value="${esc(s.id)}">${esc(s.nombre)}</option>`).join("")
+    : `<option value="">Primero agregá una parte (abajo)</option>`;
+  if (secs.some((s) => s.id === elegida)) $("uParte").value = elegida;
+  revisarSubir();
+  pintarPartes(secs, vieja);
+}
 
-      var inputPortada = document.getElementById('inputPortada');
-      if (inputPortada.files.length > 0) {
-        var file = inputPortada.files[0];
-        var fd = new FormData();
-        fd.append('file', file);
-        fd.append('upload_preset', UPLOAD_PRESET);
-        try {
-          var res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: fd });
-          var data = await res.json();
-          if (data.secure_url) currentAlbumData.portadaUrl = data.secure_url;
-          else alert("Error de Cloudinary: " + data.error.message);
-        } catch (e) { alert("Error subiendo la portada: " + e.message); }
-      }
-
-      currentAlbumData.titulo = document.getElementById('albTitulo').value;
-      currentAlbumData.subtitulo = document.getElementById('albSubtitulo').value;
-      currentAlbumData.descripcion = document.getElementById('albDesc').value;
-
-      await guardarEnFirestore();
-      alert("Información general y portada actualizadas.");
-      btn.disabled = false; btn.textContent = "Actualizar Datos y Portada";
-      
-      if (currentAlbumData.portadaUrl) {
-        var preview = document.getElementById('previewPortada');
-        preview.src = currentAlbumData.portadaUrl;
-        preview.classList.remove('hidden');
-      }
-      inputPortada.value = '';
-    }
-
-    function renderSeccionesAdmin() {
-      var cont = document.getElementById('listaSecciones');
-      cont.innerHTML = '';
-      (currentAlbumData.secciones || []).forEach(function(s, secIdx) {
-        var div = document.createElement('div');
-        div.className = 'item-sec';
-
-        // Cabecera de la sección
-        var headerHtml = `
-          <div class="sec-header">
-            <div>
-              <strong style="font-size:1.1rem; color:var(--primary);">${escapeHTML(s.nombre)}</strong> (${(s.medios || []).length} archivos)
-              <br><small style="color:#94a3b8;">Estado: ${s.visible !== false ? '🟢 Visible al público' : '🔴 Oculto al público'}</small>
+function pintarPartes(secs, vieja) {
+  if (!secs.length) { $("partes").innerHTML = `<p class="gris">Todavía no hay partes. Agregá la primera: por ejemplo «Todo el edificio» o «Planta baja · showroom».</p>`; return; }
+  const opciones = (actual) => secs.map((s) => `<option value="${esc(s.id)}"${s.id === actual ? " selected" : ""}>${esc(s.nombre)}</option>`).join("");
+  $("partes").innerHTML = secs.map((s, i) => {
+    const ms = A.mediosDe(ALBUM, s.id), c = A.cuenta(ALBUM, s.id), dis = vieja ? " disabled" : "";
+    return `<div class="parte${s.visible ? "" : " oculta"}" data-sec="${esc(s.id)}">
+      <div class="parte-cab"><strong>${esc(s.nombre)}</strong>
+        <span class="gris">${c.fotos} foto${c.fotos === 1 ? "" : "s"} · ${c.videos} video${c.videos === 1 ? "" : "s"} · ${s.visible ? "🟢 se ve" : "🔴 oculta"}</span></div>
+      <div class="datos-parte" style="margin-top:8px">
+        <div class="ancho"><label>Nombre</label><input data-campo="nombre" value="${esc(s.nombre)}" maxlength="120"${dis}></div>
+        <div><label>Superficie (m²)</label><input data-campo="superficie" type="number" min="0" step="0.5" value="${s.superficie ?? ""}"${dis}></div>
+        <div><label>Estado</label><select data-campo="estado"${dis}>${Object.entries(A.ESTADOS).map(([k, v]) => `<option value="${k}"${k === s.estado ? " selected" : ""}>${v || "— sin decir —"}</option>`).join("")}</select></div>
+      </div>
+      <label>Descripción de esta parte</label><textarea data-campo="descripcion" rows="2" maxlength="2000"${dis}>${esc(s.descripcion)}</textarea>
+      <div class="fila" style="margin-top:8px">
+        <button class="b2" data-acc="subirP"${i === 0 || vieja ? " disabled" : ""}>▲</button>
+        <button class="b2" data-acc="bajarP"${i === secs.length - 1 || vieja ? " disabled" : ""}>▼</button>
+        <button class="b2" data-acc="visible"${dis}>${s.visible ? "Ocultar al público" : "Mostrar al público"}</button>
+        <button class="b2 peligro" data-acc="borrarP"${dis}>Quitar la parte</button>
+      </div>
+      ${ms.length ? `<div class="medios">${ms.map((m, j) => {
+        const esPortada = ALBUM.portada === m.id, esDeParte = s.portada === m.id;
+        return `<div class="medio${esPortada ? " portada" : ""}" data-med="${esc(m.id)}">
+          <div class="img"><img src="${esc(A.mini(m, 400))}" alt="" loading="lazy">${m.tipo === "video" ? `<span class="play">▶</span>` : ""}
+            ${esPortada ? `<span class="marca">★ portada</span>` : esDeParte ? `<span class="marca">☆ de la parte</span>` : ""}</div>
+          <div class="cuerpo">
+            <input data-mcampo="titulo" value="${esc(m.titulo)}" placeholder="Título corto" maxlength="120"${dis}>
+            <textarea data-mcampo="detalle" rows="2" placeholder="Pie de foto" maxlength="2000"${dis}>${esc(m.detalle)}</textarea>
+            <select data-mcampo="seccion" title="Mover a otra parte"${dis}>${opciones(s.id)}</select>
+            <div class="acc">
+              <button class="b2" data-macc="arriba"${j === 0 || vieja ? " disabled" : ""} title="Antes">◀</button>
+              <button class="b2" data-macc="abajo"${j === ms.length - 1 || vieja ? " disabled" : ""} title="Después">▶</button>
+              <button class="b2" data-macc="portada"${dis} title="Foto grande de la portada">★</button>
+              <button class="b2" data-macc="deParte"${dis} title="La que representa a esta parte">☆</button>
+              <button class="b2 peligro" data-macc="sacar"${dis} title="Sacar del álbum">✕</button>
             </div>
-            <div>
-              <button onclick="toggleVisibilidad(${secIdx})" style="padding:6px 10px; font-size:0.75rem; width:auto; margin:0 4px 0 0;">${s.visible !== false ? 'Ocultar' : 'Mostrar'}</button>
-              <button onclick="borrarSeccion(${secIdx})" class="btn-danger" style="padding:6px 10px; font-size:0.75rem;">Eliminar Sección</button>
-            </div>
-          </div>
-        `;
+          </div></div>`;
+      }).join("")}</div>` : `<p class="gris">Sin fotos ni videos todavía: subilos arriba, eligiendo esta parte.</p>`}
+    </div>`;
+  }).join("");
+}
 
-        // Grilla de archivos visuales
-        var mediaHtml = '';
-        if (s.medios && s.medios.length > 0) {
-          mediaHtml += `<div class="media-admin-grid">`;
-          s.medios.forEach(function(m, medIdx) {
-            var visual = m.tipo === 'video' 
-              ? `<video src="${m.urlThumbnail || m.url}" style="height:120px; width:100%; object-fit:cover; border-radius:4px;"></video>` 
-              : `<img src="${m.urlThumbnail || m.url}" loading="lazy"/>`;
+/* ── El local ── */
+$("bGeneral").onclick = async () => {
+  if (ALBUM.vieja) return;
+  const ok = await escribir({ titulo: $("gTitulo").value.trim(), subtitulo: $("gSubtitulo").value.trim(),
+    descripcion: $("gDesc").value.trim(), contacto: $("gContacto").value.trim() });
+  if (ok) { general_tocado = false; $("okGeneral").textContent = "✓ guardado"; }
+};
 
-            mediaHtml += `
-              <div class="media-admin-card">
-                ${visual}
-                <input type="text" id="titulo_${secIdx}_${medIdx}" value="${escapeHTML(m.titulo)}" placeholder="Título corto">
-                <textarea id="detalle_${secIdx}_${medIdx}" rows="3" placeholder="Pie de foto / descripción...">${escapeHTML(m.detalle)}</textarea>
-                <button class="btn-danger btn-icon" onclick="borrarMedio(${secIdx}, ${medIdx})">🗑️ Eliminar</button>
-              </div>
-            `;
-          });
-          mediaHtml += `</div>
-          <button onclick="guardarTextosSeccion(${secIdx})" class="btn-success" style="margin-top: 15px; width:100%;">💾 Guardar Textos de "${escapeHTML(s.nombre)}"</button>`;
-        } else {
-          mediaHtml += `<p style="color:#94a3b8; font-size:0.85rem; margin-top:10px;">No hay archivos cargados en esta sección.</p>`;
-        }
+/* ── Partes ── */
+$("bNueva").onclick = async () => {
+  if (ALBUM.vieja) return fallo("Primero pasá el álbum al formato nuevo (arriba).");
+  const n = $("nNombre").value.trim();
+  if (!n) return fallo("Escribí el nombre de la parte.");
+  const id = A.idNuevo("s");
+  if (await escribir({ ["secciones." + id]: { nombre: n.slice(0, 120), orden: A.ordenAlFinal(A.secciones(ALBUM)), visible: true, descripcion: "", superficie: null, estado: "", portada: "" } })) {
+    $("nNombre").value = ""; $("uParte").value = id;
+  }
+};
 
-        div.innerHTML = headerHtml + mediaHtml;
-        cont.appendChild(div);
-      });
+$("partes").addEventListener("change", async (e) => {
+  const sec = e.target.closest("[data-sec]"); if (!sec) return;
+  const sid = sec.dataset.sec, med = e.target.closest("[data-med]");
+  if (med && e.target.dataset.mcampo) {
+    const c = e.target.dataset.mcampo, mid = med.dataset.med;
+    if (c === "seccion") {
+      const destino = e.target.value; if (destino === sid) return;
+      await escribir({ [`medios.${mid}.seccion`]: destino, [`medios.${mid}.orden`]: A.ordenAlFinal(A.mediosDe(ALBUM, destino)) });
+    } else await escribir({ [`medios.${mid}.${c}`]: e.target.value.trim().slice(0, c === "titulo" ? 120 : 2000) });
+    return;
+  }
+  const c = e.target.dataset.campo; if (!c) return;
+  let v = e.target.value;
+  if (c === "superficie") { v = v === "" ? null : Number(v); if (v !== null && !(v >= 0)) return fallo("La superficie tiene que ser un número de m²."); }
+  else if (c === "nombre") { v = v.trim().slice(0, 120); if (!v) return fallo("Una parte no puede quedar sin nombre."); }
+  else v = String(v).trim();
+  await escribir({ [`secciones.${sid}.${c}`]: v });
+});
 
-      poblarSelectSecciones();
+$("partes").addEventListener("click", async (e) => {
+  const b = e.target.closest("button"); if (!b || b.disabled) return;
+  const sec = b.closest("[data-sec]"); if (!sec) return;
+  const sid = sec.dataset.sec, s = ALBUM.secciones[sid];
+  if (b.dataset.acc) {
+    const a = b.dataset.acc;
+    if (a === "subirP" || a === "bajarP") {
+      const cambio = A.intercambiar(A.secciones(ALBUM), sid, a === "subirP" ? -1 : 1);
+      if (cambio) await escribir(Object.fromEntries(Object.entries(cambio).map(([id, o]) => [`secciones.${id}.orden`, o])));
+    } else if (a === "visible") await escribir({ [`secciones.${sid}.visible`]: !s.visible });
+    else if (a === "borrarP") {
+      const ms = A.mediosDe(ALBUM, sid);
+      if (!confirm(ms.length ? `¿Quitar «${s.nombre}» y sus ${ms.length} fotos y videos del álbum? Los archivos quedan en Cloudinary.` : `¿Quitar «${s.nombre}»?`)) return;
+      const campos = { ["secciones." + sid]: F.deleteField() };
+      ms.forEach((m) => { campos["medios." + m.id] = F.deleteField(); });
+      if (ms.some((m) => m.id === ALBUM.portada)) campos.portada = "";
+      await escribir(campos);
     }
+    return;
+  }
+  const med = b.closest("[data-med]"); if (!med || !b.dataset.macc) return;
+  const mid = med.dataset.med, a = b.dataset.macc;
+  if (a === "arriba" || a === "abajo") {
+    const cambio = A.intercambiar(A.mediosDe(ALBUM, sid), mid, a === "arriba" ? -1 : 1);
+    if (cambio) await escribir(Object.fromEntries(Object.entries(cambio).map(([id, o]) => [`medios.${id}.orden`, o])));
+  } else if (a === "portada") await escribir({ portada: ALBUM.portada === mid ? "" : mid });
+  else if (a === "deParte") await escribir({ [`secciones.${sid}.portada`]: s.portada === mid ? "" : mid });
+  else if (a === "sacar") {
+    if (!confirm("¿Sacar esta foto o video del álbum? El archivo queda en Cloudinary.")) return;
+    const campos = { ["medios." + mid]: F.deleteField() };
+    if (ALBUM.portada === mid) campos.portada = "";
+    if (s.portada === mid) campos[`secciones.${sid}.portada`] = "";
+    await escribir(campos);
+  }
+});
 
-    async function guardarTextosSeccion(secIdx) {
-      var seccion = currentAlbumData.secciones[secIdx];
-      if (!seccion.medios) return;
-      
-      seccion.medios.forEach(function(m, medIdx) {
-        var inputTitulo = document.getElementById(`titulo_${secIdx}_${medIdx}`);
-        var inputDetalle = document.getElementById(`detalle_${secIdx}_${medIdx}`);
-        if (inputTitulo) m.titulo = inputTitulo.value.trim();
-        if (inputDetalle) m.detalle = inputDetalle.value.trim();
-      });
+/* ── Subir ── */
+let cola = [];
+function agregarACola(files) {
+  for (const f of files) cola.push({ f, estado: A.problemaDelArchivo(f) ? "mal" : "espera", msj: A.problemaDelArchivo(f), p: 0 });
+  pintarCola();
+}
+$("uCamara").onchange = (e) => { agregarACola(e.target.files); e.target.value = ""; };
+$("uArchivos").onchange = (e) => { agregarACola(e.target.files); e.target.value = ""; };
+$("bLimpiar").onclick = () => { if (cola.some((x) => x.estado === "subiendo")) return; cola = []; pintarCola(); };
+function pintarCola() {
+  $("cola").innerHTML = cola.map((x) => `<div class="item"><span>${/^video\//.test(x.f.type) ? "🎬" : "📷"}</span>
+    <span class="n" title="${esc(x.f.name)}">${esc(x.f.name)}</span>
+    ${x.estado === "subiendo" ? `<progress max="1" value="${x.p}"></progress>` : x.estado === "ok" ? `<span class="ok">✓ subido</span>` : x.estado === "mal" ? `<span class="mal">✗ ${esc(x.msj)}</span>` : `<span class="gris">${Math.round(x.f.size / 1024)} KB</span>`}</div>`).join("");
+  revisarSubir();
+}
+function revisarSubir() {
+  const n = cola.filter((x) => x.estado === "espera").length;
+  $("bSubir").disabled = !n || !$("uParte").value || (ALBUM && ALBUM.vieja) || cola.some((x) => x.estado === "subiendo");
+  $("bSubir").textContent = n ? `Subir ${n}` : "Subir";
+}
+$("uParte").onchange = revisarSubir;
+$("bSubir").onclick = async () => {
+  const sid = $("uParte").value; if (!sid || ALBUM.vieja) return;
+  $("bSubir").disabled = true;
+  let orden = A.ordenAlFinal(A.mediosDe(ALBUM, sid));
+  for (const x of cola.filter((y) => y.estado === "espera")) {
+    x.estado = "subiendo"; pintarCola();
+    try {
+      const r = await subir(x.f, (p) => { x.p = p; const pr = $("cola").querySelectorAll("progress"); if (pr.length) pr[0].value = p; });
+      const id = A.idNuevo("m");
+      const ok = await escribir({ ["medios." + id]: { seccion: sid, orden, tipo: r.tipo, url: r.url,
+        titulo: x.f.name.replace(/\.[^.]+$/, "").slice(0, 120), detalle: "",
+        creadoEn: new Date(x.f.lastModified || Date.now()).toISOString().slice(0, 10) } });
+      orden += 10;
+      x.estado = ok ? "ok" : "mal"; x.msj = ok ? "" : "subió a Cloudinary pero la base no lo anotó";
+    } catch (e) { x.estado = "mal"; x.msj = e.message || String(e); }
+    pintarCola();
+  }
+  revisarSubir();
+};
 
-      await guardarEnFirestore();
-      alert(`Textos de la sección "${seccion.nombre}" guardados con éxito.`);
-    }
+/* ── Pasar de la forma vieja a la nueva ── */
+$("bPasar").onclick = async () => {
+  if (!ALBUM.vieja || !CRUDO) return;
+  $("bPasar").disabled = true; sinFallo();
+  /* Primero la copia y después el cambio: si la copia no se puede guardar, el
+     álbum no se toca (es lo que pasa con las reglas viejas, que no tienen
+     `_historial`: el 31-oct se probó y frenó bien). */
+  const sello = new Date().toISOString().replace(/[:.]/g, "-");
+  try {
+    await F.setDoc(F.doc(F.db, "_historial", `${sello}-albumes-${A.ALBUM_ID}`),
+      { coleccion: "albumes", id: A.ALBUM_ID, motivo: "paso al formato nuevo (admin-1)", antes: CRUDO, en: new Date().toISOString(), por: usuario.email });
+  } catch (e) {
+    fallo("No se pudo guardar la copia del álbum en _historial, así que el álbum NO se tocó. "
+      + "Casi seguro faltan publicar las reglas v1 (firestore.rules) en la consola de Firebase.\n\n" + explicar(e));
+    $("bPasar").disabled = false; return;
+  }
+  try { await F.setDoc(ref(), { ...A.paraGuardar(ALBUM), ...marca() }); } catch (e) { fallo(e); }
+  $("bPasar").disabled = false;
+};
 
-    async function borrarMedio(secIdx, medIdx) {
-      if(confirm("¿Seguro que deseas eliminar este archivo del catálogo?")) {
-        currentAlbumData.secciones[secIdx].medios.splice(medIdx, 1);
-        await guardarEnFirestore();
-        renderSeccionesAdmin(); // Recargar visual
-      }
-    }
-
-    function poblarSelectSecciones() {
-      var sel = document.getElementById('seccionSelect');
-      var valPrevio = sel.value;
-      sel.innerHTML = '';
-      var secciones = currentAlbumData.secciones || [];
-      secciones.forEach(function(s) {
-        var opt = document.createElement('option');
-        opt.value = s.nombre; opt.textContent = s.nombre;
-        sel.appendChild(opt);
-      });
-      var optNueva = document.createElement('option');
-      optNueva.value = "__NUEVA__"; optNueva.textContent = "➕ Crear nueva sección...";
-      sel.appendChild(optNueva);
-      if (valPrevio && (secciones.some(s => s.nombre === valPrevio) || valPrevio === "__NUEVA__")) sel.value = valPrevio;
-      else if (secciones.length > 0) sel.value = secciones[0].nombre;
-      else sel.value = "__NUEVA__";
-      toggleNuevaSeccionInput();
-    }
-
-    function toggleNuevaSeccionInput() {
-      var sel = document.getElementById('seccionSelect');
-      var divNueva = document.getElementById('divNuevaSeccion');
-      if (sel.value === "__NUEVA__") divNueva.classList.remove('hidden');
-      else divNueva.classList.add('hidden');
-    }
-
-    async function toggleVisibilidad(idx) {
-      currentAlbumData.secciones[idx].visible = !(currentAlbumData.secciones[idx].visible !== false);
-      await guardarEnFirestore();
-      renderSeccionesAdmin();
-    }
-
-    async function borrarSeccion(idx) {
-      if (confirm("¿Deseas eliminar esta sección COMPLETA con todas sus fotos?")) {
-        currentAlbumData.secciones.splice(idx, 1);
-        await guardarEnFirestore();
-        renderSeccionesAdmin();
-      }
-    }
-
-    async function guardarEnFirestore() {
-      await firebase.firestore().collection("albumes").doc(ALBUM_ID).set(currentAlbumData, { merge: true });
-    }
-
-    async function subirFotosMasivas() {
-      var selVal = document.getElementById('seccionSelect').value;
-      var seccionNombre = (selVal === "__NUEVA__") ? document.getElementById('seccionNuevaInput').value.trim() : selVal;
-      var files = document.getElementById('inputFotos').files;
-      
-      if (!seccionNombre || files.length === 0) return alert("Selecciona o escribe la sección y elige al menos un archivo.");
-
-      var btn = document.getElementById('btnSubir');
-      btn.disabled = true;
-      logMsg(`Iniciando subida de ${files.length} archivo(s)...`);
-
-      var nuevosMedios = [];
-      for (var i = 0; i < files.length; i++) {
-        var file = files[i];
-        var esVideo = file.type.startsWith('video/');
-        logMsg(`Subiendo (${i + 1}/${files.length}): ${file.name}...`);
-        var fd = new FormData();
-        fd.append('file', file); fd.append('upload_preset', UPLOAD_PRESET);
-        try {
-          var endpoint = esVideo ? 'video' : 'image';
-          var res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${endpoint}/upload`, { method: 'POST', body: fd });
-          var data = await res.json();
-          
-          if (data.error) {
-            logMsg(`<span style="color:#ef4444;">✗ Error: ${data.error.message}</span>`); continue; 
-          }
-          if (data.secure_url) {
-            var urlThumb = data.secure_url;
-            if (esVideo) urlThumb = data.secure_url.replace(/\.[^/.]+$/, ".jpg");
-            else urlThumb = data.secure_url.replace('/upload/', '/upload/w_400,c_scale/');
-
-            nuevosMedios.push({
-              titulo: file.name.replace(/\.[^/.]+$/, ""),
-              tipo: esVideo ? 'video' : 'image',
-              url: data.secure_url,
-              urlThumbnail: urlThumb,
-              creadoEn: new Date(file.lastModified).toISOString().split('T')[0],
-              detalle: "" // Campo vacío para el pie de foto
-            });
-            logMsg(`✓ Éxito: ${file.name}`);
-          }
-        } catch (e) { logMsg(`<span style="color:#ef4444;">✗ Error de red en ${file.name}</span>`); }
-      }
-
-      if (nuevosMedios.length === 0) {
-        logMsg('<span style="color:#ef4444;">No se pudo subir ningún archivo.</span>');
-        btn.disabled = false; return;
-      }
-
-      var secciones = currentAlbumData.secciones || [];
-      var secIndex = secciones.findIndex(function(s) { return s.nombre.toLowerCase() === seccionNombre.toLowerCase(); });
-
-      if (secIndex === -1) {
-        secciones.push({ nombre: seccionNombre, orden: secciones.length + 1, visible: true, medios: nuevosMedios });
-      } else {
-        secciones[secIndex].medios = [...(secciones[secIndex].medios || []), ...nuevosMedios];
-      }
-
-      currentAlbumData.secciones = secciones;
-      await guardarEnFirestore();
-      logMsg(`¡Éxito! Archivos registrados en Firestore.`);
-      renderSeccionesAdmin();
-      btn.disabled = false; document.getElementById('inputFotos').value = ''; 
-    }
-
-    function logMsg(m) {
-      var l = document.getElementById('log');
-      l.classList.remove('hidden'); l.innerHTML += `> ${m}<br>`; l.scrollTop = l.scrollHeight;
-    }
-  </script>
+arrancar();
+</script>
 </body>
 </html>

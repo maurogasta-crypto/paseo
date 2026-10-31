@@ -1,0 +1,41 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// firestore.rules — Reglas de la base del paseo (proyecto «Pruebas»,
+// pruebas-db555). Versión v1 (31-oct-2026).
+//
+// ESTO ES LA PLANTILLA, NO LO PUBLICADO. La autoridad es lo que está en la
+// consola de Firebase → Firestore → Reglas. Los dos UID van como MARCADORES
+// porque este repositorio es público: el panel (Sitios → paseo → «Copiar para
+// publicar») los reemplaza con `acceso.uids` del proyecto y arma el texto
+// completo en pantalla. Un UID real no entra nunca a este archivo.
+//
+// Lo que deciden:
+//   · albumes/{id}: cualquiera LEE un documento por su id (la portada no tiene
+//     sesión), nadie LISTA; escriben sólo Mauro y el agente. Hasta v1 la base
+//     dejaba escribir a cualquier sesión, y con la apiKey pública cualquiera
+//     puede crearse una cuenta: el álbum lo podía cambiar cualquiera.
+//   · _historial/{id}: la copia de antes de cada cambio grande. Se crea, se
+//     lee, y no se edita ni se borra nunca.
+//   · Todo lo demás: cerrado (deny por defecto, sin comodín).
+// ─────────────────────────────────────────────────────────────────────────────
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function esMauro()  { return request.auth != null && request.auth.uid == "TU-UID-ACA"; }
+    function esAgente() { return request.auth != null && request.auth.uid == "UID-DEL-AGENTE"; }
+    function escribe()  { return esMauro() || esAgente(); }
+
+    match /albumes/{id} {
+      allow get: if true;
+      allow list: if false;
+      allow create, update: if escribe();
+      allow delete: if esMauro();
+    }
+
+    match /_historial/{id} {
+      allow create: if escribe();
+      allow read: if escribe();
+      allow update, delete: if false;
+    }
+  }
+}

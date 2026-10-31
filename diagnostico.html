@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Diagnóstico · Paseo</title>
+<!--
+  diagnostico.html — Qué anda y qué no, sin adivinar. Sello: diag-1 (31-oct-2026)
+  NO importa nucleo.js ni album.js a propósito: si uno de ellos tiene un
+  error, esta página tiene que poder decirlo igual (PROTOCOLO-DESARROLLO § 11.2).
+-->
+<style>
+  body { margin:0; font-family:system-ui,sans-serif; background:#0f172a; color:#f8fafc; }
+  .cont { max-width:760px; margin:0 auto; padding:16px; }
+  h1 { color:#38bdf8; font-size:1.2rem; }
+  .f { display:flex; gap:10px; padding:10px; border:1px solid #334155; border-radius:8px; margin-top:8px; background:#1e293b; }
+  .f b { min-width:24px; } .f small { color:#94a3b8; display:block; white-space:pre-wrap; word-break:break-word; }
+  button { margin-top:14px; padding:10px 14px; border-radius:6px; border:0; background:#0284c7; color:#fff; font:inherit; }
+  a { color:#94a3b8; }
+</style>
+</head>
+<body>
+<div class="cont">
+  <h1>Diagnóstico del paseo</h1>
+  <div id="res"></div>
+  <button onclick="location.reload()">Volver a probar</button>
+  <p><a href="index.html">portada</a> · <a href="admin.html">administrar</a></p>
+</div>
+<script type="module">
+const VERSION = "diag-1";
+const res = document.getElementById("res");
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function fila(ok, titulo, detalle) {
+  res.insertAdjacentHTML("beforeend", `<div class="f"><b>${ok === null ? "…" : ok ? "✅" : "❌"}</b><div>${esc(titulo)}<small>${esc(detalle || "")}</small></div></div>`);
+}
+const prueba = async (titulo, f) => { try { fila(true, titulo, await f()); } catch (e) { fila(false, titulo, (e && (e.code || e.message)) || String(e)); } };
+
+fila(true, "Esta página", VERSION + " · " + navigator.userAgent);
+
+await prueba("Sellos de los archivos", async () => {
+  const sellos = [];
+  for (const a of ["album.js", "nucleo.js", "firebase-init.js", "index.html", "admin.html"]) {
+    const r = await fetch(a + "?d=" + Date.now(), { cache: "no-store" });
+    if (!r.ok) throw new Error(`${a}: ${r.status}`);
+    const t = await r.text(), m = t.match(/Sello:\s*([a-z]+-\d+)/);
+    sellos.push(`${a}: ${m ? m[1] : "sin sello"}`);
+  }
+  return sellos.join("\n");
+});
+
+let cfg = null;
+await prueba("Los módulos parsean (album.js, nucleo.js, firebase-init.js)", async () => {
+  const [a, n, f] = await Promise.all([import("./album.js"), import("./nucleo.js"), import("./firebase-init.js")]);
+  cfg = f.firebaseConfig;
+  return `${a.VERSION} · ${n.VERSION} · ${f.VERSION} · Cloudinary ${a.CLOUDINARY.cloud} / preset ${a.CLOUDINARY.preset}`;
+});
+
+await prueba("Leer el álbum como el público (API REST, sin sesión)", async () => {
+  if (!cfg) throw new Error("no hay configuración: firebase-init.js no cargó");
+  const r = await fetch(`https://firestore.googleapis.com/v1/projects/${cfg.projectId}/databases/(default)/documents/albumes/general-flores?key=${cfg.apiKey}`);
+  if (r.status === 404) return "el documento todavía no existe (se crea al guardar algo desde administrar)";
+  if (!r.ok) throw new Error(r.status === 403 ? "403: las reglas no dejan leer el álbum sin sesión" : "la base contestó " + r.status);
+  const j = await r.json(), f = j.fields || {};
+  const forma = f.secciones && f.secciones.arrayValue ? "VIEJA (lista): entrá a administrar y pasala al formato nuevo" : "nueva (mapas)";
+  return `existe · forma ${forma} · actualizado ${(f.actualizadoEn && f.actualizadoEn.stringValue) || "—"}`;
+});
+
+await prueba("Que no se pueda LISTAR el álbum sin sesión", async () => {
+  if (!cfg) throw new Error("sin configuración");
+  const r = await fetch(`https://firestore.googleapis.com/v1/projects/${cfg.projectId}/databases/(default)/documents/albumes?key=${cfg.apiKey}`);
+  if (r.ok) throw new Error("la base dejó LISTAR los álbumes sin sesión: las reglas v1 todavía no están publicadas");
+  return `bien: contestó ${r.status}`;
+});
+
+await prueba("Bajar el SDK de Firebase (gstatic.com) y la sesión", async () => {
+  const f = await import("./firebase-init.js");
+  await f.cargarFirebase();
+  const u = await new Promise((ok) => { const fin = f.onAuthStateChanged(f.auth, (x) => { fin(); ok(x); }); });
+  return u ? `bajó · sesión: ${u.email}` : "bajó · sin sesión (para administrar hay que entrar)";
+});
+
+await prueba("Llegar a Cloudinary", async () => {
+  /* no-cors: no se puede leer la respuesta, pero si la red no llega, falla. */
+  await fetch("https://res.cloudinary.com/cwbnaivv/image/upload/sample.jpg", { mode: "no-cors", cache: "no-store" });
+  return "se llega a res.cloudinary.com";
+});
+</script>
+</body>
+</html>
