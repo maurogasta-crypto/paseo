@@ -29,7 +29,7 @@ lo que sube el otro.
 
 | Archivo | Sello | Qué es |
 |---|---|---|
-| `index.html` | `portada-4` | La portada pública. Lee el álbum por la API REST, sin SDK ni sesión. De fondo, un recorrido lento y desenfocado por la fachada |
+| `index.html` | `portada-6` | La portada pública. Lee el álbum por la API REST, sin SDK ni sesión. De fondo, un recorrido lento y desenfocado por la fachada |
 | `fachada-fondo.jpg` / `fachada.jpg` | — | La foto del frente del local, limpia (sin poste ni plotters; persianas), desenfocada para el fondo / nítida |
 | `admin.html` | `admin-1` | El editor |
 | `diagnostico.html` | `diag-1` | Qué anda y qué no; no depende del núcleo |

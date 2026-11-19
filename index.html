@@ -7,7 +7,7 @@
 <meta name="description" content="Locales y espacios para alquilar en el Paseo Primero de Mayo, General Flores: fotos y videos de cada parte.">
 <meta name="theme-color" content="#14342b">
 <!--
-  index.html — La PORTADA PÚBLICA del paseo. Sello: portada-5 (19-nov-2026)
+  index.html — La PORTADA PÚBLICA del paseo. Sello: portada-6 (19-nov-2026)
   · Lee UN documento, albumes/general-flores, por la API REST de Firestore,
     sin SDK y sin sesión: la regla deja `get` a cualquiera y nunca `list`.
     Si gstatic está caído, esto se ve igual.
@@ -25,6 +25,10 @@
     vecinos (Levi's y El Clon, borradas de fachada-fondo.jpg).
   · portada-5: el fondo se nota detrás del contenido: capa clara más fina (50%/62%)
     y tarjetas y resumen translúcidos con desenfoque, para que el recorrido se vea.
+  · portada-6: arreglo: el encabezado (.hero) tenía fondo propio y el JS le ponía la
+    foto «portada» del álbum (Cloudinary) encima, así que el recorrido de
+    fachada-fondo.jpg no se veía. Ahora el .hero es transparente (queda el degradé
+    oscuro para leer el texto) y el JS no le pone imagen.
 -->
 <style>
   :root { --bg:#f6f2ea; --card:#fffdf8; --linea:#e3dccd; --tinta:#1d2b26; --gris:#5f6b65;
@@ -61,7 +65,7 @@
   .btn.s { border-color:rgba(255,255,255,.55); color:#fff; } .btn.s:hover { background:rgba(255,255,255,.12); }
 
   /* Portada */
-  .hero { position:relative; min-height:min(88vh,720px); display:flex; align-items:flex-end; color:#fff; background:rgba(11,22,18,.45) center/cover no-repeat; cursor:default; }
+  .hero { position:relative; min-height:min(88vh,720px); display:flex; align-items:flex-end; color:#fff; background:transparent; cursor:default; }
   .hero::before { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(11,22,18,.35) 0%,rgba(11,22,18,.15) 35%,rgba(11,22,18,.88) 100%); }
   .hero .cont { position:relative; width:100%; padding-top:90px; padding-bottom:clamp(36px,8vw,72px); }
   .eyebrow { display:inline-block; letter-spacing:.18em; text-transform:uppercase; font-size:.74rem; font-weight:600; color:var(--oro); border:1px solid rgba(211,168,90,.6); padding:5px 12px; border-radius:999px; background:rgba(0,0,0,.25); }
@@ -173,7 +177,7 @@
 import * as A from "./album.js";
 import { firebaseConfig } from "./firebase-init.js";
 
-const VERSION = "portada-5";
+const VERSION = "portada-6";
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 $("sello").textContent = VERSION + " · " + A.VERSION;
@@ -225,12 +229,9 @@ function pintar(a) {
   $("titulo").textContent = titulo;
   $("subtitulo").textContent = a.subtitulo || "";
   $("desc").textContent = a.descripcion || "";
-  const p = A.portadaDelAlbum(a);
-  if (p) {
-    const url = p.tipo === "video" ? A.mini(p, 1600) : A.grande(p);
-    $("hero").style.backgroundImage = `url("${url.replace(/"/g, "%22")}")`;
-    $("verPortada").hidden = false; $("verPortada").onclick = () => abrir([p], 0);
-  }
+  /* portada-6: el fondo de la portada es SIEMPRE fachada-fondo.jpg (el recorrido de
+     .fondo). La foto «portada» del álbum ya no se pinta detrás del encabezado: tapaba
+     el recorrido. Sigue en la base y en las tarjetas de cada parte. */
   if (a.contacto) {
     $("contacto").hidden = false; $("contactoTxt").textContent = a.contacto; $("btnContacto").hidden = false;
     const w = whatsapp(a.contacto); if (w) { $("wa").href = w; $("wa").hidden = false; }
