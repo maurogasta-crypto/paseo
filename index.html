@@ -7,7 +7,7 @@
 <meta name="description" content="Locales y espacios para alquilar en el Paseo Primero de Mayo, General Flores: fotos y videos de cada parte.">
 <meta name="theme-color" content="#14342b">
 <!--
-  index.html — La PORTADA PÚBLICA del paseo. Sello: portada-4 (19-nov-2026)
+  index.html — La PORTADA PÚBLICA del paseo. Sello: portada-5 (19-nov-2026)
   · Lee UN documento, albumes/general-flores, por la API REST de Firestore,
     sin SDK y sin sesión: la regla deja `get` a cualquiera y nunca `list`.
     Si gstatic está caído, esto se ve igual.
@@ -23,6 +23,8 @@
   · portada-4: la foto de fondo queda CENTRADA en el edificio principal (posición
     50%, paradas del recorrido corridas +9,6 puntos) y sin las publicidades de los
     vecinos (Levi's y El Clon, borradas de fachada-fondo.jpg).
+  · portada-5: el fondo se nota detrás del contenido: capa clara más fina (50%/62%)
+    y tarjetas y resumen translúcidos con desenfoque, para que el recorrido se vea.
 -->
 <style>
   :root { --bg:#f6f2ea; --card:#fffdf8; --linea:#e3dccd; --tinta:#1d2b26; --gris:#5f6b65;
@@ -41,8 +43,8 @@
   .fondo .tour { position:absolute; inset:0; background:url("fachada-fondo.jpg") 50% 50%/cover no-repeat; transform-origin:0 0;
                  transform:translate(0%,calc(50% - 50% * 1.2)) scale(1.2); will-change:transform;
                  animation:recorrido 110s ease-in-out infinite; }
-  .fondo::after { content:""; position:absolute; inset:0; background:color-mix(in srgb,var(--bg) 70%,transparent); }
-  @media (prefers-color-scheme:dark) { .fondo::after { background:color-mix(in srgb,var(--bg) 80%,transparent); } }
+  .fondo::after { content:""; position:absolute; inset:0; background:color-mix(in srgb,var(--bg) 50%,transparent); }
+  @media (prefers-color-scheme:dark) { .fondo::after { background:color-mix(in srgb,var(--bg) 62%,transparent); } }
   /* El centro de cada parada (x,y en % de la pantalla) y el zoom; se acota para que nunca asome un borde */
   @keyframes recorrido {
     0%,100% { transform:translate(0%,calc(50% - 50% * 1.2)) scale(1.2); }   /* toda la fachada */
@@ -71,7 +73,7 @@
 
   /* Resumen */
   .resumen { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--linea); border:1px solid var(--linea); border-radius:16px; overflow:hidden; margin:-34px 0 0; position:relative; box-shadow:var(--sombra); }
-  .resumen div { background:var(--card); padding:18px 10px; text-align:center; }
+  .resumen div { background:color-mix(in srgb,var(--card) 88%,transparent); padding:18px 10px; text-align:center; }
   .resumen b { display:block; font-family:var(--serif); font-size:clamp(1.5rem,5vw,2.3rem); color:var(--verde2); line-height:1.1; }
   @media (prefers-color-scheme:dark) { .resumen b { color:var(--oro); } }
   .resumen span { font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--gris); }
@@ -82,9 +84,9 @@
   nav.partes a:hover { border-color:var(--oro); }
 
   /* Espacios */
-  h2.titulo { font-family:var(--serif); font-size:clamp(1.6rem,4.5vw,2.3rem); margin:46px 0 0; }
-  .bajada { color:var(--gris); margin:4px 0 0; }
-  section.parte { scroll-margin-top:70px; margin-top:34px; background:var(--card); border:1px solid var(--linea); border-radius:20px; padding:clamp(18px,4vw,32px); box-shadow:var(--sombra); }
+  h2.titulo { font-family:var(--serif); font-size:clamp(1.6rem,4.5vw,2.3rem); margin:46px 0 0; text-shadow:0 0 14px var(--bg),0 0 4px var(--bg); }
+  .bajada { color:var(--tinta); margin:4px 0 0; text-shadow:0 0 14px var(--bg),0 0 4px var(--bg); }
+  section.parte { scroll-margin-top:70px; margin-top:34px; background:color-mix(in srgb,var(--card) 84%,transparent); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border:1px solid var(--linea); border-radius:20px; padding:clamp(18px,4vw,32px); box-shadow:var(--sombra); }
   .parte-cab { display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; }
   .parte-cab h3 { margin:0; font-family:var(--serif); font-size:clamp(1.3rem,3.6vw,1.8rem); flex:1 1 auto; }
   .chip { font-size:.78rem; font-weight:600; padding:4px 12px; border-radius:999px; border:1px solid var(--linea); color:var(--gris); white-space:nowrap; }
@@ -171,7 +173,7 @@
 import * as A from "./album.js";
 import { firebaseConfig } from "./firebase-init.js";
 
-const VERSION = "portada-4";
+const VERSION = "portada-5";
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 $("sello").textContent = VERSION + " · " + A.VERSION;
