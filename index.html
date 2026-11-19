@@ -7,7 +7,7 @@
 <meta name="description" content="Locales y espacios para alquilar en el Paseo Primero de Mayo, General Flores: fotos y videos de cada parte.">
 <meta name="theme-color" content="#14342b">
 <!--
-  index.html — La PORTADA PÚBLICA del paseo. Sello: portada-2 (19-nov-2026)
+  index.html — La PORTADA PÚBLICA del paseo. Sello: portada-4 (19-nov-2026)
   · Lee UN documento, albumes/general-flores, por la API REST de Firestore,
     sin SDK y sin sesión: la regla deja `get` a cualquiera y nunca `list`.
     Si gstatic está caído, esto se ve igual.
@@ -16,6 +16,13 @@
   · Lo escribe admin.html.
   · portada-2: rediseño visual (portada a pantalla completa, resumen, tarjetas,
     botón de consulta). La lógica de datos y el visor no cambiaron.
+  · portada-3: de fondo fijo, en segundo plano y desenfocado, un recorrido lento
+    por la fachada del local (fachada-fondo.jpg: foto limpia, sin el poste ni los
+    plotters, con persianas). Es sólo CSS; sin JS ni red extra, y quieto con
+    «reducir movimiento». fachada.jpg es la misma foto nítida.
+  · portada-4: la foto de fondo queda CENTRADA en el edificio principal (posición
+    50%, paradas del recorrido corridas +9,6 puntos) y sin las publicidades de los
+    vecinos (Levi's y El Clon, borradas de fachada-fondo.jpg).
 -->
 <style>
   :root { --bg:#f6f2ea; --card:#fffdf8; --linea:#e3dccd; --tinta:#1d2b26; --gris:#5f6b65;
@@ -26,7 +33,25 @@
             --verde:#0b1612; --verde2:#1f4d3f; --oro:#d3a85a; --ok:#5fc08a; --aviso:#e0b04a; --no:#e0776c; --sombra:0 10px 30px rgba(0,0,0,.35); }
   }
   * { box-sizing:border-box; }
-  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; background:var(--bg); color:var(--tinta); line-height:1.6; }
+  html { background:var(--bg); }
+  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; background:transparent; color:var(--tinta); line-height:1.6; }
+
+  /* Fondo: recorrido lento por la fachada, desenfocado, detrás de todo */
+  .fondo { position:fixed; inset:0; z-index:-1; overflow:hidden; background:var(--verde); pointer-events:none; }
+  .fondo .tour { position:absolute; inset:0; background:url("fachada-fondo.jpg") 50% 50%/cover no-repeat; transform-origin:0 0;
+                 transform:translate(0%,calc(50% - 50% * 1.2)) scale(1.2); will-change:transform;
+                 animation:recorrido 110s ease-in-out infinite; }
+  .fondo::after { content:""; position:absolute; inset:0; background:color-mix(in srgb,var(--bg) 70%,transparent); }
+  @media (prefers-color-scheme:dark) { .fondo::after { background:color-mix(in srgb,var(--bg) 80%,transparent); } }
+  /* El centro de cada parada (x,y en % de la pantalla) y el zoom; se acota para que nunca asome un borde */
+  @keyframes recorrido {
+    0%,100% { transform:translate(0%,calc(50% - 50% * 1.2)) scale(1.2); }   /* toda la fachada */
+    18%     { transform:translate(calc(50% - 45.6% * 1.8),calc(50% - 68% * 1.8)) scale(1.8); }   /* vidrios de planta baja */
+    38%     { transform:translate(calc(50% - 55.6% * 1.8),calc(50% - 36% * 1.8)) scale(1.8); }   /* persianas y balcón */
+    58%     { transform:translate(calc(50% - 51.6% * 1.8),0%) scale(1.8); }                      /* frontón */
+    78%     { transform:translate(calc(50% - 61.6% * 1.8),calc(50% - 66% * 1.8)) scale(1.8); }   /* el pasaje de entrada */
+  }
+  @media (prefers-reduced-motion:reduce) { .fondo .tour { animation:none; } }
   .cont { max-width:1120px; margin:0 auto; padding:0 18px; }
   a { color:inherit; }
   .btn { display:inline-flex; align-items:center; gap:8px; padding:13px 22px; border-radius:999px; font-weight:600; font-size:.98rem; text-decoration:none; border:1.5px solid transparent; cursor:pointer; font-family:inherit; }
@@ -34,7 +59,7 @@
   .btn.s { border-color:rgba(255,255,255,.55); color:#fff; } .btn.s:hover { background:rgba(255,255,255,.12); }
 
   /* Portada */
-  .hero { position:relative; min-height:min(88vh,720px); display:flex; align-items:flex-end; color:#fff; background:var(--verde) center/cover no-repeat; cursor:default; }
+  .hero { position:relative; min-height:min(88vh,720px); display:flex; align-items:flex-end; color:#fff; background:rgba(11,22,18,.45) center/cover no-repeat; cursor:default; }
   .hero::before { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(11,22,18,.35) 0%,rgba(11,22,18,.15) 35%,rgba(11,22,18,.88) 100%); }
   .hero .cont { position:relative; width:100%; padding-top:90px; padding-bottom:clamp(36px,8vw,72px); }
   .eyebrow { display:inline-block; letter-spacing:.18em; text-transform:uppercase; font-size:.74rem; font-weight:600; color:var(--oro); border:1px solid rgba(211,168,90,.6); padding:5px 12px; border-radius:999px; background:rgba(0,0,0,.25); }
@@ -105,6 +130,7 @@
 </style>
 </head>
 <body>
+<div class="fondo" aria-hidden="true"><div class="tour"></div></div>
 <header class="hero" id="hero">
   <button class="ver-portada" id="verPortada" hidden>⤢ Ver foto</button>
   <div class="cont">
@@ -145,7 +171,7 @@
 import * as A from "./album.js";
 import { firebaseConfig } from "./firebase-init.js";
 
-const VERSION = "portada-2";
+const VERSION = "portada-4";
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 $("sello").textContent = VERSION + " · " + A.VERSION;
