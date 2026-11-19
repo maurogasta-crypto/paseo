@@ -29,7 +29,7 @@ lo que sube el otro.
 
 | Archivo | Sello | Qué es |
 |---|---|---|
-| `index.html` | `portada-1` | La portada pública. Lee el álbum por la API REST, sin SDK ni sesión |
+| `index.html` | `portada-2` | La portada pública. Lee el álbum por la API REST, sin SDK ni sesión |
 | `admin.html` | `admin-1` | El editor |
 | `diagnostico.html` | `diag-1` | Qué anda y qué no; no depende del núcleo |
 | `album.js` | `album-1` | La forma del álbum y todo lo que se calcula de ella. Sin navegador ni Firebase |

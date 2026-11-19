@@ -5,76 +5,130 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Paseo Primero de Mayo · General Flores</title>
 <meta name="description" content="Locales y espacios para alquilar en el Paseo Primero de Mayo, General Flores: fotos y videos de cada parte.">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#14342b">
 <!--
-  index.html — La PORTADA PÚBLICA del paseo. Sello: portada-1 (31-oct-2026)
+  index.html — La PORTADA PÚBLICA del paseo. Sello: portada-2 (19-nov-2026)
   · Lee UN documento, albumes/general-flores, por la API REST de Firestore,
     sin SDK y sin sesión: la regla deja `get` a cualquiera y nunca `list`.
     Si gstatic está caído, esto se ve igual.
   · La forma del álbum y las cuentas salen de album.js; no se repiten acá.
   · Sólo dibuja medios de NUESTRA cuenta de Cloudinary (esMedioNuestro).
   · Lo escribe admin.html.
+  · portada-2: rediseño visual (portada a pantalla completa, resumen, tarjetas,
+    botón de consulta). La lógica de datos y el visor no cambiaron.
 -->
 <style>
-  :root { --bg:#0f172a; --card:#1e293b; --linea:#334155; --acento:#38bdf8; --texto:#f8fafc; --gris:#94a3b8;
-          --ok:#22c55e; --aviso:#f59e0b; --no:#ef4444; }
+  :root { --bg:#f6f2ea; --card:#fffdf8; --linea:#e3dccd; --tinta:#1d2b26; --gris:#5f6b65;
+          --verde:#14342b; --verde2:#1f4d3f; --oro:#b98a3e; --ok:#2e7d52; --aviso:#b7791f; --no:#b4443a;
+          --serif:Georgia,"Iowan Old Style","Times New Roman",serif; --sombra:0 10px 30px rgba(20,52,43,.10); }
+  @media (prefers-color-scheme:dark) {
+    :root { --bg:#0f1b17; --card:#16261f; --linea:#27403592; --tinta:#f1ece0; --gris:#a9b5ae;
+            --verde:#0b1612; --verde2:#1f4d3f; --oro:#d3a85a; --ok:#5fc08a; --aviso:#e0b04a; --no:#e0776c; --sombra:0 10px 30px rgba(0,0,0,.35); }
+  }
   * { box-sizing:border-box; }
-  body { margin:0; font-family:system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--texto); line-height:1.5; }
-  .cont { max-width:1100px; margin:0 auto; padding:0 16px 48px; }
-  header { padding:24px 0 8px; text-align:center; }
-  h1 { color:var(--acento); margin:0; font-size:clamp(1.6rem,5vw,2.4rem); }
-  .sub { margin:4px 0 0; color:var(--texto); opacity:.85; font-size:1.1rem; }
-  .hero { width:100%; aspect-ratio:16/9; max-height:520px; object-fit:cover; border-radius:12px; border:1px solid var(--linea); margin:16px 0; background:#000; cursor:zoom-in; display:block; }
-  .desc { color:#cbd5e1; white-space:pre-wrap; max-width:800px; margin:0 auto 16px; }
-  nav.partes { position:sticky; top:0; z-index:5; background:rgba(15,23,42,.94); backdrop-filter:blur(6px); display:flex; gap:8px; overflow-x:auto; padding:10px 0; margin:0 -16px; padding-left:16px; padding-right:16px; border-bottom:1px solid var(--linea); }
-  nav.partes a { flex:none; color:var(--texto); text-decoration:none; border:1px solid var(--linea); background:var(--card); padding:6px 12px; border-radius:999px; font-size:.9rem; white-space:nowrap; }
-  nav.partes a:hover { border-color:var(--acento); }
-  section.parte { scroll-margin-top:64px; margin-top:32px; }
-  .parte-cab { display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 12px; border-bottom:2px solid var(--linea); padding-bottom:8px; }
-  .parte-cab h2 { margin:0; color:var(--acento); font-size:1.25rem; }
-  .chip { font-size:.78rem; padding:2px 10px; border-radius:999px; border:1px solid var(--linea); color:var(--gris); }
-  .chip.disponible { border-color:var(--ok); color:var(--ok); }
-  .chip.reservado { border-color:var(--aviso); color:var(--aviso); }
-  .chip.alquilado { border-color:var(--no); color:var(--no); }
-  .parte-desc { color:#cbd5e1; white-space:pre-wrap; margin:10px 0 0; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr)); gap:12px; margin-top:14px; }
-  .medio { background:var(--card); border:1px solid var(--linea); border-radius:8px; overflow:hidden; padding:0; color:inherit; text-align:left; cursor:pointer; font:inherit; }
-  .medio .img { position:relative; aspect-ratio:4/3; background:#000; }
+  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; background:var(--bg); color:var(--tinta); line-height:1.6; }
+  .cont { max-width:1120px; margin:0 auto; padding:0 18px; }
+  a { color:inherit; }
+  .btn { display:inline-flex; align-items:center; gap:8px; padding:13px 22px; border-radius:999px; font-weight:600; font-size:.98rem; text-decoration:none; border:1.5px solid transparent; cursor:pointer; font-family:inherit; }
+  .btn.p { background:var(--oro); color:#1a1408; } .btn.p:hover { filter:brightness(1.07); }
+  .btn.s { border-color:rgba(255,255,255,.55); color:#fff; } .btn.s:hover { background:rgba(255,255,255,.12); }
+
+  /* Portada */
+  .hero { position:relative; min-height:min(88vh,720px); display:flex; align-items:flex-end; color:#fff; background:var(--verde) center/cover no-repeat; cursor:default; }
+  .hero::before { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(11,22,18,.35) 0%,rgba(11,22,18,.15) 35%,rgba(11,22,18,.88) 100%); }
+  .hero .cont { position:relative; width:100%; padding-top:90px; padding-bottom:clamp(36px,8vw,72px); }
+  .eyebrow { display:inline-block; letter-spacing:.18em; text-transform:uppercase; font-size:.74rem; font-weight:600; color:var(--oro); border:1px solid rgba(211,168,90,.6); padding:5px 12px; border-radius:999px; background:rgba(0,0,0,.25); }
+  h1 { font-family:var(--serif); font-weight:700; font-size:clamp(2.2rem,7.5vw,4.4rem); line-height:1.05; margin:16px 0 6px; letter-spacing:-.01em; max-width:14em; }
+  .sub { font-family:var(--serif); font-style:italic; font-size:clamp(1.1rem,3vw,1.5rem); margin:0; opacity:.92; }
+  .desc { max-width:640px; margin:18px 0 0; font-size:1.05rem; opacity:.92; white-space:pre-wrap; }
+  .acciones { display:flex; flex-wrap:wrap; gap:12px; margin-top:26px; }
+  .ver-portada { position:absolute; right:18px; top:18px; background:rgba(0,0,0,.35); color:#fff; border:1px solid rgba(255,255,255,.4); border-radius:999px; padding:7px 14px; font:inherit; font-size:.82rem; cursor:zoom-in; }
+
+  /* Resumen */
+  .resumen { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--linea); border:1px solid var(--linea); border-radius:16px; overflow:hidden; margin:-34px 0 0; position:relative; box-shadow:var(--sombra); }
+  .resumen div { background:var(--card); padding:18px 10px; text-align:center; }
+  .resumen b { display:block; font-family:var(--serif); font-size:clamp(1.5rem,5vw,2.3rem); color:var(--verde2); line-height:1.1; }
+  @media (prefers-color-scheme:dark) { .resumen b { color:var(--oro); } }
+  .resumen span { font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--gris); }
+
+  /* Navegación */
+  nav.partes { position:sticky; top:0; z-index:5; display:flex; gap:8px; overflow-x:auto; padding:12px 18px; margin:26px -18px 0; background:color-mix(in srgb,var(--bg) 92%,transparent); backdrop-filter:blur(8px); border-bottom:1px solid var(--linea); }
+  nav.partes a { flex:none; text-decoration:none; border:1px solid var(--linea); background:var(--card); padding:7px 15px; border-radius:999px; font-size:.9rem; white-space:nowrap; }
+  nav.partes a:hover { border-color:var(--oro); }
+
+  /* Espacios */
+  h2.titulo { font-family:var(--serif); font-size:clamp(1.6rem,4.5vw,2.3rem); margin:46px 0 0; }
+  .bajada { color:var(--gris); margin:4px 0 0; }
+  section.parte { scroll-margin-top:70px; margin-top:34px; background:var(--card); border:1px solid var(--linea); border-radius:20px; padding:clamp(18px,4vw,32px); box-shadow:var(--sombra); }
+  .parte-cab { display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; }
+  .parte-cab h3 { margin:0; font-family:var(--serif); font-size:clamp(1.3rem,3.6vw,1.8rem); flex:1 1 auto; }
+  .chip { font-size:.78rem; font-weight:600; padding:4px 12px; border-radius:999px; border:1px solid var(--linea); color:var(--gris); white-space:nowrap; }
+  .chip.m2 { color:var(--tinta); }
+  .chip.disponible { background:color-mix(in srgb,var(--ok) 14%,transparent); border-color:var(--ok); color:var(--ok); }
+  .chip.reservado { background:color-mix(in srgb,var(--aviso) 14%,transparent); border-color:var(--aviso); color:var(--aviso); }
+  .chip.alquilado { background:color-mix(in srgb,var(--no) 14%,transparent); border-color:var(--no); color:var(--no); }
+  .parte-desc { color:var(--gris); white-space:pre-wrap; margin:12px 0 0; max-width:75ch; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(230px,100%),1fr)); gap:12px; margin-top:20px; }
+  @media (min-width:760px) { .grid .medio:first-child { grid-column:span 2; grid-row:span 2; } .grid .medio:first-child .img { aspect-ratio:auto; height:100%; min-height:260px; } .grid .medio:first-child { display:flex; flex-direction:column; } .grid .medio:first-child .img { flex:1; } }
+  .medio { background:var(--bg); border:1px solid var(--linea); border-radius:14px; overflow:hidden; padding:0; color:inherit; text-align:left; cursor:pointer; font:inherit; transition:transform .2s,box-shadow .2s; }
+  .medio:hover { transform:translateY(-3px); box-shadow:var(--sombra); }
+  .medio .img { position:relative; aspect-ratio:4/3; background:#000; overflow:hidden; }
   .medio img { width:100%; height:100%; object-fit:cover; display:block; }
-  .medio .play { position:absolute; inset:0; display:grid; place-items:center; font-size:2.4rem; text-shadow:0 2px 8px #000; }
-  .medio .txt { padding:10px 12px; }
+  .medio .play { position:absolute; inset:0; display:grid; place-items:center; font-size:2.4rem; color:#fff; text-shadow:0 2px 8px #000; background:rgba(0,0,0,.18); }
+  .medio .txt { padding:10px 14px 12px; }
   .medio .t { font-weight:600; font-size:.92rem; margin:0; }
-  .medio .d { font-size:.82rem; color:#cbd5e1; margin:4px 0 0; white-space:pre-wrap; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-  .vacio, .estado { text-align:center; color:var(--gris); padding:40px 16px; border:1px dashed var(--linea); border-radius:8px; margin-top:24px; }
-  .contacto { margin-top:40px; padding:16px; background:var(--card); border:1px solid var(--linea); border-radius:8px; white-space:pre-wrap; }
-  footer { margin-top:40px; text-align:center; color:var(--gris); font-size:.75rem; }
-  footer a { color:var(--gris); }
-  /* El visor */
+  .medio .d { font-size:.82rem; color:var(--gris); margin:3px 0 0; white-space:pre-wrap; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .consultar { margin-top:20px; font-size:.9rem; color:var(--verde2); font-weight:600; text-decoration:none; display:inline-block; }
+  @media (prefers-color-scheme:dark) { .consultar { color:var(--oro); } }
+  .vacio, .estado { text-align:center; color:var(--gris); padding:36px 16px; border:1px dashed var(--linea); border-radius:14px; margin-top:20px; }
+
+  /* Contacto */
+  .contacto { margin-top:56px; background:var(--verde); color:#fff; border-radius:24px; padding:clamp(26px,6vw,52px); text-align:center; }
+  .contacto h2 { font-family:var(--serif); font-size:clamp(1.6rem,5vw,2.4rem); margin:0 0 8px; }
+  .contacto p { margin:0 auto 22px; max-width:520px; opacity:.9; white-space:pre-wrap; }
+  footer { margin:36px 0 40px; text-align:center; color:var(--gris); font-size:.75rem; }
+
+  /* Visor */
   #visor { position:fixed; inset:0; background:rgba(0,0,0,.95); z-index:50; display:none; flex-direction:column; }
   #visor.abierto { display:flex; }
   #visor .escena { flex:1; display:grid; place-items:center; min-height:0; touch-action:pan-y; }
   #visor img, #visor video { max-width:100%; max-height:100%; object-fit:contain; }
   #visor .pie { padding:12px 16px calc(12px + env(safe-area-inset-bottom)); color:#e2e8f0; text-align:center; font-size:.9rem; white-space:pre-wrap; }
   #visor .pie b { display:block; }
-  #visor button { position:absolute; background:rgba(30,41,59,.8); color:#fff; border:1px solid var(--linea); border-radius:999px; width:44px; height:44px; font-size:1.3rem; cursor:pointer; }
+  #visor button { position:absolute; background:rgba(30,41,59,.8); color:#fff; border:1px solid #334155; border-radius:999px; width:44px; height:44px; font-size:1.3rem; cursor:pointer; }
   #visor .cerrar { top:calc(12px + env(safe-area-inset-top)); right:12px; }
   #visor .ant { left:8px; top:50%; transform:translateY(-50%); }
   #visor .sig { right:8px; top:50%; transform:translateY(-50%); }
-  #visor .num { position:absolute; top:calc(20px + env(safe-area-inset-top)); left:16px; color:var(--gris); font-size:.85rem; }
+  #visor .num { position:absolute; top:calc(20px + env(safe-area-inset-top)); left:16px; color:#94a3b8; font-size:.85rem; }
   @media (prefers-reduced-motion:no-preference) { html { scroll-behavior:smooth; } }
+  @media (prefers-reduced-motion:reduce) { .medio { transition:none; } }
 </style>
 </head>
 <body>
-<div class="cont">
-  <header>
+<header class="hero" id="hero">
+  <button class="ver-portada" id="verPortada" hidden>⤢ Ver foto</button>
+  <div class="cont">
+    <span class="eyebrow">Alquiler de espacios · General Flores</span>
     <h1 id="titulo">Paseo Primero de Mayo</h1>
-    <p class="sub" id="subtitulo">General Flores</p>
-  </header>
-  <img id="hero" class="hero" alt="" hidden>
-  <p class="desc" id="desc"></p>
+    <p class="sub" id="subtitulo"></p>
+    <p class="desc" id="desc"></p>
+    <div class="acciones">
+      <a class="btn p" href="#espacios">Ver los espacios</a>
+      <a class="btn s" href="#contacto" id="btnContacto" hidden>Consultar</a>
+    </div>
+  </div>
+</header>
+<div class="cont">
+  <div class="resumen" id="resumen" hidden></div>
   <nav class="partes" id="nav" hidden></nav>
+  <h2 class="titulo" id="espacios">Espacios para alquilar</h2>
+  <p class="bajada">Mirá las fotos y videos de cada parte del paseo.</p>
   <main id="partes"><div class="estado">Cargando…</div></main>
-  <div class="contacto" id="contacto" hidden></div>
+  <div class="contacto" id="contacto" hidden>
+    <h2>¿Te interesa un espacio?</h2>
+    <p id="contactoTxt"></p>
+    <a class="btn p" id="wa" href="#" target="_blank" rel="noopener" hidden>Escribir por WhatsApp</a>
+  </div>
   <footer><span id="sello"></span> · <a href="admin.html">administrar</a></footer>
 </div>
 
@@ -91,7 +145,7 @@
 import * as A from "./album.js";
 import { firebaseConfig } from "./firebase-init.js";
 
-const VERSION = "portada-1";
+const VERSION = "portada-2";
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 $("sello").textContent = VERSION + " · " + A.VERSION;
@@ -128,29 +182,54 @@ $("vEscena").addEventListener("touchend", (e) => {
   if (Math.abs(dx) > 50) mover(dx < 0 ? 1 : -1);
 });
 
+// Del texto de contacto saca un teléfono (si hay) para armar el botón de WhatsApp.
+function whatsapp(texto) {
+  const m = String(texto || "").match(/\+?\d[\d\s().-]{6,}\d/);
+  if (!m) return "";
+  let d = m[0].replace(/\D/g, "");
+  if (!m[0].trim().startsWith("+")) d = d.startsWith("0") ? "598" + d.slice(1) : d;
+  return d.length >= 8 ? "https://wa.me/" + d : "";
+}
+
 function pintar(a) {
-  document.title = [a.titulo || "Paseo Primero de Mayo", a.subtitulo].filter(Boolean).join(" · ");
-  $("titulo").textContent = a.titulo || "Paseo Primero de Mayo";
+  const titulo = a.titulo || "Paseo Primero de Mayo";
+  document.title = [titulo, a.subtitulo].filter(Boolean).join(" · ");
+  $("titulo").textContent = titulo;
   $("subtitulo").textContent = a.subtitulo || "";
   $("desc").textContent = a.descripcion || "";
   const p = A.portadaDelAlbum(a);
-  if (p) { $("hero").src = p.tipo === "video" ? A.mini(p, 1600) : A.grande(p); $("hero").alt = a.titulo || ""; $("hero").hidden = false; $("hero").onclick = () => abrir([p], 0); }
+  if (p) {
+    const url = p.tipo === "video" ? A.mini(p, 1600) : A.grande(p);
+    $("hero").style.backgroundImage = `url("${url.replace(/"/g, "%22")}")`;
+    $("verPortada").hidden = false; $("verPortada").onclick = () => abrir([p], 0);
+  }
+  if (a.contacto) {
+    $("contacto").hidden = false; $("contactoTxt").textContent = a.contacto; $("btnContacto").hidden = false;
+    const w = whatsapp(a.contacto); if (w) { $("wa").href = w; $("wa").hidden = false; }
+  }
   const secs = A.secciones(a, { soloVisibles: true });
-  $("contacto").hidden = !a.contacto; $("contacto").textContent = a.contacto || "";
   if (!secs.length) { $("partes").innerHTML = `<div class="vacio">Todavía no hay espacios publicados.</div>`; return; }
+  const disp = secs.filter((s) => s.estado === "disponible").length;
+  const m2 = secs.reduce((t, s) => t + (typeof s.superficie === "number" ? s.superficie : 0), 0);
+  const cifras = [[secs.length, secs.length === 1 ? "Espacio" : "Espacios"], [disp, disp === 1 ? "Disponible" : "Disponibles"]];
+  if (m2 > 0) cifras.push([String(Math.round(m2 * 10) / 10).replace(".", ","), "m² en total"]);
+  $("resumen").style.gridTemplateColumns = `repeat(${cifras.length},1fr)`;
+  $("resumen").innerHTML = cifras.map(([n, t]) => `<div><b>${esc(n)}</b><span>${esc(t)}</span></div>`).join("");
+  $("resumen").hidden = false;
   $("nav").hidden = secs.length < 2;
   $("nav").innerHTML = secs.map((s) => `<a href="#p-${esc(s.id)}">${esc(s.nombre)}</a>`).join("");
   $("partes").innerHTML = secs.map((s) => {
     const ms = A.mediosDe(a, s.id), sup = A.superficieTexto(s);
     return `<section class="parte" id="p-${esc(s.id)}">
-      <div class="parte-cab"><h2>${esc(s.nombre)}</h2>
-        ${s.estado ? `<span class="chip ${esc(s.estado)}">${esc(A.ESTADOS[s.estado])}</span>` : ""}
-        ${sup ? `<span class="chip">${esc(sup)}</span>` : ""}</div>
+      <div class="parte-cab"><h3>${esc(s.nombre)}</h3>
+        ${sup ? `<span class="chip m2">${esc(sup)}</span>` : ""}
+        ${s.estado ? `<span class="chip ${esc(s.estado)}">${esc(A.ESTADOS[s.estado])}</span>` : ""}</div>
       ${s.descripcion ? `<p class="parte-desc">${esc(s.descripcion)}</p>` : ""}
       ${ms.length ? `<div class="grid">${ms.map((m, i) => `<button class="medio" data-s="${esc(s.id)}" data-i="${i}">
-          <div class="img"><img src="${esc(A.mini(m))}" alt="${esc(m.titulo)}" loading="lazy">${m.tipo === "video" ? `<span class="play">▶</span>` : ""}</div>
+          <div class="img"><img src="${esc(A.mini(m, i === 0 ? 960 : 480))}" alt="${esc(m.titulo)}" loading="lazy">${m.tipo === "video" ? `<span class="play">▶</span>` : ""}</div>
           ${m.titulo || m.detalle ? `<div class="txt">${m.titulo ? `<p class="t">${esc(m.titulo)}</p>` : ""}${m.detalle ? `<p class="d">${esc(m.detalle)}</p>` : ""}</div>` : ""}
         </button>`).join("")}</div>` : `<div class="vacio">Esta parte todavía no tiene fotos ni videos.</div>`}
+      ${a.contacto && s.estado !== "alquilado" ? `<a class="consultar" href="#contacto">Consultar por este espacio →</a>` : ""}
     </section>`;
   }).join("");
   $("partes").querySelectorAll(".medio").forEach((b) => b.addEventListener("click", () => abrir(A.mediosDe(a, b.dataset.s), Number(b.dataset.i))));
@@ -164,7 +243,7 @@ async function cargar() {
     if (!r.ok) throw new Error(r.status === 403 ? "la base no deja leer el álbum (reglas)" : "la base contestó " + r.status);
     pintar(A.normalizar(A.documentoDeFirestore(await r.json())));
   } catch (e) {
-    $("partes").innerHTML = `<div class="estado">No se pudo cargar el catálogo: ${esc(e.message || e)}.<br><button onclick="location.reload()">Reintentar</button></div>`;
+    $("partes").innerHTML = `<div class="estado">No se pudo cargar el catálogo: ${esc(e.message || e)}.<br><button class="btn p" onclick="location.reload()">Reintentar</button></div>`;
   }
 }
 cargar();
