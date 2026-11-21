@@ -7,7 +7,7 @@
 <meta name="description" content="Locales y espacios para alquilar en el Paseo Primero de Mayo, General Flores: fotos y videos de cada parte.">
 <meta name="theme-color" content="#14342b">
 <!--
-  index.html — La PORTADA PÚBLICA del paseo. Sello: portada-6 (19-nov-2026)
+  index.html — La PORTADA PÚBLICA del paseo. Sello: portada-7 (20-nov-2026)
   · Lee UN documento, albumes/general-flores, por la API REST de Firestore,
     sin SDK y sin sesión: la regla deja `get` a cualquiera y nunca `list`.
     Si gstatic está caído, esto se ve igual.
@@ -29,6 +29,13 @@
     foto «portada» del álbum (Cloudinary) encima, así que el recorrido de
     fachada-fondo.jpg no se veía. Ahora el .hero es transparente (queda el degradé
     oscuro para leer el texto) y el JS no le pone imagen.
+  · portada-7: rediseño de exhibición. Tomado de los portales de alquiler comercial
+    (catálogo de tarjetas con insignias de estado y video), del estilo editorial
+    (tipografía serif, aire, una foto grande por espacio) y de la portada con cifras.
+    Nuevo: catálogo con filtro por estado, foto grande por espacio con rótulo,
+    aparición suave al hacer scroll (quieta con «reducir movimiento»), menú que marca
+    dónde estás, WhatsApp con el nombre del espacio y barra fija de consulta en el
+    celular. NO cambió la lectura de datos, el visor ni el fondo de fachada.
 -->
 <style>
   :root { --bg:#f6f2ea; --card:#fffdf8; --linea:#e3dccd; --tinta:#1d2b26; --gris:#5f6b65;
@@ -39,6 +46,7 @@
             --verde:#0b1612; --verde2:#1f4d3f; --oro:#d3a85a; --ok:#5fc08a; --aviso:#e0b04a; --no:#e0776c; --sombra:0 10px 30px rgba(0,0,0,.35); }
   }
   * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
   html { background:var(--bg); }
   body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; background:transparent; color:var(--tinta); line-height:1.6; }
 
@@ -60,48 +68,93 @@
   @media (prefers-reduced-motion:reduce) { .fondo .tour { animation:none; } }
   .cont { max-width:1120px; margin:0 auto; padding:0 18px; }
   a { color:inherit; }
-  .btn { display:inline-flex; align-items:center; gap:8px; padding:13px 22px; border-radius:999px; font-weight:600; font-size:.98rem; text-decoration:none; border:1.5px solid transparent; cursor:pointer; font-family:inherit; }
-  .btn.p { background:var(--oro); color:#1a1408; } .btn.p:hover { filter:brightness(1.07); }
+  .btn { display:inline-flex; align-items:center; gap:8px; padding:13px 24px; border-radius:999px; font-weight:600; font-size:.98rem; text-decoration:none; border:1.5px solid transparent; cursor:pointer; font-family:inherit; transition:filter .2s,background .2s,transform .2s; }
+  .btn.p { background:var(--oro); color:#1a1408; } .btn.p:hover { filter:brightness(1.07); transform:translateY(-1px); }
   .btn.s { border-color:rgba(255,255,255,.55); color:#fff; } .btn.s:hover { background:rgba(255,255,255,.12); }
 
-  /* Portada */
-  .hero { position:relative; min-height:min(88vh,720px); display:flex; align-items:flex-end; color:#fff; background:transparent; cursor:default; }
-  .hero::before { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(11,22,18,.35) 0%,rgba(11,22,18,.15) 35%,rgba(11,22,18,.88) 100%); }
-  .hero .cont { position:relative; width:100%; padding-top:90px; padding-bottom:clamp(36px,8vw,72px); }
-  .eyebrow { display:inline-block; letter-spacing:.18em; text-transform:uppercase; font-size:.74rem; font-weight:600; color:var(--oro); border:1px solid rgba(211,168,90,.6); padding:5px 12px; border-radius:999px; background:rgba(0,0,0,.25); }
-  h1 { font-family:var(--serif); font-weight:700; font-size:clamp(2.2rem,7.5vw,4.4rem); line-height:1.05; margin:16px 0 6px; letter-spacing:-.01em; max-width:14em; }
-  .sub { font-family:var(--serif); font-style:italic; font-size:clamp(1.1rem,3vw,1.5rem); margin:0; opacity:.92; }
-  .desc { max-width:640px; margin:18px 0 0; font-size:1.05rem; opacity:.92; white-space:pre-wrap; }
-  .acciones { display:flex; flex-wrap:wrap; gap:12px; margin-top:26px; }
-  .ver-portada { position:absolute; right:18px; top:18px; background:rgba(0,0,0,.35); color:#fff; border:1px solid rgba(255,255,255,.4); border-radius:999px; padding:7px 14px; font:inherit; font-size:.82rem; cursor:zoom-in; }
+  /* Barra superior sobre la portada */
+  .top { position:absolute; inset:0 0 auto 0; z-index:3; padding-top:calc(16px + env(safe-area-inset-top)); }
+  .top .cont { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .marca { font-family:var(--serif); font-weight:700; font-size:1.08rem; color:#fff; text-decoration:none; line-height:1.15; }
+  .marca small { display:block; font-family:system-ui,sans-serif; font-weight:600; font-size:.62rem; letter-spacing:.22em; text-transform:uppercase; color:var(--oro); }
+  .top .btn { padding:9px 18px; font-size:.86rem; }
 
-  /* Resumen */
-  .resumen { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--linea); border:1px solid var(--linea); border-radius:16px; overflow:hidden; margin:-34px 0 0; position:relative; box-shadow:var(--sombra); }
-  .resumen div { background:color-mix(in srgb,var(--card) 88%,transparent); padding:18px 10px; text-align:center; }
-  .resumen b { display:block; font-family:var(--serif); font-size:clamp(1.5rem,5vw,2.3rem); color:var(--verde2); line-height:1.1; }
-  @media (prefers-color-scheme:dark) { .resumen b { color:var(--oro); } }
-  .resumen span { font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--gris); }
+  /* Portada */
+  .hero { position:relative; min-height:min(94vh,820px); display:flex; align-items:flex-end; color:#fff; background:transparent; }
+  .hero::before { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(11,22,18,.55) 0%,rgba(11,22,18,.12) 30%,rgba(11,22,18,.5) 60%,rgba(11,22,18,.92) 100%); }
+  .hero .cont { position:relative; width:100%; padding-top:110px; padding-bottom:clamp(60px,9vw,96px); }
+  .eyebrow { display:inline-block; letter-spacing:.18em; text-transform:uppercase; font-size:.74rem; font-weight:600; color:var(--oro); border:1px solid rgba(211,168,90,.6); padding:5px 12px; border-radius:999px; background:rgba(0,0,0,.25); }
+  h1 { font-family:var(--serif); font-weight:700; font-size:clamp(2.5rem,8.5vw,5.2rem); line-height:1.02; margin:18px 0 8px; letter-spacing:-.015em; max-width:13em; text-wrap:balance; }
+  .sub { font-family:var(--serif); font-style:italic; font-size:clamp(1.15rem,3vw,1.6rem); margin:0; opacity:.94; }
+  .desc { max-width:620px; margin:18px 0 0; font-size:1.05rem; opacity:.9; white-space:pre-wrap; }
+  .acciones { display:flex; flex-wrap:wrap; gap:12px; margin-top:28px; }
+
+  /* Cifras dentro de la portada */
+  .resumen { display:flex; flex-wrap:wrap; gap:14px clamp(24px,6vw,64px); margin-top:clamp(30px,6vw,52px); padding-top:22px; border-top:1px solid rgba(255,255,255,.3); }
+  .resumen b { display:block; font-family:var(--serif); font-size:clamp(1.9rem,6vw,3rem); line-height:1; color:#fff; }
+  .resumen span { display:block; margin-top:6px; font-size:.74rem; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.78); }
+
+  /* La hoja de contenido, apoyada sobre la portada */
+  .cuerpo { position:relative; margin-top:-30px; border-radius:30px 30px 0 0; background:color-mix(in srgb,var(--bg) 93%,transparent); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); padding-top:18px; padding-bottom:10px; }
 
   /* Navegación */
-  nav.partes { position:sticky; top:0; z-index:5; display:flex; gap:8px; overflow-x:auto; padding:12px 18px; margin:26px -18px 0; background:color-mix(in srgb,var(--bg) 92%,transparent); backdrop-filter:blur(8px); border-bottom:1px solid var(--linea); }
-  nav.partes a { flex:none; text-decoration:none; border:1px solid var(--linea); background:var(--card); padding:7px 15px; border-radius:999px; font-size:.9rem; white-space:nowrap; }
+  nav.partes { position:sticky; top:0; z-index:5; display:flex; gap:8px; overflow-x:auto; padding:12px 18px; padding-top:calc(12px + env(safe-area-inset-top)); margin:0 -18px; background:color-mix(in srgb,var(--bg) 92%,transparent); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border-bottom:1px solid var(--linea); scrollbar-width:none; }
+  nav.partes::-webkit-scrollbar { display:none; }
+  nav.partes a { flex:none; text-decoration:none; border:1px solid var(--linea); background:var(--card); padding:7px 15px; border-radius:999px; font-size:.9rem; white-space:nowrap; transition:background .2s,color .2s,border-color .2s; }
   nav.partes a:hover { border-color:var(--oro); }
+  nav.partes a.act { background:var(--verde2); border-color:var(--verde2); color:#fff; }
 
-  /* Espacios */
-  h2.titulo { font-family:var(--serif); font-size:clamp(1.6rem,4.5vw,2.3rem); margin:46px 0 0; text-shadow:0 0 14px var(--bg),0 0 4px var(--bg); }
-  .bajada { color:var(--tinta); margin:4px 0 0; text-shadow:0 0 14px var(--bg),0 0 4px var(--bg); }
-  section.parte { scroll-margin-top:70px; margin-top:34px; background:color-mix(in srgb,var(--card) 84%,transparent); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border:1px solid var(--linea); border-radius:20px; padding:clamp(18px,4vw,32px); box-shadow:var(--sombra); }
-  .parte-cab { display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; }
-  .parte-cab h3 { margin:0; font-family:var(--serif); font-size:clamp(1.3rem,3.6vw,1.8rem); flex:1 1 auto; }
-  .chip { font-size:.78rem; font-weight:600; padding:4px 12px; border-radius:999px; border:1px solid var(--linea); color:var(--gris); white-space:nowrap; }
-  .chip.m2 { color:var(--tinta); }
-  .chip.disponible { background:color-mix(in srgb,var(--ok) 14%,transparent); border-color:var(--ok); color:var(--ok); }
-  .chip.reservado { background:color-mix(in srgb,var(--aviso) 14%,transparent); border-color:var(--aviso); color:var(--aviso); }
-  .chip.alquilado { background:color-mix(in srgb,var(--no) 14%,transparent); border-color:var(--no); color:var(--no); }
-  .parte-desc { color:var(--gris); white-space:pre-wrap; margin:12px 0 0; max-width:75ch; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(230px,100%),1fr)); gap:12px; margin-top:20px; }
-  @media (min-width:760px) { .grid .medio:first-child { grid-column:span 2; grid-row:span 2; } .grid .medio:first-child .img { aspect-ratio:auto; height:100%; min-height:260px; } .grid .medio:first-child { display:flex; flex-direction:column; } .grid .medio:first-child .img { flex:1; } }
-  .medio { background:var(--bg); border:1px solid var(--linea); border-radius:14px; overflow:hidden; padding:0; color:inherit; text-align:left; cursor:pointer; font:inherit; transition:transform .2s,box-shadow .2s; }
+  /* Títulos de sección */
+  .cab-sec { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:14px; margin-top:clamp(34px,7vw,64px); }
+  .kicker { font-size:.74rem; letter-spacing:.2em; text-transform:uppercase; font-weight:600; color:var(--oro); margin:0 0 6px; }
+  h2.titulo { font-family:var(--serif); font-size:clamp(1.8rem,5vw,2.6rem); line-height:1.1; margin:0; }
+  .bajada { color:var(--gris); margin:8px 0 0; max-width:52ch; }
+
+  /* Filtros */
+  .filtros { display:flex; gap:8px; flex-wrap:wrap; }
+  .filtros button { font:inherit; font-size:.86rem; font-weight:600; padding:8px 16px; border-radius:999px; border:1px solid var(--linea); background:var(--card); color:var(--tinta); cursor:pointer; transition:background .2s,color .2s,border-color .2s; }
+  .filtros button:hover { border-color:var(--oro); }
+  .filtros button[aria-pressed="true"] { background:var(--verde2); border-color:var(--verde2); color:#fff; }
+  .filtros small { opacity:.7; font-weight:500; margin-left:4px; }
+
+  /* Catálogo de tarjetas */
+  .catalogo { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(290px,100%),1fr)); gap:20px; margin-top:24px; }
+  .tarj { display:flex; flex-direction:column; text-decoration:none; background:var(--card); border:1px solid var(--linea); border-radius:20px; overflow:hidden; box-shadow:var(--sombra); transition:transform .25s,box-shadow .25s; }
+  .tarj:hover { transform:translateY(-4px); box-shadow:0 18px 40px rgba(20,52,43,.18); }
+  .tarj .foto { position:relative; aspect-ratio:4/3; overflow:hidden; background:linear-gradient(135deg,var(--verde2),var(--verde)); }
+  .tarj .foto img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .6s; }
+  .tarj:hover .foto img { transform:scale(1.05); }
+  .tarj.alq .foto img { filter:grayscale(.65) brightness(.85); }
+  .sinfoto { position:absolute; inset:0; display:grid; place-items:center; color:rgba(255,255,255,.7); font-family:var(--serif); font-style:italic; }
+  .est { position:absolute; left:12px; top:12px; font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:5px 12px; border-radius:999px; color:#fff; background:rgba(11,22,18,.7); }
+  .est.disponible { background:#2e7d52; } .est.reservado { background:#b7791f; } .est.alquilado { background:#b4443a; }
+  .vid { position:absolute; right:12px; bottom:12px; font-size:.76rem; font-weight:600; padding:4px 11px; border-radius:999px; color:#fff; background:rgba(11,22,18,.7); }
+  .tx { padding:16px 18px 18px; display:flex; flex-direction:column; gap:4px; flex:1; }
+  .tx h3 { margin:0; font-family:var(--serif); font-size:1.3rem; line-height:1.2; }
+  .tx .meta { margin:0; color:var(--gris); font-size:.88rem; }
+  .tx .ir { margin-top:auto; padding-top:10px; font-size:.88rem; font-weight:600; color:var(--verde2); }
+  @media (prefers-color-scheme:dark) { .tx .ir { color:var(--oro); } }
+
+  /* Un bloque por espacio */
+  section.parte { scroll-margin-top:76px; margin-top:clamp(44px,8vw,88px); }
+  .lead { position:relative; display:block; width:100%; padding:0; border:0; margin:0; border-radius:26px; overflow:hidden; aspect-ratio:16/9; max-height:640px; background:linear-gradient(135deg,var(--verde2),var(--verde)); color:#fff; text-align:left; font:inherit; cursor:zoom-in; box-shadow:var(--sombra); }
+  .lead.sin { cursor:default; aspect-ratio:auto; min-height:170px; }
+  .lead.sin .rotulo { position:relative; }
+  .lead img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s; }
+  .lead:hover img { transform:scale(1.03); }
+  .lead::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(11,22,18,0) 35%,rgba(11,22,18,.82) 100%); pointer-events:none; }
+  .lead .play { position:absolute; inset:0; z-index:1; display:grid; place-items:center; font-size:3.4rem; text-shadow:0 2px 12px #000; }
+  .rotulo { position:absolute; left:0; right:0; bottom:0; z-index:2; display:block; padding:clamp(18px,4vw,38px); }
+  .rotulo small { display:block; font-size:.72rem; letter-spacing:.2em; text-transform:uppercase; color:var(--oro); font-weight:700; }
+  .rotulo .nom { display:block; font-family:var(--serif); font-weight:700; font-size:clamp(1.6rem,4.8vw,2.8rem); line-height:1.1; margin:6px 0 10px; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { font-size:.78rem; font-weight:600; padding:4px 13px; border-radius:999px; color:#fff; background:rgba(11,22,18,.55); border:1px solid rgba(255,255,255,.4); white-space:nowrap; }
+  .chip.disponible { background:#2e7d52; border-color:#2e7d52; } .chip.reservado { background:#b7791f; border-color:#b7791f; } .chip.alquilado { background:#b4443a; border-color:#b4443a; }
+  .info { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px 28px; margin-top:22px; }
+  .parte-desc { color:var(--gris); white-space:pre-wrap; margin:0; max-width:68ch; flex:1 1 320px; font-size:1.02rem; }
+  .consultar { flex:none; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(230px,100%),1fr)); gap:12px; margin-top:22px; }
+  .medio { background:var(--card); border:1px solid var(--linea); border-radius:16px; overflow:hidden; padding:0; color:inherit; text-align:left; cursor:pointer; font:inherit; transition:transform .2s,box-shadow .2s; }
   .medio:hover { transform:translateY(-3px); box-shadow:var(--sombra); }
   .medio .img { position:relative; aspect-ratio:4/3; background:#000; overflow:hidden; }
   .medio img { width:100%; height:100%; object-fit:cover; display:block; }
@@ -109,15 +162,25 @@
   .medio .txt { padding:10px 14px 12px; }
   .medio .t { font-weight:600; font-size:.92rem; margin:0; }
   .medio .d { font-size:.82rem; color:var(--gris); margin:3px 0 0; white-space:pre-wrap; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-  .consultar { margin-top:20px; font-size:.9rem; color:var(--verde2); font-weight:600; text-decoration:none; display:inline-block; }
-  @media (prefers-color-scheme:dark) { .consultar { color:var(--oro); } }
   .vacio, .estado { text-align:center; color:var(--gris); padding:36px 16px; border:1px dashed var(--linea); border-radius:14px; margin-top:20px; }
 
+  /* Aparición al hacer scroll: sólo con JS y sin «reducir movimiento» */
+  html.mov .rev { opacity:0; transform:translateY(24px); transition:opacity .7s ease,transform .7s ease; transition-delay:var(--d,0ms); }
+  html.mov .rev.vis { opacity:1; transform:none; }
+  html.mov .tarj.rev.vis:hover { transform:translateY(-4px); transition-delay:0ms; }
+
   /* Contacto */
-  .contacto { margin-top:56px; background:var(--verde); color:#fff; border-radius:24px; padding:clamp(26px,6vw,52px); text-align:center; }
-  .contacto h2 { font-family:var(--serif); font-size:clamp(1.6rem,5vw,2.4rem); margin:0 0 8px; }
-  .contacto p { margin:0 auto 22px; max-width:520px; opacity:.9; white-space:pre-wrap; }
+  .contacto { margin-top:clamp(56px,9vw,96px); background:linear-gradient(135deg,var(--verde2),var(--verde)); color:#fff; border-radius:28px; padding:clamp(30px,6vw,60px); text-align:center; }
+  .contacto h2 { font-family:var(--serif); font-size:clamp(1.8rem,5vw,2.7rem); line-height:1.1; margin:0 0 10px; }
+  .contacto p { margin:0 auto 24px; max-width:520px; opacity:.92; white-space:pre-wrap; }
   footer { margin:36px 0 40px; text-align:center; color:var(--gris); font-size:.75rem; }
+
+  /* Barra fija de consulta (sólo celular) */
+  #barra { position:fixed; left:0; right:0; bottom:0; z-index:20; display:none; align-items:center; justify-content:space-between; gap:12px; padding:10px 16px calc(10px + env(safe-area-inset-bottom)); background:color-mix(in srgb,var(--verde) 94%,transparent); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); color:#fff; transition:transform .3s; }
+  #barra span { font-size:.9rem; font-weight:600; line-height:1.25; }
+  #barra .btn { padding:10px 20px; font-size:.9rem; flex:none; }
+  #barra.fuera { transform:translateY(110%); }
+  @media (max-width:720px) { #barra.on { display:flex; } body.con-barra footer { margin-bottom:84px; } .lead { aspect-ratio:4/3; border-radius:20px; } }
 
   /* Visor */
   #visor { position:fixed; inset:0; background:rgba(0,0,0,.95); z-index:50; display:none; flex-direction:column; }
@@ -132,13 +195,16 @@
   #visor .sig { right:8px; top:50%; transform:translateY(-50%); }
   #visor .num { position:absolute; top:calc(20px + env(safe-area-inset-top)); left:16px; color:#94a3b8; font-size:.85rem; }
   @media (prefers-reduced-motion:no-preference) { html { scroll-behavior:smooth; } }
-  @media (prefers-reduced-motion:reduce) { .medio { transition:none; } }
+  @media (prefers-reduced-motion:reduce) { .medio, .tarj, .tarj .foto img, .lead img { transition:none; } }
 </style>
 </head>
 <body>
 <div class="fondo" aria-hidden="true"><div class="tour"></div></div>
 <header class="hero" id="hero">
-  <button class="ver-portada" id="verPortada" hidden>⤢ Ver foto</button>
+  <div class="top"><div class="cont">
+    <a class="marca" href="#hero"><small>General Flores</small>Paseo Primero de Mayo</a>
+    <a class="btn p" href="#contacto" id="btnTop" hidden>Consultar</a>
+  </div></div>
   <div class="cont">
     <span class="eyebrow">Alquiler de espacios · General Flores</span>
     <h1 id="titulo">Paseo Primero de Mayo</h1>
@@ -148,13 +214,21 @@
       <a class="btn p" href="#espacios">Ver los espacios</a>
       <a class="btn s" href="#contacto" id="btnContacto" hidden>Consultar</a>
     </div>
+    <div class="resumen" id="resumen" hidden></div>
   </div>
 </header>
+<div class="cuerpo">
 <div class="cont">
-  <div class="resumen" id="resumen" hidden></div>
   <nav class="partes" id="nav" hidden></nav>
-  <h2 class="titulo" id="espacios">Espacios para alquilar</h2>
-  <p class="bajada">Mirá las fotos y videos de cada parte del paseo.</p>
+  <div class="cab-sec">
+    <div>
+      <p class="kicker">El paseo</p>
+      <h2 class="titulo" id="espacios">Espacios para alquilar</h2>
+      <p class="bajada">Mirá las fotos y videos de cada parte del paseo.</p>
+    </div>
+    <div class="filtros" id="filtros" hidden></div>
+  </div>
+  <div class="catalogo" id="catalogo" hidden></div>
   <main id="partes"><div class="estado">Cargando…</div></main>
   <div class="contacto" id="contacto" hidden>
     <h2>¿Te interesa un espacio?</h2>
@@ -162,6 +236,12 @@
     <a class="btn p" id="wa" href="#" target="_blank" rel="noopener" hidden>Escribir por WhatsApp</a>
   </div>
   <footer><span id="sello"></span> · <a href="admin.html">administrar</a></footer>
+</div>
+</div>
+
+<div id="barra" role="region" aria-label="Consultar">
+  <span>¿Te interesa<br>un espacio?</span>
+  <a class="btn p" id="barraBtn" href="#contacto">Consultar</a>
 </div>
 
 <div id="visor" role="dialog" aria-modal="true" aria-label="Foto ampliada">
@@ -177,7 +257,7 @@
 import * as A from "./album.js";
 import { firebaseConfig } from "./firebase-init.js";
 
-const VERSION = "portada-6";
+const VERSION = "portada-7";
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 $("sello").textContent = VERSION + " · " + A.VERSION;
@@ -223,6 +303,19 @@ function whatsapp(texto) {
   return d.length >= 8 ? "https://wa.me/" + d : "";
 }
 
+/* portada-7: aparición al hacer scroll. Sólo si hay JS y el visitante no pidió
+   «reducir movimiento»; si no, todo se ve de entrada (la clase .mov no se pone). */
+const sinMovimiento = matchMedia("(prefers-reduced-motion:reduce)").matches;
+if (!sinMovimiento && "IntersectionObserver" in window) document.documentElement.classList.add("mov");
+const obsRev = "IntersectionObserver" in window
+  ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("vis"); obsRev.unobserve(e.target); } }), { rootMargin: "0px 0px -8% 0px", threshold: 0.08 })
+  : null;
+const revelar = () => document.querySelectorAll(".rev:not(.vis)").forEach((el) => (obsRev ? obsRev.observe(el) : el.classList.add("vis")));
+
+const rotulo = (s, n, sup) => `<span class="rotulo"><small>Espacio ${String(n + 1).padStart(2, "0")}</small>
+    <span class="nom">${esc(s.nombre)}</span>
+    <span class="chips">${sup ? `<span class="chip">${esc(sup)}</span>` : ""}${s.estado ? `<span class="chip ${esc(s.estado)}">${esc(A.ESTADOS[s.estado])}</span>` : ""}</span></span>`;
+
 function pintar(a) {
   const titulo = a.titulo || "Paseo Primero de Mayo";
   document.title = [titulo, a.subtitulo].filter(Boolean).join(" · ");
@@ -230,38 +323,89 @@ function pintar(a) {
   $("subtitulo").textContent = a.subtitulo || "";
   $("desc").textContent = a.descripcion || "";
   /* portada-6: el fondo de la portada es SIEMPRE fachada-fondo.jpg (el recorrido de
-     .fondo). La foto «portada» del álbum ya no se pinta detrás del encabezado: tapaba
-     el recorrido. Sigue en la base y en las tarjetas de cada parte. */
+     .fondo). La foto «portada» del álbum no se pinta detrás del encabezado. */
+  const w = whatsapp(a.contacto);
   if (a.contacto) {
-    $("contacto").hidden = false; $("contactoTxt").textContent = a.contacto; $("btnContacto").hidden = false;
-    const w = whatsapp(a.contacto); if (w) { $("wa").href = w; $("wa").hidden = false; }
+    $("contacto").hidden = false; $("contactoTxt").textContent = a.contacto; $("btnContacto").hidden = false; $("btnTop").hidden = false;
+    if (w) { $("wa").href = w; $("wa").hidden = false; }
+    $("barra").classList.add("on"); document.body.classList.add("con-barra");
+    if (w) { $("barraBtn").href = w; $("barraBtn").target = "_blank"; $("barraBtn").rel = "noopener"; $("barraBtn").textContent = "WhatsApp"; }
+    if ("IntersectionObserver" in window) new IntersectionObserver((es) => $("barra").classList.toggle("fuera", es[0].isIntersecting)).observe($("contacto"));
   }
   const secs = A.secciones(a, { soloVisibles: true });
   if (!secs.length) { $("partes").innerHTML = `<div class="vacio">Todavía no hay espacios publicados.</div>`; return; }
+
+  const datos = secs.map((s) => ({ s, ms: A.mediosDe(a, s.id), lead: A.portadaDe(a, s.id), sup: A.superficieTexto(s), c: A.cuenta(a, s.id) }));
   const disp = secs.filter((s) => s.estado === "disponible").length;
   const m2 = secs.reduce((t, s) => t + (typeof s.superficie === "number" ? s.superficie : 0), 0);
   const cifras = [[secs.length, secs.length === 1 ? "Espacio" : "Espacios"], [disp, disp === 1 ? "Disponible" : "Disponibles"]];
   if (m2 > 0) cifras.push([String(Math.round(m2 * 10) / 10).replace(".", ","), "m² en total"]);
-  $("resumen").style.gridTemplateColumns = `repeat(${cifras.length},1fr)`;
   $("resumen").innerHTML = cifras.map(([n, t]) => `<div><b>${esc(n)}</b><span>${esc(t)}</span></div>`).join("");
   $("resumen").hidden = false;
+
   $("nav").hidden = secs.length < 2;
-  $("nav").innerHTML = secs.map((s) => `<a href="#p-${esc(s.id)}">${esc(s.nombre)}</a>`).join("");
-  $("partes").innerHTML = secs.map((s) => {
-    const ms = A.mediosDe(a, s.id), sup = A.superficieTexto(s);
-    return `<section class="parte" id="p-${esc(s.id)}">
-      <div class="parte-cab"><h3>${esc(s.nombre)}</h3>
-        ${sup ? `<span class="chip m2">${esc(sup)}</span>` : ""}
-        ${s.estado ? `<span class="chip ${esc(s.estado)}">${esc(A.ESTADOS[s.estado])}</span>` : ""}</div>
-      ${s.descripcion ? `<p class="parte-desc">${esc(s.descripcion)}</p>` : ""}
-      ${ms.length ? `<div class="grid">${ms.map((m, i) => `<button class="medio" data-s="${esc(s.id)}" data-i="${i}">
-          <div class="img"><img src="${esc(A.mini(m, i === 0 ? 960 : 480))}" alt="${esc(m.titulo)}" loading="lazy">${m.tipo === "video" ? `<span class="play">▶</span>` : ""}</div>
+  $("nav").innerHTML = secs.map((s) => `<a href="#p-${esc(s.id)}" data-e="${esc(s.estado || "")}" data-s="${esc(s.id)}">${esc(s.nombre)}</a>`).join("");
+
+  // Catálogo: una tarjeta por espacio (se ve de un vistazo qué hay y qué está libre)
+  $("catalogo").hidden = false;
+  $("catalogo").innerHTML = datos.map(({ s, lead, sup, c }, n) => `<a class="tarj rev${s.estado === "alquilado" ? " alq" : ""}" href="#p-${esc(s.id)}" data-e="${esc(s.estado || "")}" style="--d:${(n % 6) * 70}ms">
+      <div class="foto">${lead ? `<img src="${esc(A.mini(lead, 640))}" alt="${esc(lead.titulo || s.nombre)}" loading="lazy">` : `<span class="sinfoto">Próximamente, fotos</span>`}
+        ${s.estado ? `<span class="est ${esc(s.estado)}">${esc(A.ESTADOS[s.estado])}</span>` : ""}
+        ${c.videos ? `<span class="vid">▶ ${c.videos === 1 ? "Video" : c.videos + " videos"}</span>` : ""}</div>
+      <div class="tx"><h3>${esc(s.nombre)}</h3>
+        <p class="meta">${esc([sup, c.fotos ? c.fotos + (c.fotos === 1 ? " foto" : " fotos") : ""].filter(Boolean).join(" · "))}</p>
+        <span class="ir">Ver el espacio →</span></div></a>`).join("");
+
+  // Filtro por estado (sólo si hay al menos dos estados distintos)
+  const estados = ["disponible", "reservado", "alquilado"].filter((e) => secs.some((s) => s.estado === e));
+  if (estados.length > 1) {
+    $("filtros").hidden = false;
+    $("filtros").innerHTML = [["", "Todos", secs.length], ...estados.map((e) => [e, A.ESTADOS[e] + "s", secs.filter((s) => s.estado === e).length])]
+      .map(([e, t, n], i) => `<button type="button" data-f="${e}" aria-pressed="${i === 0}">${esc(t)}<small>${n}</small></button>`).join("");
+    $("filtros").addEventListener("click", (ev) => {
+      const b = ev.target.closest("button"); if (!b) return;
+      const f = b.dataset.f;
+      $("filtros").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      document.querySelectorAll("[data-e]").forEach((el) => { el.hidden = !!f && el.dataset.e !== f; });
+      revelar();
+    });
+  }
+
+  // Un bloque por espacio: foto grande con rótulo, descripción y el resto de la galería
+  $("partes").innerHTML = datos.map(({ s, ms, lead, sup }, n) => {
+    const li = lead ? ms.findIndex((m) => m.id === lead.id) : -1;
+    const resto = ms.map((m, i) => [m, i]).filter(([, i]) => i !== li);
+    const pedir = w ? w + "?text=" + encodeURIComponent(`Hola, me interesa «${s.nombre}» del Paseo Primero de Mayo.`) : "#contacto";
+    return `<section class="parte" id="p-${esc(s.id)}" data-e="${esc(s.estado || "")}">
+      ${lead ? `<button class="lead rev" data-s="${esc(s.id)}" data-i="${li}" aria-label="Ampliar fotos de ${esc(s.nombre)}">
+          <img src="${esc(A.mini(lead, 1280))}" alt="${esc(lead.titulo || s.nombre)}" loading="lazy">${lead.tipo === "video" ? `<span class="play">▶</span>` : ""}${rotulo(s, n, sup)}</button>`
+        : `<div class="lead sin rev">${rotulo(s, n, sup)}</div>`}
+      <div class="info rev">
+        ${s.descripcion ? `<p class="parte-desc">${esc(s.descripcion)}</p>` : ""}
+        ${a.contacto && s.estado !== "alquilado" ? `<a class="btn p consultar" href="${esc(pedir)}"${w ? ` target="_blank" rel="noopener"` : ""}>Consultar por este espacio →</a>` : ""}
+      </div>
+      ${resto.length ? `<div class="grid rev">${resto.map(([m, i]) => `<button class="medio" data-s="${esc(s.id)}" data-i="${i}">
+          <div class="img"><img src="${esc(A.mini(m, 480))}" alt="${esc(m.titulo)}" loading="lazy">${m.tipo === "video" ? `<span class="play">▶</span>` : ""}</div>
           ${m.titulo || m.detalle ? `<div class="txt">${m.titulo ? `<p class="t">${esc(m.titulo)}</p>` : ""}${m.detalle ? `<p class="d">${esc(m.detalle)}</p>` : ""}</div>` : ""}
-        </button>`).join("")}</div>` : `<div class="vacio">Esta parte todavía no tiene fotos ni videos.</div>`}
-      ${a.contacto && s.estado !== "alquilado" ? `<a class="consultar" href="#contacto">Consultar por este espacio →</a>` : ""}
+        </button>`).join("")}</div>`
+        : ""}
     </section>`;
   }).join("");
-  $("partes").querySelectorAll(".medio").forEach((b) => b.addEventListener("click", () => abrir(A.mediosDe(a, b.dataset.s), Number(b.dataset.i))));
+  $("partes").querySelectorAll("button[data-s]").forEach((b) => b.addEventListener("click", () => abrir(A.mediosDe(a, b.dataset.s), Number(b.dataset.i))));
+  revelar();
+
+  // El menú marca en qué espacio estás
+  if ("IntersectionObserver" in window && secs.length > 1) {
+    const obs = new IntersectionObserver((es) => es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      const id = e.target.id.slice(2);
+      $("nav").querySelectorAll("a").forEach((x) => {
+        const on = x.dataset.s === id; x.classList.toggle("act", on);
+        if (on) { const nv = $("nav"); nv.scrollTo({ left: x.offsetLeft - nv.clientWidth / 2 + x.clientWidth / 2, behavior: sinMovimiento ? "auto" : "smooth" }); }
+      });
+    }), { rootMargin: "-45% 0px -50% 0px" });
+    $("partes").querySelectorAll("section.parte").forEach((el) => obs.observe(el));
+  }
 }
 
 async function cargar() {
