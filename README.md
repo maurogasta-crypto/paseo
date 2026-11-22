@@ -42,11 +42,29 @@ fuente figura como «Deploy from a branch» (`main`, raíz), y con esa fuente el
 `github.io/paseo/` pasan solas al dominio. La portada lee la base por REST y la base contesta desde el dominio
 (probado el 22-nov); los enlaces son relativos, así que no hay que cambiar nada del código.
 
+## Buscadores (portada-9, 22-nov-2026)
+
+Lo que la página le da a Google para que aparezca al buscar alquiler de oficinas, coworking, local, depósito o salones en Montevideo:
+
+- **Título y descripción** con esas palabras, la ciudad y el lugar (Av. General Flores, plaza Primero de Mayo, Palacio Legislativo).
+- **`canonical`** a `https://paseoprimerodemayo.com/` (una sola dirección aunque se entre por `www`, `http` o `github.io`).
+- **Vista previa al compartir** (Open Graph): la fachada de la propuesta en 1200×630, de nuestra cuenta de Cloudinary. Es la **única foto fija** de la página
+  (WhatsApp y Facebook no corren el JavaScript): si cambia la fachada del álbum, se cambia a mano en `index.html` y `sitemap.xml`.
+- **Datos estructurados** (schema.org `LocalBusiness`: nombre, dirección, Montevideo, el WhatsApp autorizado, qué se alquila).
+- **Texto fijo** «Qué se puede alquilar» y una línea bajo el título: el buscador los lee aunque no corra el JavaScript. **Genéricos a propósito**: sin m², estados
+  ni precios, que viven en el álbum y cambiarían sin que nadie toque la página.
+- **Texto alternativo** en todas las fotos (su título o, si no tiene, el espacio y el lugar).
+- `robots.txt` deja leer todo (el editor y el diagnóstico **no** se tapan ahí: llevan `noindex` y el buscador tiene que poder leerlo) y nombra `sitemap.xml`.
+
+Lo que **no** está en el código y hace Mauro: Google Search Console (verificar el dominio con un TXT en Spaceship, mandar el sitemap, pedir la indexación),
+Perfil de Empresa de Google (para salir en Maps) y avisos en portales que enlacen al sitio. Al cambiar algo importante de la portada, sube `lastmod` del sitemap.
+
 ## Mapa de archivos
 
 | Archivo | Sello | Qué es |
 |---|---|---|
-| `index.html` | `portada-8` | La portada pública: la **propuesta del lienzo** «Paseo Primero de Mayo — Espacios» (21-nov), pasada entera el 22-nov a pedido de Mauro (convocatoria abierta, dos maneras de ser parte, los espacios con su video, sus fotos y cada ambiente del primer piso, condiciones, contacto por WhatsApp y la fachada que se propone). Lee el álbum por la API REST, sin SDK ni sesión: los textos generales viven en la página; los espacios, en el álbum |
+| `index.html` | `portada-9` | La portada pública: la **propuesta del lienzo** «Paseo Primero de Mayo — Espacios» (21-nov), pasada entera el 22-nov a pedido de Mauro (convocatoria abierta, dos maneras de ser parte, los espacios con su video, sus fotos y cada ambiente del primer piso, condiciones, contacto por WhatsApp y la fachada que se propone). Lee el álbum por la API REST, sin SDK ni sesión: los textos generales viven en la página; los espacios, en el álbum. Desde `portada-9`, preparada para los buscadores (ver «Buscadores») |
+| `robots.txt` · `sitemap.xml` · `favicon.svg` | — | Para los buscadores: deja leer todo y nombra el sitemap (una sola dirección, el dominio); el ícono de la pestaña y del resultado de Google |
 | `fachada-fondo.jpg` | — | La foto del frente que usaba de fondo la portada 2 a 7; **ya no se usa** (la portada 8 toma la fachada propuesta del álbum) |
 | `admin.html` | `admin-2` | El editor (cada parte tiene «Línea de arriba» y «Área común») |
 | `diagnostico.html` | `diag-1` | Qué anda y qué no; no depende del núcleo |
@@ -54,7 +72,7 @@ fuente figura como «Deploy from a branch» (`main`, raíz), y con esa fuente el
 | `nucleo.js` | `nucleo-1` | Lo que comparten las pantallas: errores con causa, el ojo 👁, achicar y subir a Cloudinary |
 | `firebase-init.js` | `init-1` | El único contacto con el SDK de Firebase, cargado diferido |
 | `firestore.rules` | v2 | La plantilla de las reglas (UID como marcadores) |
-| `pruebas.mjs` | — | El banco: `node pruebas.mjs` (29 casos, sin npm ni red) |
+| `pruebas.mjs` | — | El banco: `node pruebas.mjs` (33 casos, sin npm ni red; cuatro son de los buscadores) |
 | `.github/workflows/pages.yml` | — | Publica en GitHub Pages en cada push a `main` |
 
 ## La forma del álbum

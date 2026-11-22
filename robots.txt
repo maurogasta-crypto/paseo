@@ -1,0 +1,7 @@
+# robots.txt — Paseo Primero de Mayo (paseoprimerodemayo.com)
+# Todo se puede leer. admin.html y diagnostico.html no se tapan acá a propósito:
+# llevan <meta name="robots" content="noindex"> y el buscador tiene que poder leerlo.
+User-agent: *
+Allow: /
+
+Sitemap: https://paseoprimerodemayo.com/sitemap.xml

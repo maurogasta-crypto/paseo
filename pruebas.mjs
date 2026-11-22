@@ -189,6 +189,50 @@ prueba("la portada saca los espacios del álbum y no inventa contacto ni medios 
   assert.doesNotMatch(s, /wa\.me\/\d/, "el número no se escribe en la página: sale del álbum");
   assert.doesNotMatch(s, /res\.cloudinary\.com\/[a-z0-9]+\/(image|video)\/upload\/v\d/, "ningún medio fijo en la página");
 });
+prueba("buscadores: título, descripción, canonical y vista previa apuntan al dominio de CNAME", () => {
+  const s = leer("index.html"), dom = "https://" + leer("CNAME").trim() + "/";
+  const cab = s.slice(0, s.indexOf("</head>"));
+  assert.match(cab, /<title>[^<]*(oficinas|coworking)[^<]*<\/title>/i, "el título dice lo que se busca");
+  const desc = (cab.match(/<meta name="description" content="([^"]+)"/) || [])[1] || "";
+  assert.ok(desc.length >= 120 && desc.length <= 300, "descripción de " + desc.length + " letras");
+  assert.match(desc, /Montevideo/);
+  assert.ok(cab.includes(`<link rel="canonical" href="${dom}">`), "canonical al dominio");
+  assert.ok(cab.includes(`<meta property="og:url" content="${dom}">`));
+  const og = (cab.match(/<meta property="og:image" content="([^"]+)"/) || [])[1] || "";
+  assert.ok(A.esMedioNuestro(og), "la vista previa es de NUESTRA cuenta de Cloudinary");
+  assert.doesNotMatch(s.slice(s.indexOf("</head>")), /res\.cloudinary\.com\/[a-z0-9]+\/(image|video)\/upload\//, "en la página, los medios salen del álbum");
+  assert.ok(fs.existsSync(path.join(raiz, "favicon.svg")));
+});
+prueba("buscadores: los datos estructurados son JSON válido, del dominio y con la ciudad", () => {
+  const s = leer("index.html");
+  const bloques = [...s.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+  assert.equal(bloques.length, 1);
+  const negocio = bloques[0]["@graph"].find((x) => x["@type"] === "LocalBusiness");
+  assert.ok(negocio, "sin LocalBusiness");
+  assert.equal(negocio.url, "https://" + leer("CNAME").trim() + "/");
+  assert.equal(negocio.address.addressLocality, "Montevideo"); assert.equal(negocio.address.addressCountry, "UY");
+  assert.equal(A.whatsapp(negocio.telephone), "59899696333", "el teléfono es el WhatsApp que autorizó Mauro");
+  assert.ok(A.esMedioNuestro(negocio.image));
+});
+prueba("buscadores: «Qué se puede alquilar» es texto fijo y genérico (sin m² ni estados que se desfasen del álbum)", () => {
+  const s = leer("index.html");
+  const sec = (s.match(/<section id="alquilar"[\s\S]*?<\/section>/) || [""])[0];
+  assert.ok(sec, "falta la sección fija");
+  for (const p of ["Oficinas", "Coworking", "Local comercial", "Depósito", "Salones"]) assert.ok(sec.includes(p), p);
+  assert.doesNotMatch(sec, /m²|\bdisponible\b|\balquilado\b|\$|USD|UYU/i);
+  assert.match(s, /alt="\$\{esc\(altDe\(/, "las fotos llevan texto alternativo aunque no tengan título");
+});
+prueba("buscadores: robots.txt deja leer todo y nombra el sitemap; el editor y el diagnóstico piden noindex", () => {
+  const dom = "https://" + leer("CNAME").trim() + "/";
+  const r = leer("robots.txt");
+  assert.match(r, /User-agent: \*/); assert.doesNotMatch(r, /^Disallow: \/\s*$/m, "no se tapa el sitio entero");
+  assert.doesNotMatch(r, /^Disallow:.*(admin|diagnostico)/m, "si se tapan, el buscador no ve el noindex");
+  assert.ok(r.includes(`Sitemap: ${dom}sitemap.xml`));
+  const m = leer("sitemap.xml");
+  assert.ok(m.includes(`<loc>${dom}</loc>`)); assert.match(m, /<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/);
+  assert.doesNotMatch(m, /admin|diagnostico/);
+  for (const f of ["admin.html", "diagnostico.html"]) assert.match(leer(f), /<meta name="robots" content="noindex,nofollow">/, f);
+});
 prueba("cada archivo con lógica lleva su sello", () => {
   for (const f of ["album.js", "nucleo.js", "firebase-init.js", ...HTML]) assert.match(leer(f), /Sello:\s*[a-z]+-\d+/, f);
 });

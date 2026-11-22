@@ -3,11 +3,74 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Paseo Primero de Mayo · General Flores</title>
-<meta name="description" content="Un edificio frente a la plaza Primero de Mayo que vuelve a abrirse como paseo comercial y de trabajo: locales, oficinas, salones y depósito para alquilar, con video y fotos de cada espacio.">
+<title>Alquiler de oficinas, coworking, local y depósito en Montevideo · Paseo Primero de Mayo</title>
+<meta name="description" content="Alquiler de oficinas, coworking, local comercial o showroom, salones y depósito en Montevideo: Av. General Flores, frente a la plaza Primero de Mayo, a media cuadra del Palacio Legislativo. Video y fotos de cada espacio, trato directo con el dueño.">
 <meta name="theme-color" content="#17191A">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="https://paseoprimerodemayo.com/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_UY">
+<meta property="og:site_name" content="Paseo Primero de Mayo">
+<meta property="og:url" content="https://paseoprimerodemayo.com/">
+<meta property="og:title" content="Paseo Primero de Mayo · Oficinas, coworking, locales y depósito en alquiler">
+<meta property="og:description" content="Frente a la plaza Primero de Mayo, en Av. General Flores (Montevideo): oficinas, coworking, showroom, salones y depósito para alquilar, con trato directo con el dueño.">
+<meta property="og:image" content="https://res.cloudinary.com/cwbnaivv/image/upload/w_1200,h_630,c_fill,q_auto,f_jpg/v1795368406/48984ccce2447c6b37c4121132e4e535.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Propuesta de fachada del Paseo Primero de Mayo, frente a la plaza">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://paseoprimerodemayo.com/#sitio",
+      "url": "https://paseoprimerodemayo.com/",
+      "name": "Paseo Primero de Mayo",
+      "inLanguage": "es-UY"
+    },
+    {
+      "@type": "LocalBusiness",
+      "@id": "https://paseoprimerodemayo.com/#paseo",
+      "name": "Paseo Primero de Mayo",
+      "description": "Edificio de tres plantas frente a la plaza Primero de Mayo que se abre como paseo comercial y de trabajo: oficinas, coworking, local comercial o showroom, salones y depósito para alquilar, con trato directo con el dueño.",
+      "url": "https://paseoprimerodemayo.com/",
+      "image": "https://res.cloudinary.com/cwbnaivv/image/upload/w_1200,h_630,c_fill,q_auto,f_jpg/v1795368406/48984ccce2447c6b37c4121132e4e535.jpg",
+      "telephone": "+598 99 696 333",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Avenida General Flores, frente a la plaza Primero de Mayo",
+        "addressLocality": "Montevideo",
+        "addressRegion": "Montevideo",
+        "addressCountry": "UY"
+      },
+      "areaServed": { "@type": "City", "name": "Montevideo" },
+      "knowsAbout": ["alquiler de oficinas", "coworking", "local comercial", "showroom", "depósito", "salones para talleres y clases"],
+      "makesOffer": [
+        { "@type": "Offer", "businessFunction": "http://purl.org/goodrelations/v1#LeaseOut", "itemOffered": { "@type": "Place", "name": "Oficinas y despachos en el primer piso" } },
+        { "@type": "Offer", "businessFunction": "http://purl.org/goodrelations/v1#LeaseOut", "itemOffered": { "@type": "Place", "name": "Coworking: escritorios y salas compartidas" } },
+        { "@type": "Offer", "businessFunction": "http://purl.org/goodrelations/v1#LeaseOut", "itemOffered": { "@type": "Place", "name": "Local comercial o showroom a la calle" } },
+        { "@type": "Offer", "businessFunction": "http://purl.org/goodrelations/v1#LeaseOut", "itemOffered": { "@type": "Place", "name": "Depósito en planta baja y depósito de entrepiso" } },
+        { "@type": "Offer", "businessFunction": "http://purl.org/goodrelations/v1#LeaseOut", "itemOffered": { "@type": "Place", "name": "Salones amplios para estudios, talleres y clases" } }
+      ]
+    }
+  ]
+}
+</script>
 <!--
-  index.html — La PORTADA PÚBLICA del paseo. Sello: portada-8 (22-nov-2026)
+  index.html — La PORTADA PÚBLICA del paseo. Sello: portada-9 (22-nov-2026)
+  · portada-9: para los BUSCADORES (pedido de Mauro, 22-nov, con el dominio propio):
+    título y descripción con lo que la gente busca (alquiler de oficinas, coworking,
+    local, depósito, Montevideo), canonical al dominio, vista previa al compartir
+    (Open Graph, con la fachada de la propuesta en 1200×630), datos estructurados
+    (schema.org LocalBusiness), una línea visible con lo que se alquila, la sección
+    fija «Qué se puede alquilar» (texto que el buscador lee aunque no corra el
+    JavaScript; genérica a propósito, sin m² ni estados, para que no se desfase del
+    álbum) y texto alternativo en todas las fotos. La foto de la cabecera es la ÚNICA
+    fija de la página (los buscadores no corren JS para la vista previa): si cambia la
+    fachada del álbum, se cambia acá a mano. robots.txt y sitemap.xml, al lado.
   · Lee UN documento, albumes/general-flores, por la API REST de Firestore,
     sin SDK y sin sesión: la regla deja `get` a cualquiera y nunca `list`.
     Si gstatic está caído, esto se ve igual.
@@ -68,6 +131,7 @@
   .pill { margin:0; display:inline-flex; align-self:flex-start; align-items:center; font-size:13px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--tinta); background:var(--menta); padding:8px 14px; border-radius:999px; }
   .hero h1 { margin:0; font-family:var(--serif); font-weight:400; font-size:clamp(46px,7vw,92px); line-height:.95; letter-spacing:-.015em; }
   .hero h1 span { color:var(--menta); }
+  .hero .lugar { margin:0; font-size:15px; line-height:1.5; font-weight:600; color:var(--menta); }
   .hero .desc { margin:0; font-size:19px; line-height:1.55; color:#D9D4CA; }
   .botones { display:flex; flex-wrap:wrap; gap:12px; }
   .b { display:inline-flex; align-items:center; min-height:52px; padding:0 26px; text-decoration:none; font-weight:700; font-size:16px; border-radius:2px; }
@@ -148,6 +212,8 @@
   /* Condiciones */
   .condiciones { padding-top:80px; padding-bottom:96px; display:flex; flex-direction:column; gap:36px; }
   .condiciones h2 { margin:0; font-family:var(--serif); font-weight:400; font-size:clamp(38px,5vw,62px); line-height:1.02; }
+  .alquilar { padding-bottom:24px; }
+  .alquilar .bajada { margin:0; font-size:18px; line-height:1.6; color:var(--gris); max-width:46rem; }
   .condiciones .grilla > div { border-top:3px solid var(--tinta); padding-top:22px; display:flex; flex-direction:column; gap:10px; }
   .condiciones h3 { margin:0; font-size:20px; font-weight:700; }
   .condiciones p { margin:0; font-size:16px; line-height:1.65; color:var(--gris); }
@@ -195,6 +261,7 @@
       <a href="#juntos">La propuesta</a>
       <a href="#participar">Cómo ser parte</a>
       <a href="#espacios">Espacios</a>
+      <a href="#alquilar">Qué se alquila</a>
       <a href="#condiciones">Condiciones</a>
       <a class="cta" href="#contacto">Coordinar visita</a>
     </div>
@@ -207,6 +274,7 @@
     <div class="caja">
       <p class="pill" id="convocatoria">Convocatoria abierta · Espacio en gestación</p>
       <h1>Un edificio.<br><span>Muchos proyectos.</span><br>Un mismo interés.</h1>
+      <p class="lugar">Alquiler de oficinas, coworking, locales, salones y depósito en Montevideo · Av. General Flores, frente a la plaza Primero de Mayo</p>
       <p class="desc" id="desc">Frente a la plaza, un edificio de tres plantas vuelve a abrirse como paseo comercial y de trabajo. Locales, oficinas, salones y depósito que comparten una entrada, una galería y una misma razón: que cada vez venga más gente.</p>
       <div class="botones">
         <a class="b oro" href="#espacios">Ver los espacios</a>
@@ -285,6 +353,19 @@
   <div id="lista"><p class="estado-carga">Cargando los espacios…</p></div>
 </main>
 
+<section id="alquilar" class="cont condiciones alquilar">
+  <h2>Qué se puede alquilar</h2>
+  <p class="bajada">En el Paseo Primero de Mayo, sobre la avenida General Flores, frente a la plaza Primero de Mayo y a media cuadra del Palacio Legislativo, en Montevideo. Cada espacio se alquila solo o junto con otros, y se puede compartir.</p>
+  <div class="grilla">
+    <div><h3>Oficinas y despachos</h3><p>Oficinas, salas y despachos privados en el primer piso, alrededor de un hall de recepción, con balcón a la plaza, cocina y baños. Una oficina sola o varias juntas.</p></div>
+    <div><h3>Coworking</h3><p>El primer piso se puede compartir entre profesionales o armar como coworking: escritorios, salas de reunión y áreas comunes en un mismo lugar.</p></div>
+    <div><h3>Local comercial · showroom</h3><p>Un local vidriado a la calle, con doble altura y vidrieras a dos frentes, sobre la galería de entrada: para comercio, exhibición o atención al público.</p></div>
+    <div><h3>Depósito</h3><p>Un depósito en planta baja, al fondo de la galería, con baño y vestuario, y un depósito de entrepiso en el primer piso. También sirven de taller o gimnasio.</p></div>
+    <div><h3>Salones para talleres y clases</h3><p>Salones amplios y luminosos en el piso superior, con ventanales sobre la plaza: para estudios, talleres, salas de clase o equipos que necesitan metros.</p></div>
+    <div><h3>Trato directo con el dueño</h3><p>Sin inmobiliaria ni intermediarios: garantías como en cualquier alquiler, gastos comunes básicos y plazos que se conversan. Se coordina la visita por WhatsApp.</p></div>
+  </div>
+</section>
+
 <section id="condiciones" class="cont condiciones">
   <h2>Condiciones claras, trato directo</h2>
   <div class="grilla">
@@ -323,7 +404,7 @@
       </ul>
     </div>
   </div>
-  <p class="final">Paseo Primero de Mayo · Avenida General Flores, frente a la plaza Primero de Mayo · <span id="sello"></span> · <a href="admin.html">administrar</a></p>
+  <p class="final">Paseo Primero de Mayo · Avenida General Flores, frente a la plaza Primero de Mayo · <span id="sello"></span> · <a href="admin.html" rel="nofollow">administrar</a></p>
 </footer>
 
 <div id="visor" role="dialog" aria-modal="true" aria-label="Foto ampliada">
@@ -338,7 +419,7 @@
 import * as A from "./album.js";
 import { firebaseConfig } from "./firebase-init.js";
 
-const VERSION = "portada-8";
+const VERSION = "portada-9";
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 $("sello").textContent = VERSION + " · " + A.VERSION;
@@ -356,7 +437,7 @@ function cerrar() {
 }
 function pintarVisor() {
   const m = lista[pos];
-  $("vImg").src = A.grande(m); $("vImg").alt = m.titulo || "";
+  $("vImg").src = A.grande(m); $("vImg").alt = m.titulo || `Foto ${pos + 1}`;
   $("vNum").textContent = lista.length > 1 ? `${pos + 1} / ${lista.length}` : "";
   $("vAnt").hidden = $("vSig").hidden = lista.length < 2;
 }
@@ -375,6 +456,8 @@ $("visor").addEventListener("touchend", (e) => {
 });
 
 /* ── Lo que sale del álbum ── */
+// El texto alternativo de una foto: su título, y si no tiene, el espacio y el lugar (lo leen los buscadores y los lectores de pantalla)
+const altDe = (m, s, i) => m.titulo || `${s.nombre}${s.ubicacion ? " (" + s.ubicacion + ")" : ""} · Paseo Primero de Mayo, foto ${i + 1}`;
 const video = (m, etiqueta) => `<video src="${esc(A.grande(m))}" poster="${esc(A.tapa(m, 540))}" preload="none" playsinline controls aria-label="${esc(etiqueta || m.titulo || "Video")}"></video>`;
 
 function pintar(a) {
@@ -421,8 +504,8 @@ function pintar(a) {
     // A la izquierda: el recorrido en video; si no hay, la primera foto, alta
     const lado = p.recorrido
       ? `<div class="lado">${video(p.recorrido, `${p.recorrido.titulo || "Video"} · ${s.nombre}`)}${p.recorrido.titulo ? `<p class="pie">${esc(p.recorrido.titulo)}</p>` : ""}</div>`
-      : p.fotos.length ? `<div class="lado"><button class="thumb alta" type="button" data-s="${esc(s.id)}" data-i="0" aria-label="Ampliar foto de ${esc(s.nombre)}"><img src="${esc(A.alta(p.fotos[0], 540))}" alt="" loading="lazy"></button></div>` : "";
-    const fotos = p.fotos.length ? `<div class="fotos">${p.fotos.map((m, i) => `<button class="thumb" type="button" data-s="${esc(s.id)}" data-i="${i}" aria-label="Ampliar foto ${i + 1} de ${esc(s.nombre)}"><img src="${esc(A.mini(m, 480))}" alt="${esc(m.titulo)}" loading="lazy"></button>`).join("")}</div>` : "";
+      : p.fotos.length ? `<div class="lado"><button class="thumb alta" type="button" data-s="${esc(s.id)}" data-i="0" aria-label="Ampliar foto de ${esc(s.nombre)}"><img src="${esc(A.alta(p.fotos[0], 540))}" alt="${esc(altDe(p.fotos[0], s, 0))}" loading="lazy"></button></div>` : "";
+    const fotos = p.fotos.length ? `<div class="fotos">${p.fotos.map((m, i) => `<button class="thumb" type="button" data-s="${esc(s.id)}" data-i="${i}" aria-label="Ampliar foto ${i + 1} de ${esc(s.nombre)}"><img src="${esc(A.mini(m, 480))}" alt="${esc(altDe(m, s, i))}" loading="lazy"></button>`).join("")}</div>` : "";
     const ambientes = p.ambientes.length ? `<div class="ambientes"><p>${p.ambientes.length > 2 ? "Cada ambiente por separado" : "Más videos"}</p><div class="lista">${p.ambientes.map((m) =>
       `<figure>${video(m)}${m.titulo ? `<figcaption>${esc(m.titulo)}</figcaption>` : ""}</figure>`).join("")}</div></div>` : "";
     return `<section class="espacio" id="e-${esc(s.id)}">
