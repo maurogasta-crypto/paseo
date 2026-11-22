@@ -4,419 +4,454 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Paseo Primero de Mayo · General Flores</title>
-<meta name="description" content="Locales y espacios para alquilar en el Paseo Primero de Mayo, General Flores: fotos y videos de cada parte.">
-<meta name="theme-color" content="#14342b">
+<meta name="description" content="Un edificio frente a la plaza Primero de Mayo que vuelve a abrirse como paseo comercial y de trabajo: locales, oficinas, salones y depósito para alquilar, con video y fotos de cada espacio.">
+<meta name="theme-color" content="#17191A">
 <!--
-  index.html — La PORTADA PÚBLICA del paseo. Sello: portada-7 (20-nov-2026)
+  index.html — La PORTADA PÚBLICA del paseo. Sello: portada-8 (22-nov-2026)
   · Lee UN documento, albumes/general-flores, por la API REST de Firestore,
     sin SDK y sin sesión: la regla deja `get` a cualquiera y nunca `list`.
     Si gstatic está caído, esto se ve igual.
   · La forma del álbum y las cuentas salen de album.js; no se repiten acá.
-  · Sólo dibuja medios de NUESTRA cuenta de Cloudinary (esMedioNuestro).
+  · Sólo dibuja medios de NUESTRA cuenta de Cloudinary (album.js: mini/grande/tapa).
   · Lo escribe admin.html.
-  · portada-2: rediseño visual (portada a pantalla completa, resumen, tarjetas,
-    botón de consulta). La lógica de datos y el visor no cambiaron.
-  · portada-3: de fondo fijo, en segundo plano y desenfocado, un recorrido lento
-    por la fachada del local (fachada-fondo.jpg: foto limpia, sin el poste ni los
-    plotters, con persianas). Es sólo CSS; sin JS ni red extra, y quieto con
-    «reducir movimiento». fachada.jpg es la misma foto nítida.
-  · portada-4: la foto de fondo queda CENTRADA en el edificio principal (posición
-    50%, paradas del recorrido corridas +9,6 puntos) y sin las publicidades de los
-    vecinos (Levi's y El Clon, borradas de fachada-fondo.jpg).
-  · portada-5: el fondo se nota detrás del contenido: capa clara más fina (50%/62%)
-    y tarjetas y resumen translúcidos con desenfoque, para que el recorrido se vea.
-  · portada-6: arreglo: el encabezado (.hero) tenía fondo propio y el JS le ponía la
-    foto «portada» del álbum (Cloudinary) encima, así que el recorrido de
-    fachada-fondo.jpg no se veía. Ahora el .hero es transparente (queda el degradé
-    oscuro para leer el texto) y el JS no le pone imagen.
-  · portada-7: rediseño de exhibición. Tomado de los portales de alquiler comercial
-    (catálogo de tarjetas con insignias de estado y video), del estilo editorial
-    (tipografía serif, aire, una foto grande por espacio) y de la portada con cifras.
-    Nuevo: catálogo con filtro por estado, foto grande por espacio con rótulo,
-    aparición suave al hacer scroll (quieta con «reducir movimiento»), menú que marca
-    dónde estás, WhatsApp con el nombre del espacio y barra fija de consulta en el
-    celular. NO cambió la lectura de datos, el visor ni el fondo de fachada.
+  · portada-8: la PROPUESTA del lienzo «Paseo Primero de Mayo — Espacios» (21-nov),
+    pasada entera a pedido de Mauro (22-nov): convocatoria abierta, «dos maneras de
+    ser parte», condiciones, la fachada que se propone y los espacios con su video,
+    sus fotos y, en el primer piso, cada ambiente por separado. Los textos generales
+    son de la propuesta y viven acá; los ESPACIOS salen del álbum (nombre, línea de
+    arriba, descripción, m², estado, área común, videos y fotos), así que se siguen
+    editando desde admin.html. La parte oculta «Portada» trae el video de la entrada
+    y la foto de la fachada. El contacto es WhatsApp (album.js: whatsapp).
+  · Antes (portada-2 a 7, 19 y 20-nov): catálogo de tarjetas, foto de fondo de la
+    fachada (fachada-fondo.jpg, que ya no se usa) y barra de consulta en el celular.
 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#f6f2ea; --card:#fffdf8; --linea:#e3dccd; --tinta:#1d2b26; --gris:#5f6b65;
-          --verde:#14342b; --verde2:#1f4d3f; --oro:#b98a3e; --ok:#2e7d52; --aviso:#b7791f; --no:#b4443a;
-          --serif:Georgia,"Iowan Old Style","Times New Roman",serif; --sombra:0 10px 30px rgba(20,52,43,.10); }
-  @media (prefers-color-scheme:dark) {
-    :root { --bg:#0f1b17; --card:#16261f; --linea:#27403592; --tinta:#f1ece0; --gris:#a9b5ae;
-            --verde:#0b1612; --verde2:#1f4d3f; --oro:#d3a85a; --ok:#5fc08a; --aviso:#e0b04a; --no:#e0776c; --sombra:0 10px 30px rgba(0,0,0,.35); }
-  }
+  :root { --tinta:#17191A; --papel:#F4F1EA; --menta:#9FD3B8; --verde:#1F4D3D; --verde2:#123328; --oro:#E9A23B; --oro2:#8A5A10;
+          --gris:#3A3732; --gris2:#5F5A52; --linea:#D9D4CA; --noche:#101213;
+          --serif:Fraunces,Georgia,"Times New Roman",serif; --sans:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
   * { box-sizing:border-box; }
-  [hidden] { display:none !important; }
-  html { background:var(--bg); }
-  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; background:transparent; color:var(--tinta); line-height:1.6; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--papel); color:var(--tinta); font-family:var(--sans); -webkit-text-size-adjust:100%; }
+  a { color:var(--verde); } a:hover { color:var(--verde2); }
+  :focus-visible { outline:3px solid var(--oro); outline-offset:2px; }
+  .cont { max-width:1240px; margin:0 auto; padding-left:max(20px, env(safe-area-inset-left)); padding-right:max(20px, env(safe-area-inset-right)); }
+  .serif { font-family:var(--serif); font-weight:400; }
+  .eti { margin:0; font-size:13px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+  video { display:block; background:var(--tinta); }
+  h1, h2, h3 { text-wrap:balance; }
 
-  /* Fondo: recorrido lento por la fachada, desenfocado, detrás de todo */
-  .fondo { position:fixed; inset:0; z-index:-1; overflow:hidden; background:var(--verde); pointer-events:none; }
-  .fondo .tour { position:absolute; inset:0; background:url("fachada-fondo.jpg") 50% 50%/cover no-repeat; transform-origin:0 0;
-                 transform:translate(0%,calc(50% - 50% * 1.2)) scale(1.2); will-change:transform;
-                 animation:recorrido 110s ease-in-out infinite; }
-  .fondo::after { content:""; position:absolute; inset:0; background:color-mix(in srgb,var(--bg) 50%,transparent); }
-  @media (prefers-color-scheme:dark) { .fondo::after { background:color-mix(in srgb,var(--bg) 62%,transparent); } }
-  /* El centro de cada parada (x,y en % de la pantalla) y el zoom; se acota para que nunca asome un borde */
-  @keyframes recorrido {
-    0%,100% { transform:translate(0%,calc(50% - 50% * 1.2)) scale(1.2); }   /* toda la fachada */
-    18%     { transform:translate(calc(50% - 45.6% * 1.8),calc(50% - 68% * 1.8)) scale(1.8); }   /* vidrios de planta baja */
-    38%     { transform:translate(calc(50% - 55.6% * 1.8),calc(50% - 36% * 1.8)) scale(1.8); }   /* persianas y balcón */
-    58%     { transform:translate(calc(50% - 51.6% * 1.8),0%) scale(1.8); }                      /* frontón */
-    78%     { transform:translate(calc(50% - 61.6% * 1.8),calc(50% - 66% * 1.8)) scale(1.8); }   /* el pasaje de entrada */
-  }
-  @media (prefers-reduced-motion:reduce) { .fondo .tour { animation:none; } }
-  .cont { max-width:1120px; margin:0 auto; padding:0 18px; }
-  a { color:inherit; }
-  .btn { display:inline-flex; align-items:center; gap:8px; padding:13px 24px; border-radius:999px; font-weight:600; font-size:.98rem; text-decoration:none; border:1.5px solid transparent; cursor:pointer; font-family:inherit; transition:filter .2s,background .2s,transform .2s; }
-  .btn.p { background:var(--oro); color:#1a1408; } .btn.p:hover { filter:brightness(1.07); transform:translateY(-1px); }
-  .btn.s { border-color:rgba(255,255,255,.55); color:#fff; } .btn.s:hover { background:rgba(255,255,255,.12); }
-
-  /* Barra superior sobre la portada */
-  .top { position:absolute; inset:0 0 auto 0; z-index:3; padding-top:calc(16px + env(safe-area-inset-top)); }
-  .top .cont { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-  .marca { font-family:var(--serif); font-weight:700; font-size:1.08rem; color:#fff; text-decoration:none; line-height:1.15; }
-  .marca small { display:block; font-family:system-ui,sans-serif; font-weight:600; font-size:.62rem; letter-spacing:.22em; text-transform:uppercase; color:var(--oro); }
-  .top .btn { padding:9px 18px; font-size:.86rem; }
+  /* Menú */
+  nav.menu { background:var(--tinta); color:var(--papel); position:sticky; top:0; z-index:30; padding-top:env(safe-area-inset-top); }
+  nav.menu .cont { padding-top:12px; padding-bottom:12px; display:flex; flex-wrap:wrap; gap:8px 28px; align-items:center; justify-content:space-between; }
+  .marca { color:var(--papel); text-decoration:none; font-family:var(--serif); font-size:20px; letter-spacing:.02em; }
+  .marca span { color:var(--menta); }
+  .marca:hover { color:var(--papel); }
+  .links { display:flex; flex-wrap:wrap; gap:2px 22px; font-size:14px; font-weight:500; align-items:center; }
+  .links a { color:#D9D4CA; text-decoration:none; padding:10px 0; }
+  .links a:hover { color:#fff; }
+  .links a.cta { color:var(--tinta); background:var(--oro); padding:10px 16px; border-radius:2px; font-weight:600; }
+  @media (max-width:640px) { .links a:not(.cta) { display:none; } }
 
   /* Portada */
-  .hero { position:relative; min-height:min(94vh,820px); display:flex; align-items:flex-end; color:#fff; background:transparent; }
-  .hero::before { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(11,22,18,.55) 0%,rgba(11,22,18,.12) 30%,rgba(11,22,18,.5) 60%,rgba(11,22,18,.92) 100%); }
-  .hero .cont { position:relative; width:100%; padding-top:110px; padding-bottom:clamp(60px,9vw,96px); }
-  .eyebrow { display:inline-block; letter-spacing:.18em; text-transform:uppercase; font-size:.74rem; font-weight:600; color:var(--oro); border:1px solid rgba(211,168,90,.6); padding:5px 12px; border-radius:999px; background:rgba(0,0,0,.25); }
-  h1 { font-family:var(--serif); font-weight:700; font-size:clamp(2.5rem,8.5vw,5.2rem); line-height:1.02; margin:18px 0 8px; letter-spacing:-.015em; max-width:13em; text-wrap:balance; }
-  .sub { font-family:var(--serif); font-style:italic; font-size:clamp(1.15rem,3vw,1.6rem); margin:0; opacity:.94; }
-  .desc { max-width:620px; margin:18px 0 0; font-size:1.05rem; opacity:.9; white-space:pre-wrap; }
-  .acciones { display:flex; flex-wrap:wrap; gap:12px; margin-top:28px; }
+  header.hero { position:relative; overflow:hidden; background:var(--tinta); color:var(--papel); }
+  .hero .fondo { position:absolute; inset:0; overflow:hidden; }
+  .hero .fondo img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:62% 30%; }
+  .hero .fondo::after { content:""; position:absolute; inset:0; background:rgba(23,25,26,.34); }
+  @keyframes kb { 0% { transform:scale(1) translate(0,0); } 100% { transform:scale(1.14) translate(-2%,-1.5%); } }
+  .kb { animation:kb 26s ease-in-out infinite alternate; transform-origin:62% 30%; }
+  @media (prefers-reduced-motion:reduce) { .kb { animation:none; } html { scroll-behavior:auto; } }
+  .hero .cont { position:relative; padding-top:64px; padding-bottom:88px; min-height:600px; display:flex; flex-wrap:wrap; gap:36px; align-items:flex-end; justify-content:space-between; }
+  .hero .caja { flex:0 1 620px; min-width:0; background:rgba(23,25,26,.86); border-radius:4px; padding:36px 32px; display:flex; flex-direction:column; gap:22px; }
+  .pill { margin:0; display:inline-flex; align-self:flex-start; align-items:center; font-size:13px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--tinta); background:var(--menta); padding:8px 14px; border-radius:999px; }
+  .hero h1 { margin:0; font-family:var(--serif); font-weight:400; font-size:clamp(46px,7vw,92px); line-height:.95; letter-spacing:-.015em; }
+  .hero h1 span { color:var(--menta); }
+  .hero .desc { margin:0; font-size:19px; line-height:1.55; color:#D9D4CA; }
+  .botones { display:flex; flex-wrap:wrap; gap:12px; }
+  .b { display:inline-flex; align-items:center; min-height:52px; padding:0 26px; text-decoration:none; font-weight:700; font-size:16px; border-radius:2px; }
+  .b.oro { background:var(--oro); color:var(--tinta); } .b.oro:hover { color:var(--tinta); filter:brightness(1.06); }
+  .b.borde { border:1.5px solid var(--menta); color:var(--menta); font-weight:600; } .b.borde:hover { color:#fff; border-color:#fff; }
+  .hero .video { flex:0 1 220px; min-width:160px; margin-left:auto; display:flex; flex-direction:column; gap:8px; }
+  .hero .video .marco { border:4px solid var(--tinta); border-radius:6px; overflow:hidden; background:var(--tinta); }
+  .hero .video video { width:100%; aspect-ratio:9/16; object-fit:cover; }
+  .hero .video a { align-self:flex-end; font-size:13px; color:var(--papel); background:rgba(23,25,26,.8); padding:6px 10px; border-radius:2px; }
 
-  /* Cifras dentro de la portada */
-  .resumen { display:flex; flex-wrap:wrap; gap:14px clamp(24px,6vw,64px); margin-top:clamp(30px,6vw,52px); padding-top:22px; border-top:1px solid rgba(255,255,255,.3); }
-  .resumen b { display:block; font-family:var(--serif); font-size:clamp(1.9rem,6vw,3rem); line-height:1; color:#fff; }
-  .resumen span { display:block; margin-top:6px; font-size:.74rem; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.78); }
+  /* Cifras */
+  .cifras { background:var(--menta); }
+  .cifras .cont { padding-top:28px; padding-bottom:28px; display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:20px; }
+  .cifras b { display:block; font-family:var(--serif); font-weight:400; font-size:40px; line-height:1; }
+  .cifras span { display:block; margin-top:6px; font-size:14px; font-weight:600; color:var(--verde2); }
 
-  /* La hoja de contenido, apoyada sobre la portada */
-  .cuerpo { position:relative; margin-top:-30px; border-radius:30px 30px 0 0; background:color-mix(in srgb,var(--bg) 93%,transparent); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); padding-top:18px; padding-bottom:10px; }
+  /* Secciones de texto */
+  .bloque { padding-top:96px; padding-bottom:72px; display:flex; flex-direction:column; gap:44px; }
+  .cab { display:flex; flex-wrap:wrap; gap:28px; align-items:flex-end; justify-content:space-between; }
+  .cab h2 { margin:0; flex:999 1 520px; font-family:var(--serif); font-weight:400; font-size:clamp(38px,5.5vw,68px); line-height:1.02; letter-spacing:-.01em; }
+  .cab h2 em { color:var(--verde); }
+  .cab p { margin:0; flex:1 1 320px; font-size:18px; line-height:1.6; color:var(--gris); }
+  .grilla { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; }
+  .tarjeta { background:#fff; border-radius:4px; padding:28px; display:flex; flex-direction:column; gap:12px; }
+  .tarjeta .n { margin:0; font-family:var(--serif); font-size:36px; line-height:1; color:var(--oro); }
+  .tarjeta h3 { margin:0; font-size:19px; font-weight:700; }
+  .tarjeta p { margin:0; font-size:16px; line-height:1.6; color:var(--gris); }
 
-  /* Navegación */
-  nav.partes { position:sticky; top:0; z-index:5; display:flex; gap:8px; overflow-x:auto; padding:12px 18px; padding-top:calc(12px + env(safe-area-inset-top)); margin:0 -18px; background:color-mix(in srgb,var(--bg) 92%,transparent); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border-bottom:1px solid var(--linea); scrollbar-width:none; }
-  nav.partes::-webkit-scrollbar { display:none; }
-  nav.partes a { flex:none; text-decoration:none; border:1px solid var(--linea); background:var(--card); padding:7px 15px; border-radius:999px; font-size:.9rem; white-space:nowrap; transition:background .2s,color .2s,border-color .2s; }
-  nav.partes a:hover { border-color:var(--oro); }
-  nav.partes a.act { background:var(--verde2); border-color:var(--verde2); color:#fff; }
+  #participar { background:var(--verde); color:var(--papel); }
+  #participar .cont { padding-top:88px; padding-bottom:88px; display:flex; flex-direction:column; gap:40px; }
+  #participar .intro { display:flex; flex-direction:column; gap:14px; max-width:44rem; }
+  #participar h2 { margin:0; font-family:var(--serif); font-weight:400; font-size:clamp(36px,5vw,60px); line-height:1.04; }
+  #participar .intro p:last-child { margin:0; font-size:18px; line-height:1.6; color:#D3E6DC; }
+  .opciones { display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:20px; }
+  .opcion { background:var(--papel); color:var(--tinta); border-radius:4px; padding:32px; display:flex; flex-direction:column; gap:18px; border-top:6px solid var(--oro); }
+  .opcion.b2 { border-top-color:var(--menta); }
+  .opcion h3 { margin:0; font-family:var(--serif); font-weight:400; font-size:34px; line-height:1.05; }
+  .opcion p { margin:0; font-size:16px; line-height:1.6; color:var(--gris); }
+  .opcion ul { margin:0; padding-left:20px; display:flex; flex-direction:column; gap:10px; font-size:16px; line-height:1.5; }
 
-  /* Títulos de sección */
-  .cab-sec { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:14px; margin-top:clamp(34px,7vw,64px); }
-  .kicker { font-size:.74rem; letter-spacing:.2em; text-transform:uppercase; font-weight:600; color:var(--oro); margin:0 0 6px; }
-  h2.titulo { font-family:var(--serif); font-size:clamp(1.8rem,5vw,2.6rem); line-height:1.1; margin:0; }
-  .bajada { color:var(--gris); margin:8px 0 0; max-width:52ch; }
+  /* Espacios */
+  #espacios { padding-top:96px; padding-bottom:40px; display:flex; flex-direction:column; gap:28px; }
+  #espacios > .intro { display:flex; flex-direction:column; gap:18px; }
+  #espacios > .intro h2 { margin:0; font-family:var(--serif); font-weight:400; font-size:clamp(42px,6vw,76px); line-height:1; }
+  #espacios > .intro p { margin:0; font-size:18px; line-height:1.6; color:var(--gris); max-width:40rem; }
+  .chips { display:flex; flex-wrap:wrap; gap:10px; }
+  .chip { display:inline-flex; align-items:center; min-height:44px; padding:0 18px; border:1.5px solid var(--verde); border-radius:999px; color:var(--verde); text-decoration:none; font-weight:600; font-size:14px; }
+  .chip:hover { background:var(--verde); color:var(--papel); }
+  .espacio { display:flex; flex-direction:column; gap:28px; padding-top:56px; border-top:1px solid var(--linea); scroll-margin-top:80px; }
+  .espacio .fila { display:flex; flex-wrap:wrap; gap:40px; align-items:flex-start; }
+  .espacio .lado { flex:1 1 240px; max-width:320px; }
+  .espacio .lado video, .espacio .lado .alta img { width:100%; aspect-ratio:9/16; object-fit:cover; border-radius:4px; display:block; }
+  .espacio .lado .pie { margin:10px 0 0; font-size:13px; color:var(--gris2); }
+  .espacio .lado .alta { width:100%; }
+  .espacio .cuerpo { flex:999 1 420px; min-width:0; display:flex; flex-direction:column; gap:16px; }
+  .espacio .eti { color:var(--verde); }
+  .espacio h3 { margin:0; font-family:var(--serif); font-weight:400; font-size:clamp(36px,5vw,48px); line-height:1; }
+  .espacio .texto { margin:0; font-size:17px; line-height:1.65; color:var(--gris); max-width:40rem; white-space:pre-line; }
+  .espacio .datos { margin:0; font-size:14px; font-weight:600; color:var(--gris2); display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; }
+  .estado { display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
+  .estado.disponible { background:#DCEFE4; color:var(--verde2); }
+  .estado.reservado { background:#F6E3C2; color:var(--oro2); }
+  .estado.alquilado { background:#EAD3CF; color:#7A2E22; }
+  .consultar { font-size:14px; font-weight:600; }
+  .fotos { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:8px; margin-top:6px; }
+  .thumb { display:block; padding:0; border:0; background:none; cursor:zoom-in; border-radius:3px; overflow:hidden; width:100%; }
+  .thumb img { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; transition:transform .35s ease; }
+  .thumb:hover img { transform:scale(1.04); }
+  @media (prefers-reduced-motion:reduce) { .thumb img { transition:none; } .thumb:hover img { transform:none; } }
+  .ambientes { display:flex; flex-direction:column; gap:12px; }
+  .ambientes > p { margin:0; font-size:15px; font-weight:700; }
+  .ambientes .lista { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; }
+  .ambientes figure { margin:0; display:flex; flex-direction:column; gap:6px; }
+  .ambientes video { width:100%; aspect-ratio:9/16; object-fit:cover; border-radius:3px; }
+  .ambientes figcaption { font-size:13px; color:var(--gris); }
+  .vacio { padding:40px 0; color:var(--gris2); }
 
-  /* Filtros */
-  .filtros { display:flex; gap:8px; flex-wrap:wrap; }
-  .filtros button { font:inherit; font-size:.86rem; font-weight:600; padding:8px 16px; border-radius:999px; border:1px solid var(--linea); background:var(--card); color:var(--tinta); cursor:pointer; transition:background .2s,color .2s,border-color .2s; }
-  .filtros button:hover { border-color:var(--oro); }
-  .filtros button[aria-pressed="true"] { background:var(--verde2); border-color:var(--verde2); color:#fff; }
-  .filtros small { opacity:.7; font-weight:500; margin-left:4px; }
-
-  /* Catálogo de tarjetas */
-  .catalogo { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(290px,100%),1fr)); gap:20px; margin-top:24px; }
-  .tarj { display:flex; flex-direction:column; text-decoration:none; background:var(--card); border:1px solid var(--linea); border-radius:20px; overflow:hidden; box-shadow:var(--sombra); transition:transform .25s,box-shadow .25s; }
-  .tarj:hover { transform:translateY(-4px); box-shadow:0 18px 40px rgba(20,52,43,.18); }
-  .tarj .foto { position:relative; aspect-ratio:4/3; overflow:hidden; background:linear-gradient(135deg,var(--verde2),var(--verde)); }
-  .tarj .foto img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .6s; }
-  .tarj:hover .foto img { transform:scale(1.05); }
-  .tarj.alq .foto img { filter:grayscale(.65) brightness(.85); }
-  .sinfoto { position:absolute; inset:0; display:grid; place-items:center; color:rgba(255,255,255,.7); font-family:var(--serif); font-style:italic; }
-  .est { position:absolute; left:12px; top:12px; font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:5px 12px; border-radius:999px; color:#fff; background:rgba(11,22,18,.7); }
-  .est.disponible { background:#2e7d52; } .est.reservado { background:#b7791f; } .est.alquilado { background:#b4443a; }
-  .vid { position:absolute; right:12px; bottom:12px; font-size:.76rem; font-weight:600; padding:4px 11px; border-radius:999px; color:#fff; background:rgba(11,22,18,.7); }
-  .tx { padding:16px 18px 18px; display:flex; flex-direction:column; gap:4px; flex:1; }
-  .tx h3 { margin:0; font-family:var(--serif); font-size:1.3rem; line-height:1.2; }
-  .tx .meta { margin:0; color:var(--gris); font-size:.88rem; }
-  .tx .ir { margin-top:auto; padding-top:10px; font-size:.88rem; font-weight:600; color:var(--verde2); }
-  @media (prefers-color-scheme:dark) { .tx .ir { color:var(--oro); } }
-
-  /* Un bloque por espacio */
-  section.parte { scroll-margin-top:76px; margin-top:clamp(44px,8vw,88px); }
-  .lead { position:relative; display:block; width:100%; padding:0; border:0; margin:0; border-radius:26px; overflow:hidden; aspect-ratio:16/9; max-height:640px; background:linear-gradient(135deg,var(--verde2),var(--verde)); color:#fff; text-align:left; font:inherit; cursor:zoom-in; box-shadow:var(--sombra); }
-  .lead.sin { cursor:default; aspect-ratio:auto; min-height:170px; }
-  .lead.sin .rotulo { position:relative; }
-  .lead img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; transition:transform .8s; }
-  .lead:hover img { transform:scale(1.03); }
-  .lead::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(11,22,18,0) 35%,rgba(11,22,18,.82) 100%); pointer-events:none; }
-  .lead .play { position:absolute; inset:0; z-index:1; display:grid; place-items:center; font-size:3.4rem; text-shadow:0 2px 12px #000; }
-  .rotulo { position:absolute; left:0; right:0; bottom:0; z-index:2; display:block; padding:clamp(18px,4vw,38px); }
-  .rotulo small { display:block; font-size:.72rem; letter-spacing:.2em; text-transform:uppercase; color:var(--oro); font-weight:700; }
-  .rotulo .nom { display:block; font-family:var(--serif); font-weight:700; font-size:clamp(1.6rem,4.8vw,2.8rem); line-height:1.1; margin:6px 0 10px; }
-  .chips { display:flex; flex-wrap:wrap; gap:8px; }
-  .chip { font-size:.78rem; font-weight:600; padding:4px 13px; border-radius:999px; color:#fff; background:rgba(11,22,18,.55); border:1px solid rgba(255,255,255,.4); white-space:nowrap; }
-  .chip.disponible { background:#2e7d52; border-color:#2e7d52; } .chip.reservado { background:#b7791f; border-color:#b7791f; } .chip.alquilado { background:#b4443a; border-color:#b4443a; }
-  .info { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px 28px; margin-top:22px; }
-  .parte-desc { color:var(--gris); white-space:pre-wrap; margin:0; max-width:68ch; flex:1 1 320px; font-size:1.02rem; }
-  .consultar { flex:none; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(230px,100%),1fr)); gap:12px; margin-top:22px; }
-  .medio { background:var(--card); border:1px solid var(--linea); border-radius:16px; overflow:hidden; padding:0; color:inherit; text-align:left; cursor:pointer; font:inherit; transition:transform .2s,box-shadow .2s; }
-  .medio:hover { transform:translateY(-3px); box-shadow:var(--sombra); }
-  .medio .img { position:relative; aspect-ratio:4/3; background:#000; overflow:hidden; }
-  .medio img { width:100%; height:100%; object-fit:cover; display:block; }
-  .medio .play { position:absolute; inset:0; display:grid; place-items:center; font-size:2.4rem; color:#fff; text-shadow:0 2px 8px #000; background:rgba(0,0,0,.18); }
-  .medio .txt { padding:10px 14px 12px; }
-  .medio .t { font-weight:600; font-size:.92rem; margin:0; }
-  .medio .d { font-size:.82rem; color:var(--gris); margin:3px 0 0; white-space:pre-wrap; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-  .vacio, .estado { text-align:center; color:var(--gris); padding:36px 16px; border:1px dashed var(--linea); border-radius:14px; margin-top:20px; }
-
-  /* Aparición al hacer scroll: sólo con JS y sin «reducir movimiento» */
-  html.mov .rev { opacity:0; transform:translateY(24px); transition:opacity .7s ease,transform .7s ease; transition-delay:var(--d,0ms); }
-  html.mov .rev.vis { opacity:1; transform:none; }
-  html.mov .tarj.rev.vis:hover { transform:translateY(-4px); transition-delay:0ms; }
+  /* Condiciones */
+  .condiciones { padding-top:80px; padding-bottom:96px; display:flex; flex-direction:column; gap:36px; }
+  .condiciones h2 { margin:0; font-family:var(--serif); font-weight:400; font-size:clamp(38px,5vw,62px); line-height:1.02; }
+  .condiciones .grilla > div { border-top:3px solid var(--tinta); padding-top:22px; display:flex; flex-direction:column; gap:10px; }
+  .condiciones h3 { margin:0; font-size:20px; font-weight:700; }
+  .condiciones p { margin:0; font-size:16px; line-height:1.65; color:var(--gris); }
 
   /* Contacto */
-  .contacto { margin-top:clamp(56px,9vw,96px); background:linear-gradient(135deg,var(--verde2),var(--verde)); color:#fff; border-radius:28px; padding:clamp(30px,6vw,60px); text-align:center; }
-  .contacto h2 { font-family:var(--serif); font-size:clamp(1.8rem,5vw,2.7rem); line-height:1.1; margin:0 0 10px; }
-  .contacto p { margin:0 auto 24px; max-width:520px; opacity:.92; white-space:pre-wrap; }
-  footer { margin:36px 0 40px; text-align:center; color:var(--gris); font-size:.75rem; }
+  #contacto { background:var(--tinta); color:var(--papel); }
+  #contacto .cont { padding-top:88px; padding-bottom:88px; display:flex; flex-wrap:wrap; gap:32px; align-items:flex-end; justify-content:space-between; }
+  #contacto .txt { flex:999 1 480px; min-width:0; display:flex; flex-direction:column; gap:16px; }
+  #contacto h2 { margin:0; font-family:var(--serif); font-weight:400; font-size:clamp(40px,6vw,76px); line-height:1; }
+  #contacto h2 span { color:var(--menta); }
+  #contacto p { margin:0; font-size:18px; line-height:1.6; color:#D9D4CA; max-width:38rem; }
+  #contacto .quien { font-size:15px; color:#A8A29A; }
+  #contacto .accion { display:flex; flex-direction:column; gap:10px; align-items:flex-start; }
 
-  /* Barra fija de consulta (sólo celular) */
-  #barra { position:fixed; left:0; right:0; bottom:0; z-index:20; display:none; align-items:center; justify-content:space-between; gap:12px; padding:10px 16px calc(10px + env(safe-area-inset-bottom)); background:color-mix(in srgb,var(--verde) 94%,transparent); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); color:#fff; transition:transform .3s; }
-  #barra span { font-size:.9rem; font-weight:600; line-height:1.25; }
-  #barra .btn { padding:10px 20px; font-size:.9rem; flex:none; }
-  #barra.fuera { transform:translateY(110%); }
-  @media (max-width:720px) { #barra.on { display:flex; } body.con-barra footer { margin-bottom:84px; } .lead { aspect-ratio:4/3; border-radius:20px; } }
+  /* Pie: la fachada que se propone */
+  footer { background:var(--noche); color:#D9D4CA; padding-bottom:env(safe-area-inset-bottom); }
+  footer .cont { padding-top:56px; padding-bottom:40px; display:flex; flex-wrap:wrap; gap:36px; align-items:flex-start; }
+  footer img { flex:0 1 260px; width:260px; max-width:100%; aspect-ratio:11/12; object-fit:cover; border-radius:3px; }
+  footer .txt { flex:999 1 420px; min-width:0; display:flex; flex-direction:column; gap:14px; }
+  footer .eti { color:var(--menta); letter-spacing:.14em; }
+  footer h2 { margin:0; font-family:var(--serif); font-weight:400; font-size:34px; line-height:1.1; color:var(--papel); }
+  footer p, footer li { font-size:16px; line-height:1.6; }
+  footer p { margin:0; }
+  footer ul { margin:0; padding-left:20px; display:flex; flex-direction:column; gap:8px; }
+  footer .final { margin:0; padding:20px; text-align:center; font-size:13px; color:#A8A29A; border-top:1px solid #2A2D2F; }
+  footer .final a { color:#A8A29A; }
 
-  /* Visor */
-  #visor { position:fixed; inset:0; background:rgba(0,0,0,.95); z-index:50; display:none; flex-direction:column; }
+  /* Visor de fotos */
+  #visor { position:fixed; inset:0; z-index:50; background:rgba(15,16,17,.95); display:none; align-items:center; justify-content:center; padding:64px 16px; }
   #visor.abierto { display:flex; }
-  #visor .escena { flex:1; display:grid; place-items:center; min-height:0; touch-action:pan-y; }
-  #visor img, #visor video { max-width:100%; max-height:100%; object-fit:contain; }
-  #visor .pie { padding:12px 16px calc(12px + env(safe-area-inset-bottom)); color:#e2e8f0; text-align:center; font-size:.9rem; white-space:pre-wrap; }
-  #visor .pie b { display:block; }
-  #visor button { position:absolute; background:rgba(30,41,59,.8); color:#fff; border:1px solid #334155; border-radius:999px; width:44px; height:44px; font-size:1.3rem; cursor:pointer; }
-  #visor .cerrar { top:calc(12px + env(safe-area-inset-top)); right:12px; }
-  #visor .ant { left:8px; top:50%; transform:translateY(-50%); }
-  #visor .sig { right:8px; top:50%; transform:translateY(-50%); }
-  #visor .num { position:absolute; top:calc(20px + env(safe-area-inset-top)); left:16px; color:#94a3b8; font-size:.85rem; }
-  @media (prefers-reduced-motion:no-preference) { html { scroll-behavior:smooth; } }
-  @media (prefers-reduced-motion:reduce) { .medio, .tarj, .tarj .foto img, .lead img { transition:none; } }
+  #visor img { max-width:100%; max-height:100%; object-fit:contain; border-radius:3px; }
+  #visor button { position:absolute; width:48px; height:48px; border:0; border-radius:999px; background:var(--papel); color:var(--tinta); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  #vCerrar { top:calc(14px + env(safe-area-inset-top)); right:14px; }
+  #vAnt { left:12px; top:50%; margin-top:-24px; } #vSig { right:12px; top:50%; margin-top:-24px; }
+  #vNum { position:absolute; bottom:calc(16px + env(safe-area-inset-bottom)); left:0; right:0; margin:0; text-align:center; font-size:14px; color:#D9D4CA; }
+  .estado-carga { padding:28px 0; color:var(--gris2); }
 </style>
 </head>
 <body>
-<div class="fondo" aria-hidden="true"><div class="tour"></div></div>
-<header class="hero" id="hero">
-  <div class="top"><div class="cont">
-    <a class="marca" href="#hero"><small>General Flores</small>Paseo Primero de Mayo</a>
-    <a class="btn p" href="#contacto" id="btnTop" hidden>Consultar</a>
-  </div></div>
+
+<nav class="menu" aria-label="Principal">
   <div class="cont">
-    <span class="eyebrow">Alquiler de espacios · General Flores</span>
-    <h1 id="titulo">Paseo Primero de Mayo</h1>
-    <p class="sub" id="subtitulo"></p>
-    <p class="desc" id="desc"></p>
-    <div class="acciones">
-      <a class="btn p" href="#espacios">Ver los espacios</a>
-      <a class="btn s" href="#contacto" id="btnContacto" hidden>Consultar</a>
+    <a class="marca" href="#inicio">Paseo <span>Primero de Mayo</span></a>
+    <div class="links">
+      <a href="#juntos">La propuesta</a>
+      <a href="#participar">Cómo ser parte</a>
+      <a href="#espacios">Espacios</a>
+      <a href="#condiciones">Condiciones</a>
+      <a class="cta" href="#contacto">Coordinar visita</a>
     </div>
-    <div class="resumen" id="resumen" hidden></div>
+  </div>
+</nav>
+
+<header class="hero" id="inicio">
+  <div class="fondo" aria-hidden="true"><img class="kb" id="fondo" alt="" hidden></div>
+  <div class="cont">
+    <div class="caja">
+      <p class="pill" id="convocatoria">Convocatoria abierta · Espacio en gestación</p>
+      <h1>Un edificio.<br><span>Muchos proyectos.</span><br>Un mismo interés.</h1>
+      <p class="desc" id="desc">Frente a la plaza, un edificio de tres plantas vuelve a abrirse como paseo comercial y de trabajo. Locales, oficinas, salones y depósito que comparten una entrada, una galería y una misma razón: que cada vez venga más gente.</p>
+      <div class="botones">
+        <a class="b oro" href="#espacios">Ver los espacios</a>
+        <a class="b borde" href="#participar">Cómo ser parte</a>
+      </div>
+    </div>
+    <div class="video" id="heroVideo" hidden>
+      <div class="marco"><video id="vEntrada" muted loop playsinline autoplay preload="metadata" aria-label="Recorrido: la plaza, la fachada y la entrada a la galería"></video></div>
+      <a href="#fachada">Fachada: imagen de propuesta</a>
+    </div>
   </div>
 </header>
-<div class="cuerpo">
-<div class="cont">
-  <nav class="partes" id="nav" hidden></nav>
-  <div class="cab-sec">
-    <div>
-      <p class="kicker">El paseo</p>
-      <h2 class="titulo" id="espacios">Espacios para alquilar</h2>
-      <p class="bajada">Mirá las fotos y videos de cada parte del paseo.</p>
-    </div>
-    <div class="filtros" id="filtros" hidden></div>
-  </div>
-  <div class="catalogo" id="catalogo" hidden></div>
-  <main id="partes"><div class="estado">Cargando…</div></main>
-  <div class="contacto" id="contacto" hidden>
-    <h2>¿Te interesa un espacio?</h2>
-    <p id="contactoTxt"></p>
-    <a class="btn p" id="wa" href="#" target="_blank" rel="noopener" hidden>Escribir por WhatsApp</a>
-  </div>
-  <footer><span id="sello"></span> · <a href="admin.html">administrar</a></footer>
-</div>
-</div>
 
-<div id="barra" role="region" aria-label="Consultar">
-  <span>¿Te interesa<br>un espacio?</span>
-  <a class="btn p" id="barraBtn" href="#contacto">Consultar</a>
-</div>
+<section class="cifras" aria-label="El edificio en números">
+  <div class="cont" id="cifras">
+    <div><b>3</b><span>plantas frente a la plaza</span></div>
+    <div><b id="nEspacios">5</b><span>espacios para alquilar</span></div>
+    <div><b id="nComunes">1</b><span id="tComunes">galería de acceso compartida</span></div>
+    <div><b>0</b><span>intermediarios: trato con el dueño</span></div>
+  </div>
+</section>
+
+<section id="juntos" class="cont bloque">
+  <div class="cab">
+    <h2>Cuando al paseo le va bien, <em>le va bien a cada uno.</em></h2>
+    <p>En un mismo edificio, el cliente que entra por un local pasa frente a todos los demás. Por eso acá el interés de cada participante cuida el de los otros, y el de todos cuida el propio.</p>
+  </div>
+  <div class="grilla">
+    <div class="tarjeta"><p class="n">01</p><h3>Más gente para todos</h3><p>Cada propuesta atrae a su público, y ese público recorre la galería. Un paseo con vida trae más clientes que un local aislado.</p></div>
+    <div class="tarjeta"><p class="n">02</p><h3>Intereses alineados</h3><p>A nadie le conviene un vecino que espante clientes. Todos quieren que el edificio esté cuidado, abierto y bien presentado.</p></div>
+    <div class="tarjeta"><p class="n">03</p><h3>Costos compartidos</h3><p>Acceso, galería, escalera, limpieza y mantenimiento se sostienen entre todos, por mucho menos de lo que costarían por separado.</p></div>
+    <div class="tarjeta"><p class="n">04</p><h3>Entrar en la gestación</h3><p>El paseo se está armando ahora. Quien llega primero elige su lugar y puede ayudar a definir qué tipo de paseo va a ser.</p></div>
+  </div>
+</section>
+
+<section id="participar">
+  <div class="cont">
+    <div class="intro">
+      <p class="eti" style="color:var(--menta);letter-spacing:.14em;font-weight:600">Vos elegís</p>
+      <h2>Dos maneras de ser parte</h2>
+      <p>Sumarse a la gestión común es una oportunidad, no una obligación. Podés involucrarte en lo colectivo o, simplemente, alquilar tu espacio y dedicarte a lo tuyo.</p>
+    </div>
+    <div class="opciones">
+      <div class="opcion">
+        <p class="eti" style="color:var(--oro2)">Opción A</p>
+        <h3>Participar en la gestión común</h3>
+        <p>Para quien quiere que el paseo crezca y tener voz en cómo se hace.</p>
+        <ul>
+          <li>Opinar y decidir sobre la imagen, los horarios y la promoción del paseo.</li>
+          <li>Proponer y sumarse a actividades, ferias y eventos en la galería.</li>
+          <li>Compartir comunicación, cartelería y redes para atraer más público.</li>
+          <li>Ayudar a definir el perfil de los próximos espacios que se sumen.</li>
+        </ul>
+      </div>
+      <div class="opcion b2">
+        <p class="eti" style="color:var(--verde)">Opción B</p>
+        <h3>Solo alquilar</h3>
+        <p>Para quien busca un buen lugar y prefiere no involucrarse en lo colectivo.</p>
+        <ul>
+          <li>Un alquiler como cualquier otro, sin reuniones ni compromisos extra.</li>
+          <li>Solo se pagan gastos comunes básicos por el mantenimiento de las áreas compartidas.</li>
+          <li>Igual te beneficiás del movimiento que genera el paseo.</li>
+          <li>Si más adelante querés participar, la puerta queda abierta.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main id="espacios" class="cont">
+  <div class="intro">
+    <h2>Los espacios</h2>
+    <p>Recorré cada lugar en video y en fotos. Tocá una foto para verla en grande.</p>
+    <div class="chips" id="chips"></div>
+  </div>
+  <div id="lista"><p class="estado-carga">Cargando los espacios…</p></div>
+</main>
+
+<section id="condiciones" class="cont condiciones">
+  <h2>Condiciones claras, trato directo</h2>
+  <div class="grilla">
+    <div><h3>Garantías</h3><p>Se piden las mismas garantías que en cualquier alquiler del mercado. Como el trato es directo, hay margen para conversar acuerdos especiales según cada caso.</p></div>
+    <div><h3>Gastos comunes</h3><p>Todos los espacios aportan gastos comunes básicos para el mantenimiento de las áreas compartidas: galería, acceso, escalera y servicios. Quien participa en la gestión común decide además cómo se invierte en el paseo.</p></div>
+    <div><h3>Con el dueño, sin intermediarios</h3><p>El proyecto se lleva en trato directo con el propietario del edificio. Eso hace todo más simple y permite adaptar plazos, usos y condiciones a cada propuesta.</p></div>
+  </div>
+</section>
+
+<section id="contacto">
+  <div class="cont">
+    <div class="txt">
+      <h2>Sumate mientras el paseo <span>toma forma.</span></h2>
+      <p>Contanos qué hacés y qué espacio te interesa. Coordinamos una visita y vemos juntos cómo encaja tu proyecto, ya sea participando en la gestión común o solo alquilando.</p>
+    </div>
+    <div class="accion">
+      <a class="b oro" id="wa" href="#contacto" hidden target="_blank" rel="noopener">Coordinar una visita por WhatsApp</a>
+      <span class="quien" id="contactoTxt"></span>
+    </div>
+  </div>
+</section>
+
+<footer id="fachada">
+  <div class="cont">
+    <img id="fotoFachada" alt="Propuesta de fachada del Paseo Primero de Mayo" loading="lazy" hidden>
+    <div class="txt">
+      <p class="eti">Sobre la imagen de la fachada</p>
+      <h2>La fachada que proponemos</h2>
+      <p>La fachada que aparece en este sitio es una imagen de propuesta, no el estado actual del edificio. Muestra hacia dónde queremos llevar el frente del paseo, y se va a definir y concretar junto con quienes se sumen:</p>
+      <ul>
+        <li>Frente y columnas pintados en verde menta, que distingue al edificio en la cuadra.</li>
+        <li>El nombre «Paseo Primero de Mayo» en el frontón, como identidad común de todos los espacios.</li>
+        <li>Carpinterías oscuras y ventanales despejados en las dos plantas que dan a la plaza.</li>
+        <li>Entrada a la galería iluminada con luz cálida, abierta e invitando a pasar.</li>
+        <li>Balcón, vereda y frente limpios y cuidados como cara de todo el paseo.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="final">Paseo Primero de Mayo · Avenida General Flores, frente a la plaza Primero de Mayo · <span id="sello"></span> · <a href="admin.html">administrar</a></p>
+</footer>
 
 <div id="visor" role="dialog" aria-modal="true" aria-label="Foto ampliada">
-  <span class="num" id="vNum"></span>
-  <button class="cerrar" id="vCerrar" aria-label="Cerrar">✕</button>
-  <div class="escena" id="vEscena"></div>
-  <button class="ant" id="vAnt" aria-label="Anterior">‹</button>
-  <button class="sig" id="vSig" aria-label="Siguiente">›</button>
-  <div class="pie" id="vPie"></div>
+  <img id="vImg" alt="">
+  <button type="button" id="vCerrar" aria-label="Cerrar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <button type="button" id="vAnt" aria-label="Foto anterior"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button type="button" id="vSig" aria-label="Foto siguiente"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+  <p id="vNum"></p>
 </div>
 
 <script type="module">
 import * as A from "./album.js";
 import { firebaseConfig } from "./firebase-init.js";
 
-const VERSION = "portada-7";
+const VERSION = "portada-8";
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 $("sello").textContent = VERSION + " · " + A.VERSION;
+const sinMovimiento = matchMedia("(prefers-reduced-motion:reduce)").matches;
 
-let lista = [], pos = 0;
-
-function abrir(medios, i) {
-  lista = medios; pos = i; pintarVisor();
-  $("visor").classList.add("abierto"); document.body.style.overflow = "hidden";
+/* ── El visor de fotos ── */
+let lista = [], pos = 0, volverA = null;
+function abrir(fotos, i) {
+  lista = fotos; pos = i; volverA = document.activeElement; pintarVisor();
+  $("visor").classList.add("abierto"); document.body.style.overflow = "hidden"; $("vCerrar").focus();
 }
 function cerrar() {
-  $("visor").classList.remove("abierto"); $("vEscena").innerHTML = ""; document.body.style.overflow = "";
+  $("visor").classList.remove("abierto"); $("vImg").removeAttribute("src"); document.body.style.overflow = "";
+  if (volverA && volverA.focus) volverA.focus();
 }
 function pintarVisor() {
   const m = lista[pos];
-  $("vEscena").innerHTML = m.tipo === "video"
-    ? `<video src="${esc(A.grande(m))}" poster="${esc(A.mini(m, 1280))}" controls playsinline autoplay></video>`
-    : `<img src="${esc(A.grande(m))}" alt="${esc(m.titulo)}">`;
-  $("vPie").innerHTML = (m.titulo ? `<b>${esc(m.titulo)}</b>` : "") + esc(m.detalle || "");
+  $("vImg").src = A.grande(m); $("vImg").alt = m.titulo || "";
   $("vNum").textContent = lista.length > 1 ? `${pos + 1} / ${lista.length}` : "";
   $("vAnt").hidden = $("vSig").hidden = lista.length < 2;
 }
 const mover = (p) => { if (lista.length > 1) { pos = (pos + p + lista.length) % lista.length; pintarVisor(); } };
 $("vCerrar").onclick = cerrar; $("vAnt").onclick = () => mover(-1); $("vSig").onclick = () => mover(1);
-$("visor").addEventListener("click", (e) => { if (e.target.id === "vEscena") cerrar(); });
+$("visor").addEventListener("click", (e) => { if (e.target.id === "visor") cerrar(); });
 document.addEventListener("keydown", (e) => {
   if (!$("visor").classList.contains("abierto")) return;
   if (e.key === "Escape") cerrar(); else if (e.key === "ArrowLeft") mover(-1); else if (e.key === "ArrowRight") mover(1);
 });
 let x0 = null;
-$("vEscena").addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
-$("vEscena").addEventListener("touchend", (e) => {
+$("visor").addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+$("visor").addEventListener("touchend", (e) => {
   if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null;
   if (Math.abs(dx) > 50) mover(dx < 0 ? 1 : -1);
 });
 
-// Del texto de contacto saca un teléfono (si hay) para armar el botón de WhatsApp.
-function whatsapp(texto) {
-  const m = String(texto || "").match(/\+?\d[\d\s().-]{6,}\d/);
-  if (!m) return "";
-  let d = m[0].replace(/\D/g, "");
-  if (!m[0].trim().startsWith("+")) d = d.startsWith("0") ? "598" + d.slice(1) : d;
-  return d.length >= 8 ? "https://wa.me/" + d : "";
-}
-
-/* portada-7: aparición al hacer scroll. Sólo si hay JS y el visitante no pidió
-   «reducir movimiento»; si no, todo se ve de entrada (la clase .mov no se pone). */
-const sinMovimiento = matchMedia("(prefers-reduced-motion:reduce)").matches;
-if (!sinMovimiento && "IntersectionObserver" in window) document.documentElement.classList.add("mov");
-const obsRev = "IntersectionObserver" in window
-  ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("vis"); obsRev.unobserve(e.target); } }), { rootMargin: "0px 0px -8% 0px", threshold: 0.08 })
-  : null;
-const revelar = () => document.querySelectorAll(".rev:not(.vis)").forEach((el) => (obsRev ? obsRev.observe(el) : el.classList.add("vis")));
-
-const rotulo = (s, n, sup) => `<span class="rotulo"><small>Espacio ${String(n + 1).padStart(2, "0")}</small>
-    <span class="nom">${esc(s.nombre)}</span>
-    <span class="chips">${sup ? `<span class="chip">${esc(sup)}</span>` : ""}${s.estado ? `<span class="chip ${esc(s.estado)}">${esc(A.ESTADOS[s.estado])}</span>` : ""}</span></span>`;
+/* ── Lo que sale del álbum ── */
+const video = (m, etiqueta) => `<video src="${esc(A.grande(m))}" poster="${esc(A.tapa(m, 540))}" preload="none" playsinline controls aria-label="${esc(etiqueta || m.titulo || "Video")}"></video>`;
 
 function pintar(a) {
-  const titulo = a.titulo || "Paseo Primero de Mayo";
-  document.title = [titulo, a.subtitulo].filter(Boolean).join(" · ");
-  $("titulo").textContent = titulo;
-  $("subtitulo").textContent = a.subtitulo || "";
-  $("desc").textContent = a.descripcion || "";
-  /* portada-6: el fondo de la portada es SIEMPRE fachada-fondo.jpg (el recorrido de
-     .fondo). La foto «portada» del álbum no se pinta detrás del encabezado. */
-  const w = whatsapp(a.contacto);
-  if (a.contacto) {
-    $("contacto").hidden = false; $("contactoTxt").textContent = a.contacto; $("btnContacto").hidden = false; $("btnTop").hidden = false;
-    if (w) { $("wa").href = w; $("wa").hidden = false; }
-    $("barra").classList.add("on"); document.body.classList.add("con-barra");
-    if (w) { $("barraBtn").href = w; $("barraBtn").target = "_blank"; $("barraBtn").rel = "noopener"; $("barraBtn").textContent = "WhatsApp"; }
-    if ("IntersectionObserver" in window) new IntersectionObserver((es) => $("barra").classList.toggle("fuera", es[0].isIntersecting)).observe($("contacto"));
+  const wa = A.whatsapp(a.contacto);
+  const enlace = (texto) => wa ? `https://wa.me/${wa}?text=${encodeURIComponent(texto)}` : "";
+  if (a.subtitulo) $("convocatoria").textContent = a.subtitulo;
+  if (a.descripcion) $("desc").textContent = a.descripcion;
+
+  // La parte oculta «Portada»: el video de la entrada y la foto de la fachada
+  const fachada = A.portadaDelAlbum(a);
+  if (fachada && fachada.tipo === "foto") {
+    $("fondo").src = A.grande(fachada, 1920); $("fondo").hidden = false;
+    $("fotoFachada").src = A.grande(fachada, 700); $("fotoFachada").hidden = false;
+    if (sinMovimiento) $("fondo").classList.remove("kb");
   }
+  const entrada = a.secciones.portada ? A.partesDe(a, "portada").recorrido : null;
+  if (entrada) {
+    const v = $("vEntrada");
+    v.poster = A.tapa(entrada, 540); v.src = A.grande(entrada); v.muted = true; $("heroVideo").hidden = false;
+    if (sinMovimiento) { v.removeAttribute("autoplay"); v.controls = true; }
+    else { const r = v.play && v.play(); if (r && r.catch) r.catch(() => { v.controls = true; }); }
+  }
+
+  // Contacto
+  if (wa) {
+    $("wa").href = enlace("Hola, quiero coordinar una visita al Paseo Primero de Mayo."); $("wa").hidden = false;
+  }
+  $("contactoTxt").textContent = a.contacto || "";
+
+  // Los espacios
   const secs = A.secciones(a, { soloVisibles: true });
-  if (!secs.length) { $("partes").innerHTML = `<div class="vacio">Todavía no hay espacios publicados.</div>`; return; }
+  const alquilables = secs.filter((s) => !s.comun), comunes = secs.filter((s) => s.comun);
+  $("nEspacios").textContent = alquilables.length;
+  $("nComunes").textContent = comunes.length;
+  $("tComunes").textContent = comunes.length === 1 ? "galería de acceso compartida" : "áreas comunes compartidas";
+  if (!secs.length) { $("lista").innerHTML = `<p class="vacio">Todavía no hay espacios publicados.</p>`; return; }
 
-  const datos = secs.map((s) => ({ s, ms: A.mediosDe(a, s.id), lead: A.portadaDe(a, s.id), sup: A.superficieTexto(s), c: A.cuenta(a, s.id) }));
-  const disp = secs.filter((s) => s.estado === "disponible").length;
-  const m2 = secs.reduce((t, s) => t + (typeof s.superficie === "number" ? s.superficie : 0), 0);
-  const cifras = [[secs.length, secs.length === 1 ? "Espacio" : "Espacios"], [disp, disp === 1 ? "Disponible" : "Disponibles"]];
-  if (m2 > 0) cifras.push([String(Math.round(m2 * 10) / 10).replace(".", ","), "m² en total"]);
-  $("resumen").innerHTML = cifras.map(([n, t]) => `<div><b>${esc(n)}</b><span>${esc(t)}</span></div>`).join("");
-  $("resumen").hidden = false;
-
-  $("nav").hidden = secs.length < 2;
-  $("nav").innerHTML = secs.map((s) => `<a href="#p-${esc(s.id)}" data-e="${esc(s.estado || "")}" data-s="${esc(s.id)}">${esc(s.nombre)}</a>`).join("");
-
-  // Catálogo: una tarjeta por espacio (se ve de un vistazo qué hay y qué está libre)
-  $("catalogo").hidden = false;
-  $("catalogo").innerHTML = datos.map(({ s, lead, sup, c }, n) => `<a class="tarj rev${s.estado === "alquilado" ? " alq" : ""}" href="#p-${esc(s.id)}" data-e="${esc(s.estado || "")}" style="--d:${(n % 6) * 70}ms">
-      <div class="foto">${lead ? `<img src="${esc(A.mini(lead, 640))}" alt="${esc(lead.titulo || s.nombre)}" loading="lazy">` : `<span class="sinfoto">Próximamente, fotos</span>`}
-        ${s.estado ? `<span class="est ${esc(s.estado)}">${esc(A.ESTADOS[s.estado])}</span>` : ""}
-        ${c.videos ? `<span class="vid">▶ ${c.videos === 1 ? "Video" : c.videos + " videos"}</span>` : ""}</div>
-      <div class="tx"><h3>${esc(s.nombre)}</h3>
-        <p class="meta">${esc([sup, c.fotos ? c.fotos + (c.fotos === 1 ? " foto" : " fotos") : ""].filter(Boolean).join(" · "))}</p>
-        <span class="ir">Ver el espacio →</span></div></a>`).join("");
-
-  // Filtro por estado (sólo si hay al menos dos estados distintos)
-  const estados = ["disponible", "reservado", "alquilado"].filter((e) => secs.some((s) => s.estado === e));
-  if (estados.length > 1) {
-    $("filtros").hidden = false;
-    $("filtros").innerHTML = [["", "Todos", secs.length], ...estados.map((e) => [e, A.ESTADOS[e] + "s", secs.filter((s) => s.estado === e).length])]
-      .map(([e, t, n], i) => `<button type="button" data-f="${e}" aria-pressed="${i === 0}">${esc(t)}<small>${n}</small></button>`).join("");
-    $("filtros").addEventListener("click", (ev) => {
-      const b = ev.target.closest("button"); if (!b) return;
-      const f = b.dataset.f;
-      $("filtros").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
-      document.querySelectorAll("[data-e]").forEach((el) => { el.hidden = !!f && el.dataset.e !== f; });
-      revelar();
-    });
-  }
-
-  // Un bloque por espacio: foto grande con rótulo, descripción y el resto de la galería
-  $("partes").innerHTML = datos.map(({ s, ms, lead, sup }, n) => {
-    const li = lead ? ms.findIndex((m) => m.id === lead.id) : -1;
-    const resto = ms.map((m, i) => [m, i]).filter(([, i]) => i !== li);
-    const pedir = w ? w + "?text=" + encodeURIComponent(`Hola, me interesa «${s.nombre}» del Paseo Primero de Mayo.`) : "#contacto";
-    return `<section class="parte" id="p-${esc(s.id)}" data-e="${esc(s.estado || "")}">
-      ${lead ? `<button class="lead rev" data-s="${esc(s.id)}" data-i="${li}" aria-label="Ampliar fotos de ${esc(s.nombre)}">
-          <img src="${esc(A.mini(lead, 1280))}" alt="${esc(lead.titulo || s.nombre)}" loading="lazy">${lead.tipo === "video" ? `<span class="play">▶</span>` : ""}${rotulo(s, n, sup)}</button>`
-        : `<div class="lead sin rev">${rotulo(s, n, sup)}</div>`}
-      <div class="info rev">
-        ${s.descripcion ? `<p class="parte-desc">${esc(s.descripcion)}</p>` : ""}
-        ${a.contacto && s.estado !== "alquilado" ? `<a class="btn p consultar" href="${esc(pedir)}"${w ? ` target="_blank" rel="noopener"` : ""}>Consultar por este espacio →</a>` : ""}
+  $("chips").innerHTML = secs.map((s) => `<a class="chip" href="#e-${esc(s.id)}">${esc(s.nombre)}</a>`).join("");
+  $("lista").innerHTML = secs.map((s) => {
+    const p = A.partesDe(a, s.id);
+    const sup = !s.comun ? A.superficieTexto(s) : "";
+    const datos = [sup ? `<span>${esc(sup)}</span>` : "", !s.comun && s.estado ? `<span class="estado ${esc(s.estado)}">${esc(A.ESTADOS[s.estado])}</span>` : "",
+      !s.comun && wa && s.estado !== "alquilado" ? `<a class="consultar" href="${esc(enlace(`Hola, me interesa «${s.nombre}» del Paseo Primero de Mayo.`))}" target="_blank" rel="noopener">Consultar por este espacio →</a>` : ""].filter(Boolean).join("");
+    // A la izquierda: el recorrido en video; si no hay, la primera foto, alta
+    const lado = p.recorrido
+      ? `<div class="lado">${video(p.recorrido, `${p.recorrido.titulo || "Video"} · ${s.nombre}`)}${p.recorrido.titulo ? `<p class="pie">${esc(p.recorrido.titulo)}</p>` : ""}</div>`
+      : p.fotos.length ? `<div class="lado"><button class="thumb alta" type="button" data-s="${esc(s.id)}" data-i="0" aria-label="Ampliar foto de ${esc(s.nombre)}"><img src="${esc(A.alta(p.fotos[0], 540))}" alt="" loading="lazy"></button></div>` : "";
+    const fotos = p.fotos.length ? `<div class="fotos">${p.fotos.map((m, i) => `<button class="thumb" type="button" data-s="${esc(s.id)}" data-i="${i}" aria-label="Ampliar foto ${i + 1} de ${esc(s.nombre)}"><img src="${esc(A.mini(m, 480))}" alt="${esc(m.titulo)}" loading="lazy"></button>`).join("")}</div>` : "";
+    const ambientes = p.ambientes.length ? `<div class="ambientes"><p>${p.ambientes.length > 2 ? "Cada ambiente por separado" : "Más videos"}</p><div class="lista">${p.ambientes.map((m) =>
+      `<figure>${video(m)}${m.titulo ? `<figcaption>${esc(m.titulo)}</figcaption>` : ""}</figure>`).join("")}</div></div>` : "";
+    return `<section class="espacio" id="e-${esc(s.id)}">
+      <div class="fila">${lado}
+        <div class="cuerpo">
+          ${s.ubicacion ? `<p class="eti">${esc(s.ubicacion)}</p>` : ""}
+          <h3>${esc(s.nombre)}</h3>
+          ${s.descripcion ? `<p class="texto">${esc(s.descripcion)}</p>` : ""}
+          ${datos ? `<p class="datos">${datos}</p>` : ""}
+          ${fotos}
+        </div>
       </div>
-      ${resto.length ? `<div class="grid rev">${resto.map(([m, i]) => `<button class="medio" data-s="${esc(s.id)}" data-i="${i}">
-          <div class="img"><img src="${esc(A.mini(m, 480))}" alt="${esc(m.titulo)}" loading="lazy">${m.tipo === "video" ? `<span class="play">▶</span>` : ""}</div>
-          ${m.titulo || m.detalle ? `<div class="txt">${m.titulo ? `<p class="t">${esc(m.titulo)}</p>` : ""}${m.detalle ? `<p class="d">${esc(m.detalle)}</p>` : ""}</div>` : ""}
-        </button>`).join("")}</div>`
-        : ""}
+      ${ambientes}
     </section>`;
   }).join("");
-  $("partes").querySelectorAll("button[data-s]").forEach((b) => b.addEventListener("click", () => abrir(A.mediosDe(a, b.dataset.s), Number(b.dataset.i))));
-  revelar();
-
-  // El menú marca en qué espacio estás
-  if ("IntersectionObserver" in window && secs.length > 1) {
-    const obs = new IntersectionObserver((es) => es.forEach((e) => {
-      if (!e.isIntersecting) return;
-      const id = e.target.id.slice(2);
-      $("nav").querySelectorAll("a").forEach((x) => {
-        const on = x.dataset.s === id; x.classList.toggle("act", on);
-        if (on) { const nv = $("nav"); nv.scrollTo({ left: x.offsetLeft - nv.clientWidth / 2 + x.clientWidth / 2, behavior: sinMovimiento ? "auto" : "smooth" }); }
-      });
-    }), { rootMargin: "-45% 0px -50% 0px" });
-    $("partes").querySelectorAll("section.parte").forEach((el) => obs.observe(el));
-  }
+  $("lista").querySelectorAll("button[data-s]").forEach((b) => b.addEventListener("click", () => abrir(A.partesDe(a, b.dataset.s).fotos, Number(b.dataset.i))));
+  // Un video a la vez: el que arranca para a los demás (la entrada sigue, sin sonido)
+  $("lista").addEventListener("play", (e) => { document.querySelectorAll("#lista video").forEach((v) => { if (v !== e.target) v.pause(); }); }, true);
 }
 
 async function cargar() {
   const url = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/albumes/${A.ALBUM_ID}?key=${firebaseConfig.apiKey}`;
   try {
     const r = await fetch(url);
-    if (r.status === 404) { $("partes").innerHTML = `<div class="vacio">El catálogo todavía no está publicado.</div>`; return; }
+    if (r.status === 404) { $("lista").innerHTML = `<p class="vacio">Los espacios todavía no están publicados.</p>`; return; }
     if (!r.ok) throw new Error(r.status === 403 ? "la base no deja leer el álbum (reglas)" : "la base contestó " + r.status);
     pintar(A.normalizar(A.documentoDeFirestore(await r.json())));
   } catch (e) {
-    $("partes").innerHTML = `<div class="estado">No se pudo cargar el catálogo: ${esc(e.message || e)}.<br><button class="btn p" onclick="location.reload()">Reintentar</button></div>`;
+    $("lista").innerHTML = `<p class="vacio">No se pudieron cargar los espacios: ${esc(e.message || e)}. <a href="">Reintentar</a></p>`;
   }
 }
 cargar();

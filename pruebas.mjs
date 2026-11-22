@@ -153,6 +153,42 @@ prueba("ojos.js y errores.js del panel se piden diferidos, con catch", () => {
   assert.match(n, /import\(DATOS \+ "ojos\.js"\)\.catch\(/);
   assert.match(n, /if \(_errores\) return _errores\.explicar\(/, "sin respaldo para cuando no bajó");
 });
+prueba("album-2: cada parte lee su línea de arriba y si es área común (y una de antes, sin esos campos, también)", () => {
+  const a = A.normalizar({ secciones: { s1: { nombre: "Showroom", orden: 10, ubicacion: "  Planta baja · Frente  ", comun: true }, s2: { nombre: "Depósito", orden: 20 } }, medios: {} });
+  assert.equal(a.secciones.s1.ubicacion, "Planta baja · Frente");
+  assert.equal(a.secciones.s1.comun, true);
+  assert.equal(a.secciones.s2.ubicacion, "");
+  assert.equal(a.secciones.s2.comun, false, "sin el campo, no es área común");
+  assert.equal(A.normalizar({ secciones: { s: { nombre: "x", comun: "sí" } } }).secciones.s.comun, false, "sólo true cuenta");
+});
+prueba("partesDe: el primer video es el recorrido, las fotos aparte, los demás videos son los ambientes (en orden)", () => {
+  const a = A.normalizar({ secciones: { p: { nombre: "Primer piso" } }, medios: {
+    f1: { seccion: "p", orden: 100, tipo: "foto", url: URL_F }, v2: { seccion: "p", orden: 310, tipo: "video", url: URL_V, titulo: "Baño" },
+    v0: { seccion: "p", orden: 10, tipo: "video", url: URL_V, titulo: "Recorrido completo" }, v1: { seccion: "p", orden: 300, tipo: "video", url: URL_V, titulo: "Hall" } } });
+  const p = A.partesDe(a, "p");
+  assert.equal(p.recorrido.titulo, "Recorrido completo");
+  assert.deepEqual(p.fotos.map((m) => m.id), ["f1"]);
+  assert.deepEqual(p.ambientes.map((m) => m.titulo), ["Hall", "Baño"]);
+  assert.equal(A.partesDe(a, "nada").recorrido, null);
+});
+prueba("whatsapp: un celular uruguayo como se marca acá pasa a 598; si no hay número, nada", () => {
+  assert.equal(A.whatsapp("Mauro · WhatsApp 099 696 333"), "59899696333");
+  assert.equal(A.whatsapp("+598 99 696 333"), "59899696333");
+  assert.equal(A.whatsapp("escribinos"), "");
+  assert.equal(A.whatsapp(""), "");
+});
+prueba("tapa y alta: sólo de nuestra cuenta, verticales y del tipo que corresponde", () => {
+  assert.match(A.tapa({ tipo: "video", url: URL_V }, 540), /\/video\/upload\/so_1,w_540,h_960,c_fill,q_auto\/v1\/paseo\/b\.jpg$/);
+  assert.equal(A.tapa({ tipo: "foto", url: URL_F }), "");
+  assert.equal(A.tapa({ tipo: "video", url: "https://otro.com/x.mp4" }), "");
+  assert.match(A.alta({ tipo: "foto", url: URL_F }, 540), /w_540,h_960,c_fill/);
+});
+prueba("la portada saca los espacios del álbum y no inventa contacto ni medios ajenos", () => {
+  const s = leer("index.html");
+  assert.match(s, /A\.partesDe\(a, s\.id\)/); assert.match(s, /A\.whatsapp\(a\.contacto\)/);
+  assert.doesNotMatch(s, /wa\.me\/\d/, "el número no se escribe en la página: sale del álbum");
+  assert.doesNotMatch(s, /res\.cloudinary\.com\/[a-z0-9]+\/(image|video)\/upload\/v\d/, "ningún medio fijo en la página");
+});
 prueba("cada archivo con lógica lleva su sello", () => {
   for (const f of ["album.js", "nucleo.js", "firebase-init.js", ...HTML]) assert.match(leer(f), /Sello:\s*[a-z]+-\d+/, f);
 });

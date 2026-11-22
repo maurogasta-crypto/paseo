@@ -29,15 +29,15 @@ lo que sube el otro.
 
 | Archivo | Sello | Qué es |
 |---|---|---|
-| `index.html` | `portada-7` | La portada pública. Lee el álbum por la API REST, sin SDK ni sesión. De fondo, un recorrido lento y desenfocado por la fachada; catálogo de tarjetas con filtro por estado, una foto grande por espacio y barra de consulta en el celular |
-| `fachada-fondo.jpg` / `fachada.jpg` | — | La foto del frente del local, limpia (sin poste ni plotters; persianas), desenfocada para el fondo / nítida |
-| `admin.html` | `admin-1` | El editor |
+| `index.html` | `portada-8` | La portada pública: la **propuesta del lienzo** «Paseo Primero de Mayo — Espacios» (21-nov), pasada entera el 22-nov a pedido de Mauro (convocatoria abierta, dos maneras de ser parte, los espacios con su video, sus fotos y cada ambiente del primer piso, condiciones, contacto por WhatsApp y la fachada que se propone). Lee el álbum por la API REST, sin SDK ni sesión: los textos generales viven en la página; los espacios, en el álbum |
+| `fachada-fondo.jpg` | — | La foto del frente que usaba de fondo la portada 2 a 7; **ya no se usa** (la portada 8 toma la fachada propuesta del álbum) |
+| `admin.html` | `admin-2` | El editor (cada parte tiene «Línea de arriba» y «Área común») |
 | `diagnostico.html` | `diag-1` | Qué anda y qué no; no depende del núcleo |
-| `album.js` | `album-1` | La forma del álbum y todo lo que se calcula de ella. Sin navegador ni Firebase |
+| `album.js` | `album-2` | La forma del álbum y todo lo que se calcula de ella (también `partesDe`, `whatsapp`, `tapa`, `alta`). Sin navegador ni Firebase |
 | `nucleo.js` | `nucleo-1` | Lo que comparten las pantallas: errores con causa, el ojo 👁, achicar y subir a Cloudinary |
 | `firebase-init.js` | `init-1` | El único contacto con el SDK de Firebase, cargado diferido |
 | `firestore.rules` | v2 | La plantilla de las reglas (UID como marcadores) |
-| `pruebas.mjs` | — | El banco: `node pruebas.mjs` (24 casos, sin npm ni red) |
+| `pruebas.mjs` | — | El banco: `node pruebas.mjs` (29 casos, sin npm ni red) |
 | `.github/workflows/pages.yml` | — | Publica en GitHub Pages en cada push a `main` |
 
 ## La forma del álbum
@@ -47,10 +47,24 @@ Un documento, `albumes/general-flores` de `pruebas-db555`:
 ```
 titulo, subtitulo, descripcion, contacto
 portada                  id del medio que va grande arriba
-secciones.<id>           { nombre, orden, visible, descripcion, superficie, estado, portada }
+secciones.<id>           { nombre, orden, visible, descripcion, superficie, estado, portada,
+                           ubicacion (la línea de arriba), comun (área común: no se alquila) }
 medios.<id>              { seccion, orden, tipo: foto|video, url, titulo, detalle, creadoEn }
 actualizadoEn, actualizadoPor
 ```
+
+En una parte, el **primer video** es su recorrido; las fotos van en la grilla; los **demás videos** son
+«cada ambiente por separado», con su título (así el primer piso muestra sus 10 ambientes). La parte
+oculta **«Portada»** guarda el video de la entrada y la foto de la fachada propuesta (`portada` del álbum).
+El contacto es texto (hoy «Mauro Gastaldello · WhatsApp 099 696 333»): la portada saca de ahí el número
+para WhatsApp (`whatsapp`, que agrega el 598).
+
+**Qué hay cargado (22-nov-2026):** Showroom (video + 6 fotos, y el video que ya estaba), Galería y acceso
+(área común: video + 2 fotos), Depósito (6 fotos), Primer piso (recorrido + 11 fotos + 10 ambientes),
+Depósito de entrepiso (al final del primer piso, después de las oficinas; en el lienzo figuraba como
+«Galpón»: video) y Piso superior (= segundo piso: recorrido + 8 fotos). Salió del lienzo de Mauro: los
+archivos se bajaron de ahí y se subieron a Cloudinary (etiqueta `propuesta-21nov`), sin las tapas de los
+videos, que Cloudinary saca del video mismo.
 
 El detalle, con el porqué, está comentado arriba de `album.js`.
 

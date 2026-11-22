@@ -7,7 +7,8 @@
 <title>Administrar · Paseo Primero de Mayo</title>
 <meta name="theme-color" content="#0f172a">
 <!--
-  admin.html — El EDITOR del álbum del local. Sello: admin-1 (31-oct-2026)
+  admin.html — El EDITOR del álbum del local. Sello: admin-2 (22-nov-2026)
+  · admin-2: cada parte suma «Línea de arriba» (ubicacion) y «Área común» (comun), para la portada nueva.
   Mauro, 31-oct: «una herramienta interactiva de carga de fotos y videos para
   mostrar, exhibir el local de General Flores y sus partes para alquilar».
   · Cada parte del local (planta baja, primer piso…) es una SECCIÓN con su
@@ -149,7 +150,7 @@ import * as A from "./album.js";
 import * as F from "./firebase-init.js";
 import { explicar, esc, subir, SELLOS } from "./nucleo.js";
 
-const VERSION = "admin-1";
+const VERSION = "admin-2";
 const $ = (id) => document.getElementById(id);
 $("sello").textContent = [VERSION, ...SELLOS(), F.VERSION].join(" · ");
 const mostrar = (id, si) => $(id).classList.toggle("oculto", !si);
@@ -251,10 +252,13 @@ function pintarPartes(secs, vieja) {
         <span class="gris">${c.fotos} foto${c.fotos === 1 ? "" : "s"} · ${c.videos} video${c.videos === 1 ? "" : "s"} · ${s.visible ? "🟢 se ve" : "🔴 oculta"}</span></div>
       <div class="datos-parte" style="margin-top:8px">
         <div class="ancho"><label>Nombre</label><input data-campo="nombre" value="${esc(s.nombre)}" maxlength="120"${dis}></div>
+        <div class="ancho"><label>Línea de arriba (dónde está)</label><input data-campo="ubicacion" value="${esc(s.ubicacion || "")}" placeholder="Planta baja · Frente a la calle" maxlength="120"${dis}></div>
         <div><label>Superficie (m²)</label><input data-campo="superficie" type="number" min="0" step="0.5" value="${s.superficie ?? ""}"${dis}></div>
         <div><label>Estado</label><select data-campo="estado"${dis}>${Object.entries(A.ESTADOS).map(([k, v]) => `<option value="${k}"${k === s.estado ? " selected" : ""}>${v || "— sin decir —"}</option>`).join("")}</select></div>
       </div>
+      <label class="fila" style="gap:8px;align-items:center;margin-top:6px"><input type="checkbox" data-campo="comun"${s.comun ? " checked" : ""}${dis}> Área común (no se alquila: sin m², estado ni consulta)</label>
       <label>Descripción de esta parte</label><textarea data-campo="descripcion" rows="2" maxlength="2000"${dis}>${esc(s.descripcion)}</textarea>
+      <p class="gris" style="margin:6px 0 0;font-size:.85em">En la portada, el primer video de la parte es su recorrido; los demás videos van en «Cada ambiente por separado» con su título.</p>
       <div class="fila" style="margin-top:8px">
         <button class="b2" data-acc="subirP"${i === 0 || vieja ? " disabled" : ""}>▲</button>
         <button class="b2" data-acc="bajarP"${i === secs.length - 1 || vieja ? " disabled" : ""}>▼</button>
@@ -297,7 +301,7 @@ $("bNueva").onclick = async () => {
   const n = $("nNombre").value.trim();
   if (!n) return fallo("Escribí el nombre de la parte.");
   const id = A.idNuevo("s");
-  if (await escribir({ ["secciones." + id]: { nombre: n.slice(0, 120), orden: A.ordenAlFinal(A.secciones(ALBUM)), visible: true, descripcion: "", superficie: null, estado: "", portada: "" } })) {
+  if (await escribir({ ["secciones." + id]: { nombre: n.slice(0, 120), orden: A.ordenAlFinal(A.secciones(ALBUM)), visible: true, descripcion: "", superficie: null, estado: "", portada: "", ubicacion: "", comun: false } })) {
     $("nNombre").value = ""; $("uParte").value = id;
   }
 };
@@ -315,8 +319,10 @@ $("partes").addEventListener("change", async (e) => {
   }
   const c = e.target.dataset.campo; if (!c) return;
   let v = e.target.value;
-  if (c === "superficie") { v = v === "" ? null : Number(v); if (v !== null && !(v >= 0)) return fallo("La superficie tiene que ser un número de m²."); }
+  if (c === "comun") v = e.target.checked === true;
+  else if (c === "superficie") { v = v === "" ? null : Number(v); if (v !== null && !(v >= 0)) return fallo("La superficie tiene que ser un número de m²."); }
   else if (c === "nombre") { v = v.trim().slice(0, 120); if (!v) return fallo("Una parte no puede quedar sin nombre."); }
+  else if (c === "ubicacion") v = String(v).trim().slice(0, 120);
   else v = String(v).trim();
   await escribir({ [`secciones.${sid}.${c}`]: v });
 });

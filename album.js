@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // album.js — La forma del álbum del local y todo lo que se calcula de ella.
-// Sello: album-1 (31-oct-2026)
+// Sello: album-2 (22-nov-2026)
 //
 // No toca el navegador ni Firebase: lo importan la portada (index.html), el
 // editor (admin.html) y el banco (pruebas.mjs), que corre con `node` a secas.
@@ -10,9 +10,13 @@
 //   titulo, subtitulo, descripcion, contacto   textos de la portada
 //   portada        id de un medio (la foto grande de arriba)
 //   secciones      MAPA id → { nombre, orden, visible, descripcion,
-//                               superficie (m²), estado, portada (id de medio) }
+//                               superficie (m²), estado, portada (id de medio),
+//                               ubicacion (la línea de arriba: «Planta baja · Frente a la calle»),
+//                               comun (true = área común: no se alquila, sin m² ni consulta) }
 //   medios         MAPA id → { seccion, orden, tipo: "foto"|"video", url,
 //                               titulo, detalle, creadoEn }
+//                  En una parte, el PRIMER video es su recorrido; los demás videos
+//                  son «cada ambiente por separado», con su título (partesDe).
 //   actualizadoEn, actualizadoPor
 //
 // Son MAPAS y no listas, y es la regla del ecosistema para lo que se edita
@@ -23,11 +27,16 @@
 // perdía sin aviso. `normalizar` lee las dos formas; el editor ofrece pasar
 // la vieja a la nueva una vez, con copia en `_historial`.
 //
+// album-2 (22-nov-2026): `ubicacion` y `comun` en cada parte, `partesDe` y
+// `whatsapp`, para la portada de la propuesta del lienzo «Paseo Primero de Mayo —
+// Espacios». Una parte de antes, sin esos campos, se lee igual (ubicacion "",
+// comun false).
+//
 // La miniatura NO se guarda: sale de la URL (`mini`). Un derivado guardado es
 // un dato que se puede contradecir con su fuente.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const VERSION = "album-1";
+export const VERSION = "album-2";
 
 /* La cuenta de Cloudinary del paseo. Público por diseño, igual que la config
    de Firebase: el nombre de la cuenta y un preset SIN firma no abren nada; el
@@ -75,7 +84,7 @@ export function normalizar(d) {
       const sid = "s" + (i + 1);
       out.secciones[sid] = { nombre: txt(s.nombre, 120), orden: num(s.orden) ?? (i + 1) * 10,
         visible: s.visible !== false, descripcion: txt(s.descripcion), superficie: num(s.superficie),
-        estado: ESTADOS[s.estado] !== undefined ? s.estado : "", portada: "" };
+        estado: ESTADOS[s.estado] !== undefined ? s.estado : "", portada: "", ubicacion: "", comun: false };
       (s.medios || []).forEach((m, j) => {
         if (!m || !esMedioNuestro(m.url)) return;
         out.medios[sid + "m" + (j + 1)] = { seccion: sid, orden: (j + 1) * 10,
@@ -89,7 +98,7 @@ export function normalizar(d) {
       else {
         /* La portada vieja era una URL suelta, sin sección: entra como medio de
            una sección oculta para no perderla. */
-        out.secciones.portada = { nombre: "Portada", orden: 0, visible: false, descripcion: "", superficie: null, estado: "", portada: "" };
+        out.secciones.portada = { nombre: "Portada", orden: 0, visible: false, descripcion: "", superficie: null, estado: "", portada: "", ubicacion: "", comun: false };
         out.medios.portada1 = { seccion: "portada", orden: 10, tipo: "foto", url: d.portadaUrl, titulo: "Portada", detalle: "", creadoEn: "" };
         out.portada = "portada1";
       }
@@ -100,7 +109,8 @@ export function normalizar(d) {
     if (!s || !s.nombre) continue;
     out.secciones[id] = { nombre: txt(s.nombre, 120), orden: num(s.orden) ?? 0, visible: s.visible !== false,
       descripcion: txt(s.descripcion), superficie: num(s.superficie),
-      estado: ESTADOS[s.estado] !== undefined ? s.estado : "", portada: typeof s.portada === "string" ? s.portada : "" };
+      estado: ESTADOS[s.estado] !== undefined ? s.estado : "", portada: typeof s.portada === "string" ? s.portada : "",
+      ubicacion: txt(s.ubicacion, 120), comun: s.comun === true };
   }
   for (const [id, m] of Object.entries(d.medios || {})) {
     if (!m || !esMedioNuestro(m.url) || !out.secciones[m.seccion]) continue;
@@ -169,6 +179,34 @@ export function grande(m, lado = 1600) {
   return m.tipo === "video"
     ? m.url.replace("/video/upload/", "/video/upload/q_auto/")
     : m.url.replace("/image/upload/", `/image/upload/w_${lado},c_limit,q_auto,f_auto/`);
+}
+
+/* Cómo se muestra una parte: su recorrido (el primer video), sus fotos y «cada
+   ambiente por separado» (los demás videos, con su título). */
+export function partesDe(a, seccion) {
+  const ms = mediosDe(a, seccion), videos = ms.filter((m) => m.tipo === "video");
+  return { recorrido: videos[0] || null, fotos: ms.filter((m) => m.tipo === "foto"), ambientes: videos.slice(1) };
+}
+
+/* El número de WhatsApp que sale del texto de contacto, listo para wa.me: sólo
+   dígitos y con el código del país. Un celular uruguayo escrito como se marca
+   acá (099 696 333) pasa a 59899696333; uno que ya trae el 598 (o un +) queda
+   igual. Si no hay un número que alcance, "" (y la portada no muestra el botón). */
+export function whatsapp(contacto) {
+  let d = String(contacto || "").replace(/[^0-9]/g, "");
+  if (/^09\d{7}$/.test(d)) d = "598" + d.slice(1);
+  return d.length >= 10 ? d : "";
+}
+
+/* La tapa de un video, vertical (9:16), sacada del video mismo; y una foto
+   recortada vertical, para la parte que no tiene video (el depósito). */
+export function tapa(m, ancho = 540) {
+  if (!m || !esMedioNuestro(m.url) || m.tipo !== "video") return "";
+  return m.url.replace("/video/upload/", `/video/upload/so_1,w_${ancho},h_${Math.round(ancho * 16 / 9)},c_fill,q_auto/`).replace(/\.[a-z0-9]+$/i, ".jpg");
+}
+export function alta(m, ancho = 540) {
+  if (!m || !esMedioNuestro(m.url) || m.tipo !== "foto") return "";
+  return m.url.replace("/image/upload/", `/image/upload/w_${ancho},h_${Math.round(ancho * 16 / 9)},c_fill,q_auto,f_auto/`);
 }
 
 /* Cuántas fotos y videos tiene una parte, para el resumen. */
