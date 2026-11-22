@@ -6,7 +6,7 @@
 ## Qué es
 
 El sitio del **Paseo Primero de Mayo** (General Flores): la parte PÚBLICA de los locales para alquilar, con fotos y videos de cada parte, y el editor para cargarlos (pedido del 31-oct-2026).
-**Estático** (HTML y módulos ES, todo en la raíz, sin build ni npm; se edita desde el teléfono). Sitio https://maurogasta-crypto.github.io/paseo/ · editor `admin.html` · `diagnostico.html`.
+**Estático** (HTML y módulos ES, todo en la raíz, sin build ni npm; se edita desde el teléfono). Sitio https://maurogasta-crypto.github.io/paseo/ y **dominio propio `paseoprimerodemayo.com`** (comprado el 22-nov-2026 en Spaceship; DNS en Spaceship; se conecta en Settings → Pages → Custom domain, **no con un archivo `CNAME`**: con Actions ese archivo se ignora) · editor `admin.html` · `diagnostico.html`.
 Despliegue: Pages con *Source: GitHub Actions* (`pages.yml`, **no se saca**: los push de un agente no disparan la publicación «desde una rama»; no consume secretos). Base: Firebase **`pruebas-db555`**; imágenes y videos: Cloudinary `cwbnaivv`.
 Documentos: `README.md` (mapa, sellos, forma del álbum), `album.js` (la forma del documento), `firestore.rules`. **Éste es el ÚNICO álbum público de General Flores.**
 

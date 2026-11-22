@@ -25,6 +25,22 @@ Lo que se cambia se ve en el sitio al recargar. Si dos personas cargan a la
 vez, no se pisan: cada cambio escribe sólo lo suyo y el editor muestra en vivo
 lo que sube el otro.
 
+## Dominio propio
+
+**`paseoprimerodemayo.com`**, comprado el 22-nov-2026 en Spaceship (titularidad: ficha `titularidad-paseo` del panel).
+Los nameservers son los de Spaceship y los registros apuntan a GitHub Pages:
+
+| Tipo | Host | Valor |
+|---|---|---|
+| A | `@` | `185.199.108.153` · `185.199.109.153` · `185.199.110.153` · `185.199.111.153` |
+| CNAME | `www` | `maurogasta-crypto.github.io` |
+| TXT | `_github-pages-challenge-maurogasta-crypto` | el código que da GitHub al verificar el dominio |
+
+El dominio se carga en **Settings → Pages → Custom domain** del repo, con «Enforce HTTPS». **No hay archivo
+`CNAME`**: el sitio se publica con Actions (`pages.yml`) y en ese caso GitHub lo ignora. Las direcciones de
+`github.io/paseo/` pasan solas al dominio. La portada lee la base por REST y la base contesta desde el dominio
+(probado el 22-nov); los enlaces son relativos, así que no hay que cambiar nada del código.
+
 ## Mapa de archivos
 
 | Archivo | Sello | Qué es |
