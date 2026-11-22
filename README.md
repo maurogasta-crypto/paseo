@@ -36,8 +36,9 @@ Los nameservers son los de Spaceship y los registros apuntan a GitHub Pages:
 | CNAME | `www` | `maurogasta-crypto.github.io` |
 | TXT | `_github-pages-challenge-maurogasta-crypto` | el código que da GitHub al verificar el dominio |
 
-El dominio se carga en **Settings → Pages → Custom domain** del repo, con «Enforce HTTPS». **No hay archivo
-`CNAME`**: el sitio se publica con Actions (`pages.yml`) y en ese caso GitHub lo ignora. Las direcciones de
+El dominio se carga en **Settings → Pages → Custom domain** del repo, con «Enforce HTTPS». Al guardarlo (22-nov)
+GitHub creó el archivo **`CNAME`** en la raíz (`paseoprimerodemayo.com`): **no se borra**. En Settings → Pages la
+fuente figura como «Deploy from a branch» (`main`, raíz), y con esa fuente el dominio vive en ese archivo. Las direcciones de
 `github.io/paseo/` pasan solas al dominio. La portada lee la base por REST y la base contesta desde el dominio
 (probado el 22-nov); los enlaces son relativos, así que no hay que cambiar nada del código.
 
