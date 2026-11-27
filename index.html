@@ -60,7 +60,11 @@
 }
 </script>
 <!--
-  index.html — La PORTADA PÚBLICA del paseo. Sello: portada-9 (22-nov-2026)
+  index.html — La PORTADA PÚBLICA del paseo. Sello: portada-10 (27-nov-2026)
+  · portada-10: se sacan los videos chicos de cada ambiente dentro de cada espacio
+    (pedido de Mauro, 27-nov: meten ruido). Cada espacio muestra su video general
+    (el recorrido), después sus fotos; sigue el video de la entrada en la cabecera.
+    El editor sigue aceptando videos.
   · portada-9: para los BUSCADORES (pedido de Mauro, 22-nov, con el dominio propio):
     título y descripción con lo que la gente busca (alquiler de oficinas, coworking,
     local, depósito, Montevideo), canonical al dominio, vista previa al compartir
@@ -201,12 +205,6 @@
   .thumb img { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; transition:transform .35s ease; }
   .thumb:hover img { transform:scale(1.04); }
   @media (prefers-reduced-motion:reduce) { .thumb img { transition:none; } .thumb:hover img { transform:none; } }
-  .ambientes { display:flex; flex-direction:column; gap:12px; }
-  .ambientes > p { margin:0; font-size:15px; font-weight:700; }
-  .ambientes .lista { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; }
-  .ambientes figure { margin:0; display:flex; flex-direction:column; gap:6px; }
-  .ambientes video { width:100%; aspect-ratio:9/16; object-fit:cover; border-radius:3px; }
-  .ambientes figcaption { font-size:13px; color:var(--gris); }
   .vacio { padding:40px 0; color:var(--gris2); }
 
   /* Condiciones */
@@ -419,7 +417,7 @@
 import * as A from "./album.js";
 import { firebaseConfig } from "./firebase-init.js";
 
-const VERSION = "portada-9";
+const VERSION = "portada-10";
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 $("sello").textContent = VERSION + " · " + A.VERSION;
@@ -458,6 +456,7 @@ $("visor").addEventListener("touchend", (e) => {
 /* ── Lo que sale del álbum ── */
 // El texto alternativo de una foto: su título, y si no tiene, el espacio y el lugar (lo leen los buscadores y los lectores de pantalla)
 const altDe = (m, s, i) => m.titulo || `${s.nombre}${s.ubicacion ? " (" + s.ubicacion + ")" : ""} · Paseo Primero de Mayo, foto ${i + 1}`;
+
 const video = (m, etiqueta) => `<video src="${esc(A.grande(m))}" poster="${esc(A.tapa(m, 540))}" preload="none" playsinline controls aria-label="${esc(etiqueta || m.titulo || "Video")}"></video>`;
 
 function pintar(a) {
@@ -501,13 +500,11 @@ function pintar(a) {
     const sup = !s.comun ? A.superficieTexto(s) : "";
     const datos = [sup ? `<span>${esc(sup)}</span>` : "", !s.comun && s.estado ? `<span class="estado ${esc(s.estado)}">${esc(A.ESTADOS[s.estado])}</span>` : "",
       !s.comun && wa && s.estado !== "alquilado" ? `<a class="consultar" href="${esc(enlace(`Hola, me interesa «${s.nombre}» del Paseo Primero de Mayo.`))}" target="_blank" rel="noopener">Consultar por este espacio →</a>` : ""].filter(Boolean).join("");
-    // A la izquierda: el recorrido en video; si no hay, la primera foto, alta
+    // A la izquierda: el video general (el recorrido); si no hay, la primera foto, alta
     const lado = p.recorrido
       ? `<div class="lado">${video(p.recorrido, `${p.recorrido.titulo || "Video"} · ${s.nombre}`)}${p.recorrido.titulo ? `<p class="pie">${esc(p.recorrido.titulo)}</p>` : ""}</div>`
       : p.fotos.length ? `<div class="lado"><button class="thumb alta" type="button" data-s="${esc(s.id)}" data-i="0" aria-label="Ampliar foto de ${esc(s.nombre)}"><img src="${esc(A.alta(p.fotos[0], 540))}" alt="${esc(altDe(p.fotos[0], s, 0))}" loading="lazy"></button></div>` : "";
     const fotos = p.fotos.length ? `<div class="fotos">${p.fotos.map((m, i) => `<button class="thumb" type="button" data-s="${esc(s.id)}" data-i="${i}" aria-label="Ampliar foto ${i + 1} de ${esc(s.nombre)}"><img src="${esc(A.mini(m, 480))}" alt="${esc(altDe(m, s, i))}" loading="lazy"></button>`).join("")}</div>` : "";
-    const ambientes = p.ambientes.length ? `<div class="ambientes"><p>${p.ambientes.length > 2 ? "Cada ambiente por separado" : "Más videos"}</p><div class="lista">${p.ambientes.map((m) =>
-      `<figure>${video(m)}${m.titulo ? `<figcaption>${esc(m.titulo)}</figcaption>` : ""}</figure>`).join("")}</div></div>` : "";
     return `<section class="espacio" id="e-${esc(s.id)}">
       <div class="fila">${lado}
         <div class="cuerpo">
@@ -518,7 +515,6 @@ function pintar(a) {
           ${fotos}
         </div>
       </div>
-      ${ambientes}
     </section>`;
   }).join("");
   $("lista").querySelectorAll("button[data-s]").forEach((b) => b.addEventListener("click", () => abrir(A.partesDe(a, b.dataset.s).fotos, Number(b.dataset.i))));
